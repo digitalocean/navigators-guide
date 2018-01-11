@@ -1,3 +1,4 @@
 # blueprint
 
-The idea is simple, but the challange is huge.
+The idea is simple, but the challenge is huge.
+
