@@ -14,6 +14,9 @@
     * [Chapter 8 - Backup and Restore Methodologies](backup/chapter8.md)
     * [Chapter 9 - Disaster Recovery Planning](backup/chapter9.md)
 * [Part 4 - Know Everything About Your Infrastructure](monitor/README.md)
+    * [Chapter 10 - Centralized Logging](monitor/chapter10.md)
+    * [Chapter 11 - Monitor Performance](monitor/chapter11.md)
+    
 
 
 
