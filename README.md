@@ -1,6 +1,3 @@
 # blueprint
 
-gitbook repo
-
-test
-
+The idea is simple, but the challange is huge.
