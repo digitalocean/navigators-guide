@@ -6,6 +6,11 @@
     * [Chapter 2 - Lab Environment Setup](intro/chapter2.md)
     * [Chapter 3 - Problems we will solve](intro/chapter3.md)
 * [Part 2 - Scaling and Preventing Downtime](scale/README.md)
+    * [Chapter 4 - High Availability](scale/chapter4.md)
+    * [Chapter 5 - High Availability](scale/chapter5.md)
+
+
+
 * [Part 3 - Keep Your Data Safe](backup/README.md)
 * [Part 4 - Know Everything About Your Infrastructure](monitor/README.md)
 
