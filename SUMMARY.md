@@ -16,6 +16,9 @@
 * [Part 4 - Know Everything About Your Infrastructure](monitor/README.md)
     * [Chapter 10 - Centralized Logging](monitor/chapter10.md)
     * [Chapter 11 - Monitor Performance](monitor/chapter11.md)
+    * [Chapter 12 - Performance Testing](monitor/chapter12.md)
+* [Part 5 - Secure Your Infrastructure](secure/README.md)
+    * [Chapter 13 - Security Best Practices](secure/chapter13.md)
     
 
 
