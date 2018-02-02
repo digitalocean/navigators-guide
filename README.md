@@ -1,4 +1,4 @@
-# blueprint
+# Navigator's Guide
 
 The idea is simple, but the challenge is huge.
 
