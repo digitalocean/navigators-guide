@@ -1,4 +1,4 @@
-#Problems we will solve
+# Problems we will solve
 
 Before we set sail, lets take a look at the Cloud market and what tools we have available today. In the past, an online presence required one of the three major infrastructure options: Shared Hosting which was primarily suitable for web developers and small web applications; Dedicated Servers which could be hosted in a data center or on premises, this option is the most expensive and least flexible; and Virtual Servers widely known as VPS (Virtual Private Server) which took the best of Shared and Dedicated offerings.  The VPS market offered cost effective Virtual Servers that shared the resources of dedicated hardware. Much of the VPS market has a pricing structure similar to Dedicated Servers which require commitments, lack flexibility, and are billed at a monthly rate.
 
