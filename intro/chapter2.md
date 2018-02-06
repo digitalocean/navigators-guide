@@ -8,6 +8,8 @@ In the late 2000's a movement began to expand the Virtual Server market and oper
 
 Cloud Computing was not as clearly defined in earlier days of the movement. Many companies would brand their offerings with the "Cloud" buzzword and have little differentiation to a product that is simply available online. The concept of Cloud Computing was marketed as a solution that was always online, fault tolerant, and included data redundancy.  While that may not actually be the default case, the silver lining is that we can built a highly available, secure solution with data redundancy in place. 
 
+In this book we are going to architect solutions to prevent common issues. By the end, your infrastructure will stay online, scale easily, be easier to troubleshoot, and secure.
+
 ## Part 2 - Scaling and Preventing Downtime 
 We're going to start with Configuration Management which ensures that all resources are deployed quickly according to a standardized configuration. From there, we will add concepts of High Availability and Load Balancing which spreads resources over multiple instances reducing the majority of causes of downtime. After we have a scalable solution in place, we'll add Continuous Development controls to allow us to iterate and update our infrastructure.
 
