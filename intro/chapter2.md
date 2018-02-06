@@ -20,4 +20,3 @@ So far we're doing pretty good. We know our infrastructure will scale. We should
 ## Part 5 - Secure Your Infrastructure 
 This entire book is about proactive measures to prevent catastrophic issues. Having a bad security related incident would make you wish you had a simple scaling issue. We're going to make sure security is top of mind and review best practices that will help keep our infrastructure safe from mainstream security threats.
 
-_< more info about cloud computing paradigms and how we'll solve these issues >_
