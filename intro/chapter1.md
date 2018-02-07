@@ -15,4 +15,4 @@ Over 1 million users have deployed over 80 million Droplets on DigitalOcean.  A 
 
 Expanding from the compute offerings, there are additional services that help with scaling larger web applications.  Load Balancers easily allow multiple Droplets to serve content to users.  Volumes adds Block Storage devices up to 16TB which a Droplet will interpret as a second SSD drive, except that it is served over the network and can be resized. Spaces is an Object Storage solution that starts at flat monthly rate of $5 which includes the ability to store 250GB of files as well as 1TB of outbound data transfer. Any usage past these amounts is billed ultra competitive rates. The files stored in Spaces can be anything from logs, to images, or static web content.  All data in Volumes and Spaces is redundant and there is no single point of failure in the storage clusters.
 
-<!-- Future Products, etc -->
+<!-- Future Products, etc --> 
