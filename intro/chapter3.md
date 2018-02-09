@@ -25,7 +25,14 @@ Terraform-inventory is a dynamic inventory script used to pull resource informat
 
 ## Getting our lab setup
 
-To beging this overall process let's just start by creating a Droplet on DigitalOcean that we'll use to house all of our tools and scrpits. I recommend starting with Ubuntu 16.04 64-bit since it's 
+We're going to be using a Droplet with Ubuntu 16.04 x64 (Xenial Xerus) as our controller machine from which we will be running our tools. If you're more comfortable with another Linux/BSD distribution, or macOS on your laptop then feel free to use it, but be sure that you can run at least one of the following in order to support Ansible:
+
+* Python 2.6 or 2.7
+* Python 3.5 or higher
+
+For more information about system requirements, head over to http://docs.ansible.com/ansible/latest/intro_installation.html
+  
+With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. After Signing up you should head eging this overall process let's just start by creating a Droplet on DigitalOcean that we'll use to house all of our tools and scrpits. I recommend starting with Ubuntu 16.04 64-bit since it's 
 
 <!-- download and install tools/supply cloudinit script -->
 
