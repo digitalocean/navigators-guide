@@ -33,4 +33,6 @@ To beging this overall process let's just start by creating a Droplet on Digital
 
 <!-- add key and grab API token -->
 
+#### Configuring our environment
+
 <!-- directory structure -->
