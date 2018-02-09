@@ -26,3 +26,11 @@ Terraform-inventory is a dynamic inventory script used to pull resource informat
 ## Getting our lab setup
 
 To beging this overall process let's just start by creating a Droplet on DigitalOcean that we'll use to house all of our tools and scrpits. I recommend starting with Ubuntu 16.04 64-bit since it's 
+
+<!-- download and install tools/supply cloudinit script -->
+
+<!-- create ssh key -->
+
+<!-- add key and grab API token -->
+
+<!--  -->
