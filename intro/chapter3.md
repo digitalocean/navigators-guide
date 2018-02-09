@@ -6,7 +6,7 @@ Now that we've discussed digital oceans history and briefly gone over some of th
 
 #### Terraform
 
-Terraform is a FOSS tool that allows you to easily describe your infrastructure as code. This means you can version control your resources like you would if you were writing a program, allowing you to roll back to a working state if an error occurss. It has a simple declarative syntax [HCL](https://github.com/hashicorp/hcl) that you'll be able to understand right away. It allows you to plan your changes for review, and automatically handles infrastructure dependencies for you. Keep in mind that we'll be using Terraform to create our infrastructure (i.e. creating Droplets, floating IPs, Firewalls, Block Storage Volumes, and DigitalOcean Load Balancers). We will not be configuring those resources with Terraform. That's where Ansible comes in.
+Terraform is a FOSS tool that allows you to easily describe your infrastructure as code. This means you can version control your resources like you would if you were writing a program, allowing you to roll back to a working state if an error occurss. It has a simple declarative syntax ([HCL](https://github.com/hashicorp/hcl)) that you'll be able to understand right away. It allows you to plan your changes for review, and automatically handles infrastructure dependencies for you. Keep in mind that we'll be using Terraform to create our infrastructure (i.e. creating Droplets, floating IPs, Firewalls, Block Storage Volumes, and DigitalOcean Load Balancers). We will not be configuring those resources with Terraform. That's where Ansible comes in.
 
 #### Ansible
 
