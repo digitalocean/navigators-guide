@@ -36,7 +36,33 @@ With that out of the way, let's get started. If you don't already have a Digital
 
 ![fresh account](./ch3img/init-login.jpg)
 
-eging this overall process let's just start by creating a Droplet on DigitalOcean that we'll use to house all of our tools and scrpits. I recommend starting with Ubuntu 16.04 64-bit since it's 
+<!-- TODO:  -->
+
+```
+#cloud-config
+
+users:
+  - name: username
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh-authorized-keys:
+      - enter_public_key_here
+
+package_upgrade: true
+
+packages:
+  - python
+  - python-pip
+  - git
+  - zip
+
+runcmd:
+  - [curl, -o, /tmp/terraform.zip, "https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip"]
+  - [unzip, -d, /usr/local/bin/, /tmp/terraform.zip]
+  - [curl, -L, -o, /tmp/terraform-inventory.zip, "https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip"]
+  - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]
+```
 
 <!-- download and install tools/supply cloudinit script -->
 
