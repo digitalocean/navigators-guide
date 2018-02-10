@@ -34,7 +34,7 @@ For more information about system requirements, head over to http://docs.ansible
   
 With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. Once you've completed that quick process you'll see the main page and the option to create a new Droplet.
 
-![fresh account](./ch3img/do-init-login.jpg)
+![fresh account](./ch3img/init-login.jpg)
 
 eging this overall process let's just start by creating a Droplet on DigitalOcean that we'll use to house all of our tools and scrpits. I recommend starting with Ubuntu 16.04 64-bit since it's 
 
