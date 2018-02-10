@@ -36,7 +36,7 @@ With that out of the way, let's get started. If you don't already have a Digital
 
 ![fresh account](./ch3img/init-login.jpg)
 
-<!-- TODO:  -->
+<!-- TODO: Should I have them create   -->
 
 ```
 #cloud-config
