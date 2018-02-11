@@ -39,21 +39,7 @@ With that out of the way, let's get started. If you don't already have a Digital
 
 If this is a new account, or you just haven't set up your SSH key on your DigitalOcean account, I recommend you set it up using the instructions in the following tutorial then continue on with this guide: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets
 
-Go ahead and select **Create Droplet**. On the next page you'll see quite a few configuration options for your Droplet which include:
-
-* Operating system distribution and version
-* Droplet size
-* Data center
-* Enable private networking
-* Enable automated backups
-* IPv6 support
-* User data
-* Monitoring
-* SSH keys
-* Droplet name
-* Number of Droplets to provision
-
-We're going to use the following options:
+Go ahead and select **Create Droplet**. On the next page you'll see quite a few configuration options for your Droplet. We're going to select the following options:
 
 * Ubuntu 16.04 64-bit
 * 1gb standard size
@@ -66,19 +52,19 @@ We're going to use the following options:
 * Droplet name of your choice
 * a quantity of 1
 
-  
-<!-- TODO: Should I have them create an ssh key and add it through the UI or just set up the ssh key through cloud-init  -->
+
+You'll notice a text area open up when you select the option for *user data*. 
 
 ```
 #cloud-config
 
 users:
-  - name: username
+  - name: <username>
     groups: sudo
     shell: /bin/bash
     sudo: ['ALL=(ALL) NOPASSWD:ALL']
     ssh-authorized-keys:
-      - enter_public_key_here
+      - <enter_public_key_here>
 
 package_upgrade: true
 
