@@ -32,9 +32,14 @@ We're going to be using a Droplet with Ubuntu 16.04 x64 (Xenial Xerus) as our co
 
 For more information about system requirements, head over to http://docs.ansible.com/ansible/latest/intro_installation.html
   
-With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. Once you've completed that quick process you'll see the main page and the option to create a new Droplet.
+With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. Once you've completed that quick process you'll see your accounts main page.
 
 ![fresh account](./ch3img/init-login.jpg)
+
+
+If this is a new account, I recommend you set up an SSH key on your local machine and set place it on your new DigitalOcean account. If it's not new and you haven't already added your SSH key, I recommend doing it now, however, it's not a strict requirement. Here's some information on getting your SSH key set up: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets
+
+If you'd like, you can also just pass in your SSH key through a user-data script
 
 Go ahead and select **Create Droplet**. On the next page you'll see the following Droplet options
 * Operating system distribution and version
@@ -49,7 +54,7 @@ Go ahead and select **Create Droplet**. On the next page you'll see the followin
 * Droplet name
 * Number of Droplets to provision
 
-
+If this is a new account, I recommend you set up an SSH key on your local machine and 
 
 <!-- TODO: Should I have them create an ssh key and add it through the UI or just set up the ssh key through cloud-init  -->
 
