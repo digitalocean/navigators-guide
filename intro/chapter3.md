@@ -37,11 +37,10 @@ With that out of the way, let's get started. If you don't already have a Digital
 ![fresh account](./ch3img/init-login.jpg)
 
 
-If this is a new account, I recommend you set up an SSH key on your local machine and set place it on your new DigitalOcean account. If it's not new and you haven't already added your SSH key, I recommend doing it now, however, it's not a strict requirement. Here's some information on getting your SSH key set up: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets
+If this is a new account, or you just haven't set up your SSH key on your DigitalOcean account, I recommend you set it up using the instructions in the following tutorial then continue on with this guide: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets
 
-If you'd like, you can also just pass in your SSH key through a user-data script
+Go ahead and select **Create Droplet**. On the next page you'll see quite a few configuration options for your Droplet which include:
 
-Go ahead and select **Create Droplet**. On the next page you'll see the following Droplet options
 * Operating system distribution and version
 * Droplet size
 * Data center
@@ -54,8 +53,20 @@ Go ahead and select **Create Droplet**. On the next page you'll see the followin
 * Droplet name
 * Number of Droplets to provision
 
-If this is a new account, I recommend you set up an SSH key on your local machine and 
+We're going to use the following options:
 
+* Ubuntu 16.04 64-bit
+* 1gb standard size
+* the data center of your choice
+* enabled private networking
+* enable backups
+* user data
+* monitoring
+* SSH keys (if you have one set up)
+* Droplet name of your choice
+* a quantity of 1
+
+  
 <!-- TODO: Should I have them create an ssh key and add it through the UI or just set up the ssh key through cloud-init  -->
 
 ```
