@@ -55,7 +55,7 @@ Go ahead and select **Create Droplet**. On the next page you'll see quite a few 
 
 You'll notice a text area open up when you select the option for *user data*. 
 
-```
+```yaml
 #cloud-config
 
 users:
