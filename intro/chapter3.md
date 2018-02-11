@@ -36,6 +36,7 @@ With that out of the way, let's get started. If you don't already have a Digital
 
 ![fresh account](./ch3img/init-login.jpg)
 
+Go ahead and select **Create Droplet**. On the next page you'll see some Droplet options like the distribution 
 <!-- TODO: Should I have them create an ssh key and add it through the UI or just set up the ssh key through cloud-init  -->
 
 ```
