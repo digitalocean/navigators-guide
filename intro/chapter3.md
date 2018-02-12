@@ -32,16 +32,62 @@ We're going to be using a Droplet with Ubuntu 16.04 x64 (Xenial Xerus) as our co
 
 For more information about system requirements, head over to http://docs.ansible.com/ansible/latest/intro_installation.html
   
-With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. After you've completed that quick process you see the following page with the option to create a new Droplet.
-![landing page](https://i.imgur.com/NwVxGJb.png)
-eging this overall process let's just start by creating a Droplet on DigitalOcean that we'll use to house all of our tools and scrpits. I recommend starting with Ubuntu 16.04 64-bit since it's 
+With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. Once you've completed that quick process you'll see your accounts main page.
 
-<!-- TODO: download and install tools/supply cloudinit script -->
+![fresh account](./ch3img/init-login.jpg)
 
-<!-- TODO: create ssh key -->
 
-<!-- TODO: add key and grab API token -->
+If this is a new account, or you just haven't set up your SSH key on your DigitalOcean account, I recommend you set it up using the instructions in the following tutorial then continue on with this guide: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets
+
+Go ahead and select **Create Droplet**. On the next page you'll see quite a few configuration options for your Droplet. We're going to select the following options:
+
+* Ubuntu 16.04 64-bit
+* 1gb standard size
+* the data center of your choice
+* enabled private networking
+* enable backups
+* user data
+* monitoring
+* SSH keys (if you have one set up)
+* Droplet name of your choice
+* a quantity of 1
+
+You'll notice a text area open up when you select the option for *user data*. We're going to copy-paste this script inside to allow the cloud-init service to install Python 2.7, pip, git, zip, Terraform, terraform-inventory, and Ansible. Just remember to set your desired username and your public SSH key.
+
+```yaml
+#cloud-config
+
+users:
+  - name: <username>
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh-authorized-keys:
+      - <enter_public_key_here>
+
+package_upgrade: true
+
+packages:
+  - python
+  - python-pip
+  - git
+  - zip
+
+runcmd:
+  - [curl, -o, /tmp/terraform.zip, "https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip"]
+  - [unzip, -d, /usr/local/bin/, /tmp/terraform.zip]
+  - [curl, -L, -o, /tmp/terraform-inventory.zip, "https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip"]
+  - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]
+  - [pip, install, -U, pip, ansible]
+```
+
+The Droplet is going to be up and running pretty quickly, but give the commands you pasted in some time to complete execution. You can always look in on */var/log/cloud-init-output.log* to see where it stands, or just shell into the Droplet and check to see if the ansible command is available yet since it's the last package installed. If you want to install all of the individual pieces of software manually, you absolutely can. Terraform and terraform-inventory are both just Go binaries that need to placed within your $PATH. As for ansible, I prefer installing it using pip over the system package manager since it stays up to date as well as being able to install within a virtualenv. 
+
+
+<!-- create ssh key -->
+
+<!-- add key and grab API token -->
 
 #### Configuring our environment
 
-<!-- TODO: directory structure -->
+<!-- directory structure -->
