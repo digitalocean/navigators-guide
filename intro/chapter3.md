@@ -83,6 +83,7 @@ runcmd:
 
 The Droplet is going to be up and running pretty quickly, but give the commands you pasted in some time to complete execution. You can always look in on */var/log/cloud-init-output.log* to see where it stands, or just shell into the Droplet and check to see if the ansible command is available yet since it's the last package installed. If you want to install all of the individual pieces of software manually, you absolutely can. Terraform and terraform-inventory are both just Go binaries that need to placed within your $PATH. As for ansible, I prefer installing it using pip over the system package manager since it stays up to date as well as being able to install within a virtualenv. 
 
+
 <!-- create ssh key -->
 
 <!-- add key and grab API token -->
