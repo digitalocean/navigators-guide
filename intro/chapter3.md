@@ -34,7 +34,7 @@ For more information about system requirements, head over to http://docs.ansible
   
 With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. Once you've completed that quick process you'll see your accounts main page.
 
-![fresh account](./ch3img/do-init-login.jpg)
+![fresh account](./ch3img/init-login.jpg)
 
 
 If this is a new account, or you just haven't set up your SSH key on your DigitalOcean account, I recommend you set it up using the instructions in the following tutorial then continue on with this guide: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets
