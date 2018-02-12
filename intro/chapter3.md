@@ -52,7 +52,7 @@ Go ahead and select **Create Droplet**. On the next page you'll see quite a few 
 * Droplet name of your choice
 * a quantity of 1
 
-You'll notice a text area open up when you select the option for *user data*. We're going to copy-paste this script inside to allow the cloud-init service to configure some dependencies for us like 
+You'll notice a text area open up when you select the option for *user data*. We're going to copy-paste this script inside to allow the cloud-init service to install Python 2.7, pip, git, zip, Terraform, terraform-inventory, and Ansible.
 
 ```yaml
 #cloud-config
@@ -81,7 +81,6 @@ runcmd:
   - [pip, install, -U, pip, ansible]
 ```
 
-sudo pip install -U pip
 
 
 
