@@ -2,7 +2,7 @@
 
 ## Our toolbelt
 
-Now that we've discussed digital oceans history and briefly gone over some of the issues will be covering, let's get a better understanding of the tools will be using And how they can be beneficial as you begin to create and manage your infrastructure on DigitalOcean. We'll be using [Terraform](https://www.terraform.io), [Ansible](https://www.ansible.com), [Terraform-inventory](https://github.com/adammck/terraform-inventory), and [Git](https://git-scm.com) primarily, but in later chapters make use of additional tools like [Packer](https://www.packer.io). For now let's go over what these tools do and how they work together.
+Now that we've discussed digital oceans history and briefly gone over some of the issues will be covering, let's get a better understanding of the tools will be using and how they can be beneficial as you begin to create and manage your infrastructure on DigitalOcean. We'll be using [Terraform](https://www.terraform.io), [Ansible](https://www.ansible.com), [Terraform-inventory](https://github.com/adammck/terraform-inventory), and [Git](https://git-scm.com) primarily, but in later chapters make use of additional tools like [Packer](https://www.packer.io). For now let's go over what these tools do and how they work together.
 
 #### Terraform
 
