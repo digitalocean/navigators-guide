@@ -85,7 +85,11 @@ The Droplet is going to be up and running pretty quickly, but give the commands 
 
 Now let's shell into the Droplet and create an ssh key for your ansible control machine which we'll later place on your nodes. Here's a simple one liner to create a key and comment it using your Droplet's hostname: `ssh-keygen -t rsa -C $(hostname -f)`
 
-You should now be able to see the private and public key pair in */home/< username >/.ssh/*. We'll come back and use this later when configuring our our terraform variables. For now let's head back over to the DigitalOcean UI and click on the API menu option. 
+You should now be able to see the private and public key pair in */home/< username >/.ssh/*. We'll come back and use this later when configuring our our terraform variables. For now let's head back over to the DigitalOcean UI and click on the API menu option and create a new key on the following screen:
+
+![api menu item](./ch3img/api-select-2.jpg)
+
+Make sure the token has read/write permissions so that Terraform has the ability to create new resources. When presented with the new key, be sure to copy it down because you won't be able to retrieve it once it's off screen. You can however, regenerate the key if needed.
 
 <!-- https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2 -->
 <!-- REVIWE: should we have them place the key in the DO system as well to give them  -->
