@@ -89,13 +89,10 @@ You should now be able to see the private and public key pair in */home/< userna
 
 ![api menu item](./ch3img/api-select-2.jpg)
 
-Make sure the token has read/write permissions so that Terraform has the ability to create new resources. When presented with the new key, be sure to copy it down because you won't be able to retrieve it once it's off screen. You can however, regenerate the key if needed.
+Make sure the token has read/write permissions so that Terraform has the ability to create new resources. When presented with the new key, be sure to copy it down because you won't be able to retrieve it once it's off screen. You can however, regenerate the key if needed at a later time. And as always, please make sure the key is safe and away from prying eyes. If you need a thorough breakdown on creating the API token and using the DigitalOcean v2 API, check out this community article: https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2
 
-<!-- https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2 -->
-<!-- REVIWE: should we have them place the key in the DO system as well to give them  -->
+#### Additional tools
 
-<!-- add key and grab API token -->
+Just as a quick note and suggestion. It's often very helpful to make use of the DigitalOcean CLI utility **doctl**, be it on your local machine or through SSH, to quickly access your account through the API in order to create or retrieve resource information. It makes grabbing image and ssh key id's much easier and faster than typing out and running a curl command. Just create an additional API key and configure **doctl** by running: `doctl auth init`
 
-#### Configuring our environment
-
-<!-- directory structure -->
+You can then run commands like `doctl compute ssh-key list` or even take a quick snapshot of an existing Droplet using `doctl compute droplet-action snapshot <droplet_id> --snapshot-name=snap-test`. Give it a shot. I'm sure it will help you in plenty of situations. Here's the github repo where you can get more information and grab the executable.
