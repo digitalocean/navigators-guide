@@ -1,33 +1,21 @@
 # Summary
 
 * [The Book Concept](README.md)
-* [Part 1 - Introduction and Setup](intro/README.md)
-    * [Chapter 1 - Introduction to DigitalOcean](intro/chapter1.md)
-    * [Chapter 2 - Problems we will solve](intro/chapter2.md)
-    * [Chapter 3 - Lab Environment Setup](intro/chapter3.md)
-* [Part 2 - Scaling and Preventing Downtime](scale/README.md)
-    * [Chapter 4 - High Availability](scale/chapter4.md)
-    * [Chapter 5 - Configuration Management](scale/chapter5.md)
-    * [Chapter 6 - Continuous Development](scale/chapter6.md)
-* [Part 3 - Keep Your Data Safe](backup/README.md)
-    * [Chapter 7 - Data Integrity](backup/chapter7.md)
-    * [Chapter 8 - Backup and Restore Methodologies](backup/chapter8.md)
-    * [Chapter 9 - Disaster Recovery Planning](backup/chapter9.md)
-* [Part 4 - Know Everything About Your Infrastructure](monitor/README.md)
-    * [Chapter 10 - Centralized Logging](monitor/chapter10.md)
-    * [Chapter 11 - Monitor Performance](monitor/chapter11.md)
-    * [Chapter 12 - Performance Testing](monitor/chapter12.md)
-* [Part 5 - Secure Your Infrastructure](secure/README.md)
-    * [Chapter 13 - Security Best Practices](secure/chapter13.md)
-    
-
-
-
-
-
-
-
-
-
-
-
+* [Part 1 - Introduction and Setup](01-intro/README.md)
+    * [Chapter 1 - Introduction to DigitalOcean](01-intro/ch01-intro-to-do.md)
+    * [Chapter 2 - Problems We Will Solve](01-intro/ch02-problems.md)
+    * [Chapter 3 - Lab Environment Setup](01-intro/ch03-lab-env-setup.md)
+* [Part 2 - Scaling and Preventing Downtime](02-scale/README.md)
+    * [Chapter 4 - High Availability](02-scale/ch04-ha.md)
+    * [Chapter 5 - Configuration Management](02-scale/ch05-config-mgmt.md)
+    * [Chapter 6 - Continuous Development](02-scale/ch06-continuous-dev.md)
+* [Part 3 - Keeping Your Data Safe](03-backup/README.md)
+    * [Chapter 7 - Data Integrity](03-backup/ch07-data-integrity.md)
+    * [Chapter 8 - Backup and Restore Methodologies](03-backup/ch08-backup-restore.md)
+    * [Chapter 9 - Disaster Recovery Planning](03-backup/ch09-disaster-recovery.md)
+* [Part 4 - Knowing Everything About Your Infrastructure](04-monitor/README.md)
+    * [Chapter 10 - Centralized Logging](04-monitor/ch10-logging.md)
+    * [Chapter 11 - Monitoring Performance](04-monitor/ch11-monitoring.md)
+    * [Chapter 12 - Performance Testing](04-monitor/ch12-perf-testing.md)
+* [Part 5 - Securing Your Infrastructure](05-secure/README.md)
+    * [Chapter 13 - Security Best Practices](05-secure/ch13-security.md)
