@@ -1,23 +1,36 @@
-# Introduction to DigitalOcean
+# DigitalOcean, Customer Success, and You
 
-### Ahoy! 
-Welcome aboard as we explore DigitalOcean. By the end of this journey, you should have clear concepts and tools to help you run infrastructure successfully on DigitalOcean. This book includes code examples and links to repositories to help follow along with the material covered. Our goal is to not only introduce and explain individual concepts and tools, but to tie everything together in one cohesive story.
+Welcome aboard!
 
-This book is open to users of any skill level. Many of the key take-aways from each chapter will be easy to apply and framed at a high level. We will also dive deep and cover extensive technical details. The code examples and repository will help give you a head start. The main skill-set required for this book is a familiarity with the Linux command line. 
+In the Introduction, we said that this book will give you the tools and the understanding you need to run a successful infrastructure on DigitalOcean — but what is DigitalOcean, and who are we to tell you what to do?
 
-If you need guidance or a quick refresher on Linux command line skills, [there is a series of tutorials on the DigitalOcean Community](https://www.digitalocean.com/community/tutorial_series/getting-started-with-linux). The DigitalOcean Community has thousands of easy to follow tutorials as well as listings of open source projects and a question and answer forum.
+## What Is DigitalOcean?
 
----
+<!-- NOTE (Hazel): I summarized this section, leaning heavily on our public-facing copy. We can augment and revise this as we go to tailor it to our audience, but I don't think I can do better than our product marketers at describing our products and company in an appealing way. :) -->
 
-DigitalOcean was started in 2012 on a mission to deliver simple and scalable infrastructure for developers. In recent years, DigitalOcean has iterated by launching new products and features allowing businesses to successfully deploy and scale to meet their infrastructure needs. Today, there are over 400 employees at DigitalOcean working out of their New York City Headquarters, satellite offices like Cambridge, Massachusetts and Bangalore, India. There is a strong remote culture outside of the office locations as well with nearly 50% of employees working remotely from around the world.
+DigitalOcean is a cloud infrastructure provider. Our mission from the start has been to provide an infrastructure experience that development teams love with the features your business needs.
 
-Over 1 million users have deployed over 80 million Droplets on DigitalOcean. A Droplet is what we call a Virtual Server.  Droplets offer a wide range of compute resources at a great value. Each Droplet is billed at an hourly rate with set monthly cost if the Droplet is active for an entire month. Advanced features can be added to a Droplet at no additional cost. These include Cloud Firewalls, Monitoring, Floating IP Addresses, and DNS zone hosting. 
+We were founded in 2012, and today we have over 400 employees working out of our headquarters in New York City, our satellite offices in Cambridge, Massachusetts and Bangalore, India, and remotely across the world.
 
-Expanding from the compute offerings, there are additional services that help with scaling larger web applications. Load Balancers easily allow multiple Droplets to serve content to users. Volumes adds Block Storage devices up to 16TB which a Droplet will interpret as a second SSD drive, except that it is served over the network and can be resized. Spaces is an Object Storage solution that starts at flat monthly rate of $5 which includes the ability to store 250GB of files as well as 1TB of outbound data transfer. Any usage past these amounts is billed ultra competitive rates. The files stored in Spaces can be anything from logs, to images, or static web content.  All data in Volumes and Spaces is redundant and there is no single point of failure in the storage clusters.
+Because our cloud computing platform was built with simplicity at the forefront, managing infrastructure on DO is easy whether your business is running one virtual machine or ten thousand. Here are some of the products we offer:
 
-Except for Spaces, all of these features and product launches were completed in the first five years of the company's history. Our product roadmap promises constant iteration and further expansion of features. This book will be updated in the future as features are released. 
+* **Droplets** are more than just virtual machines. They are a scalable compute platform with free additional features, like Cloud Firewalls, Monitoring, Floating IP Addresses, and DNS zone hosting, that allow you to easily run production applications.
+* **Load Balancers** automatically distribute incoming traffic across your Droplets, enabling you to build more reliable and performant applications by creating redundancy.
+* **Volumes** are additional SSD-based block storage devices you can add to your Droplet to suit your database, file storage, application, service, mobile, and backup needs.
+* **Spaces** is scalable and simple object storage to store, serve, backup, and archive any amount of web content, images, media, and static files for your web applications.
 
----
+We move fast: all of these features and product launches were completed in the first six years of the company's history. <!-- TODO: Accurate? --> Our product roadmap promises constant iteration and further expansion of features.
 
-As a business customer, the Customer Success team at DigitalOcean is your resource to help with any platform related issue. Customer Success Managers will be your point of contact for strategic planning and any account concerns. 24x7x365 support is provided by Customer Success Engineers through tickets and email. Our target goal is a response time to technical issues within 20 minutes. The Customer Success team also includes Solutions Engineers which help with strategic technical planning. The entire Customer Success team is here to help and can connect you with other individuals at DigitalOcean that directly work on Product or Engineering. This draws on one of our founding principals to be a platform that developers love.
+You can find detailed information on [our products](https://www.digitalocean.com/products/) and [current pricing](https://www.digitalocean.com/pricing/) on our website, and this book will be updated in the future as we expand and improve our product offerings.
 
+## Who Are We?
+
+<!-- NOTE (Hazel): I think putting some self-introductions here would make the book feel more personal and approachable. It matches the tone I think you're going for, and it builds trust through transparency. -->
+
+We, the authors, are Fabian Barajas and Jon Schwenn <!-- TODO: Want to include links to your websites/Twitter/whatever? something something personal brand. -->. We're both Solutions Engineers on the Customer Success team at DigitalOcean.
+
+As a business customer, Customer Success is your dedicated resource for help with any platform-related issues. We can solve your problems, answer your questions, or connect you with other people at DigitalOcean who work directly on Product or Engineering.
+
+Our whole team is here to help you: Customer Success Managers are your point of contact for strategic planning and any account concerns, and Customer Success Engineers provide 24x7x365 support through tickets an email, and aim to respond to technical issues within 20 minutes.
+
+We, the Solutions Engineers, help with strategic technical planning <!-- TODO: This repeats part of what we say CSMs do. Can we clarify/expand either? -->. And sometimes write books.
