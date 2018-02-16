@@ -1,8 +1,6 @@
 # The Problems and Our Solutions
 
-Before we set sail, let us take a look at the Cloud market and what options we have available today.
-
-<!-- TODO: What's the goal or value of all this background/history in context? Let's figure out why this is important to the reader and emphasize that point. -->
+Before we set sail, let us take a look at the Cloud market and what options we have available today. This quick history lesson is to provide context as to why there is a need for cloud infrastructure and how we are going take full advantage of "the cloud" to get the most value, performance, and stability out of your infrastructure.
 
 In the past, an online presence required one of the three major infrastructure options:
 

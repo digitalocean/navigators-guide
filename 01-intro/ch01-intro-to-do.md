@@ -6,6 +6,8 @@ In the introduction, we said that this book would give you the tools and the und
 
 <!-- NOTE (Hazel): I summarized this section, leaning heavily on our public-facing copy. We can augment and revise this as we go to tailor it to our audience, but I don't think I can do better than our product marketers at describing our products and company in an appealing way. :) -->
 
+<!-- NOTE (Jon): Do we want to get into IaaS vs PaaS/SaaS and outline what we really offer?  Example graphic: https://support.nyc3.digitaloceanspaces.com/separation-of-responsibilities.png -->
+
 DigitalOcean is a cloud infrastructure provider. Our mission from the start has been to provide an infrastructure experience that development teams love with the features your business needs.
 
 We were founded in 2012, and today we have over 400 employees working out of our headquarters in New York City, our satellite offices in Cambridge, Massachusetts and Bangalore, India, and remotely across the world.
