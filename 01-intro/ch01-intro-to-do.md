@@ -31,7 +31,7 @@ We, the authors, are Fabian Barajas and Jon Schwenn <!-- TODO: Want to include l
 
 Fabian Barajas <!-- TODO: Fabian intro -->
 
-Jon Schwenn has worked in multiple teams at DigitalOcean since 2015. His prior accomplishments include founding a specialty colocation service that hosted thousands of Mac servers, creating and running a fairly large automotive internet forum, and building an e-commerece site from scratch with ColdFusion in 2001. It was different times back then. Jon is a Red Hat Certified Architect and has been using Linux professionally since 2003. 
+Jon Schwenn has worked in multiple teams at DigitalOcean since 2015. His prior accomplishments include founding a specialty colocation service that hosted thousands of Mac servers, creating and administering a fairly large automotive internet forum, and building an e-commerece system from scratch with ColdFusion in 2001. It was different times back then. Jon is a Red Hat Certified Architect and has been using Linux professionally since 2003. 
 
 As a business customer, the Customer Success team is your dedicated resource for help with any platform-related issues. We can solve your problems, answer your questions, or connect you with other people at DigitalOcean who work directly on Product or Engineering.
 
