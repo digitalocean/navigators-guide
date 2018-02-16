@@ -34,7 +34,7 @@ For more information about system requirements, head over to http://docs.ansible
   
 With that out of the way, let's get started. If you don't already have a DigitalOcean account, start questioning your life choices, then head over to https://www.digitalocean.com/ and sign up. Once you've completed that quick process you'll see your accounts main page.
 
-![fresh account](./ch3img/init-login.jpg)
+![fresh account](./ch03img/init-login.jpg)
 
 
 If this is a new account, or you just haven't set up your SSH key on your DigitalOcean account, I recommend you set it up using the instructions in the following tutorial then continue on with this guide: https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets
@@ -87,7 +87,7 @@ Now let's shell into the Droplet and create an ssh key for your ansible control 
 
 You should now be able to see the private and public key pair in */home/< username >/.ssh/*. We'll come back and use this later when configuring our our terraform variables. For now let's head back over to the DigitalOcean UI and click on the API menu option and create a new key on the following screen:
 
-![api menu item](./ch3img/api-select-2.jpg)
+![api menu item](./ch03img/api-select-2.jpg)
 
 Make sure the token has read/write permissions so that Terraform has the ability to create new resources. When presented with the new key, be sure to copy it down because you won't be able to retrieve it once it's off screen. You can however, regenerate the key if needed at a later time. And as always, please make sure the key is safe and away from prying eyes. If you need a thorough breakdown on creating the API token and using the DigitalOcean v2 API, check out this community article: https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2
 
