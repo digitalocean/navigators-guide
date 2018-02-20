@@ -34,7 +34,7 @@ In this section, we introduce configuration management to ensure that all of its
 ### Part 3 — Keep Your Data Safe
 Your data is nearly the most important asset your company has.
 
-Here, we highlight the best storage solutions for specific use cases. We go beyond basic backup concepts by outlining scenarios to be aware of <!-- TODO: for what purpose? / why do they need to be aware of those scenarios? --> as well as planning for high impact outages. The goal is to have plans in place to reduce outages and always have multiple sources for data recovery.
+Here, we highlight the best storage solutions for specific use cases. We go beyond basic backup concepts by outlining data-loss pitfalls to be aware of as well as planning for high impact outages. The goal is to have plans in place to reduce outages and always have multiple sources for data recovery. Data loss is not an option.
 
 ### Part 4 — Know Everything About Your Infrastructure
 At this point, we know our infrastructure will scale and we won't lose any data. That definitely puts us on the path to success, but there will always be issues that we didn't or couldn't foresee.
