@@ -62,7 +62,11 @@ If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Artri an
 _It is worth noting that Volumes' storage clusters are also running on Ceph._
 
 
-<!-- TODO: distributed file systems like GlusterFS -->
+### The Best Storage Option
+So after all that, there is one clear best choice right? Unfortunately, it's not that easy. The goal with this chapter is to outline ways to best use all of the storage options for their prominent features. Knowing the downfalls of each storage option allows you to plan accordingly. The next chapter talks about this. Planning your data backup and recovery needs properly hedges against corruption or data loss. 
+
+
+<!-- TODO: distributed file systems like GlusterFS ? -->
 
 
 
