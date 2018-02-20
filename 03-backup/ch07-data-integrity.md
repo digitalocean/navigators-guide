@@ -25,13 +25,18 @@ You can see that the redundancy and security of the data is increased with Volum
 
 Block Storage Volumes are limited in performance when compared to the local Droplet storage. The storage cluster that hosts Volumes are equipped with 100% SSD drives, but there is an inherent performance as the Volumes are attached to Droplets over network connections. Volumes may not be an ideal storage solution for use cases requiring an intense amount of input/output operations per second (IOPS). Placing the files for a database on a Volume is one example of a heavy I/O use case.
 
+NOTE: Because a Volume is attached over a network connection to a Droplet, the Volume and Droplet need to be in the same region. 
+<!-- TODO: Region List with Volume availability   -->
+
 Block Storage is literally a block of storage. You run a file system on top of the device and it the Droplet interprets it just as it would an additional hard drive on a physical server. This also means that you not only have to be mindful of the file system, but the size of the Volume as well.  **What if the file system has some level of corruption?** _The data is copied in multiple places of the storage cluster, but it is corrupted at the file system level and you have multiple copies of bad data._ If you resize the Volume, you also have to expand the file system as well. What if you used storage for thousands of images or for organizing logs? Object Storage using Spaces on DigitalOcean may be a better storage option.
 
 _It is worth noting that redundancy of storage is not a substitute for backing up data. We will cover more aspects of data backup and recovery in the next chapter._
 
 
 ### Object Storage with Spaces
+Up to this point, we have discussed storage options that are available to a single Droplet at a time. The Droplet is the main mechanism for accessing your data. Object Storage does away with this. Amazon pioneered mainstream Object Storage with their S3 product. <!-- TODO: Trademark/copywrite needed?  --> S3 stands for _Simple Storage Service_. While the concept is simple in nature, using S3 hasn't always been use friendly. Luckily a large amount of third party software writers have built software and libraries for interacting with S3 and the subsequent S3-compatible services that have sprung up. 
 
+Spaces is DigitalOcean's version of Object Storage. It's 
 
 
 <!-- TODO: Data Integrity local Droplet Storage vs. Volumes vs. Spaces  -->
