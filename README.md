@@ -1,11 +1,27 @@
 # Navigator's Guide
 
-The idea is simple, but the challenge is huge.
+This repository contains the book: _The Navigator's Guide to DigitalOcean_ along with the code examples used throughout the book.
 
-Can we create a book that business customers will use to ensure their success on DigitalOcean?
+**Project Goal:**
+* To walk a business customer down a path of planning out all of their infrastructure needs and provide them with working examples along the way.
+* We include technical nuance and explaining _why_ some decisions are better than others. 
 
-This book will be focused on the problems customers face with scaling and growing. We outline best practices and explain _why_ they prevent pain points and issues.
+**Authors:**
+* @fbarajas
+* @jschwenn
 
-Our marketing efforts have primarily been focused on _how_ to accomplish individual concepts, not _why_ to build a holistic structure to prevent pain points and issues.
+**Editor:**
+* @hazelnut-do
 
-We hope this book would become a valuable asset that Marketing and Customer Success Managers can share with new business customers to encourage best practices, strengthen multi-attach rates, and ultimately drive revenue.
+**Layout Info:**
+* We follow the [gitbook toolchain](https://toolchain.gitbook.com/) currently
+* The table of contents and file list can be found in [SUMMARY.md](SUMMARY.md)
+
+**Current Workflow:**
+* Loosely review pull requests and priority is getting words on paper ASAP
+* Shift to a thorough review process after first wave of content is commited 
+
+**Procedural TO-DO:**
+* Create a ```book.json``` file for conversion settings
+* Create a conversion workflow to build alpha versions of book during development
+* Integrate Brand Design assets and style directions ASAP to reduce GTM timeline
