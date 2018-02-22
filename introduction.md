@@ -2,7 +2,6 @@
 
 How do I scale and grow my infrastructure for my business?
 
-<!-- TODO: fill this out with a paragraph or so that will motivate the reader / justify the book / etc. what is the value to the reader? how can you contextualize that value for them as succinctly as possible? -->
 More importantly, how do I prevent a crisis? How do I know what my decisions will also impact? Am I asking the right questions? 
 
 This book will help answer questions, but also help with the background information needed when making decisions that impact your business's infrastructure.
