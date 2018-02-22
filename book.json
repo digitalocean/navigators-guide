@@ -1,0 +1,35 @@
+{
+  "gitbook": "3.x.x",
+  "title": "The Navigator's Guide to DigitalOcean",
+  "description": "This book walks businesses down a path of planning out all of their infrastructure needs on DigitalOcean and provides working code examples along the way. It includes technical nuance and explaining why some decisions are better than others.",
+  "isbn": "",
+  "author": "Fabian Barajas, Jonathan Schwenn",
+  "language": "en",
+  "root": "./docs",
+
+
+  "styles": {
+       "pdf": "styles/pdf.css",
+       "mobi": "styles/mobi.css",
+       "epub": "styles/epub.css"
+   },
+
+   "variables": {
+       "nav-repo": "cmndrsp0ck"
+    },
+
+  "pdf": {
+      "pdf.pageNumbers": "true",
+      "pdf.fontSize": "12",
+      "pdf.fontFamily": "Arial",
+      "pdf.paperSize": "a4",
+      "pdf.margin.top": "56",
+      "pdf.margin.bottom": "56",
+      "pdf.margin.left": "62",
+      "pdf.margin.right": "62",
+      "pdf.headerTemplate": "Header of the PDF with _TITLE_  #REPLACED BY _layout/ebook/pdf_header.html",
+      "pdf.footerTemplate": "Footer HTML template. Available variables: _PAGENUM_, _TITLE_, _AUTHOR_ and _SECTION_. #REPLACED BY _layout/ebook/pdf_footer.html"
+  }
+
+
+}
