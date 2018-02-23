@@ -36,7 +36,11 @@ Leveraging multiple storage options is always an option for diversifying backups
 
 
 ### Backups and Snapshots
-DigitalOcean has features to help with backing up data. Droplet backups provide fo
+DigitalOcean has features to help with backing up data. Droplet backups provide users with weekly automated live snapshots at a set price. The last four backups are kept and the backups can be converted to be stored as snapshots for long term storage. Droplet snapshots are ideal for taking a copy of a Droplet for restoration or duplication. Droplet snapshots are separate copies of the virtual disk stored on dedicated storage devices offloaded from the hypervisors. A Droplet snapshot can be copied to other regions making it easy to duplicate Droplets over multiple regions. A Droplet Snapshot can also be moved to a new user as well. In the future, exporting and importing snapshots is something we've experimented with as well. You can initial a snapshot event from an API call, so you can treat a snapshot like a daily automated backup, but as mentioned earlier, it may not be ideal for some workloads like databases.
+
+Volume snapshots are functionally different. A volume snapshot exists within the Ceph storage cluster and has characteristics closely associated with snapshots. Snapshots of Volumes are completely nearly in an instant. Data changed in the Volume after the snapshot is kept in a delta state. Restoring or deleting a snapshot of a Volume will compress the deltas back into the main Volume. Because of this, Volume snapshots can not be moved between users or regions and should be used sparingly. Adding many snapshots to a Volume will decrease performance as the Ceph storage cluster is tracking multiple snapshot points and the changes to the data between them. <!-- TODO: confirm this is technically correct -->
+
+Droplet and Volume Snapshot storage is billed at $0.05 per gigabyte each month.
 
 
 
