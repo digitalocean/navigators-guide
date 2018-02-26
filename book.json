@@ -5,7 +5,7 @@
   "isbn": "",
   "author": "Fabian Barajas, Jonathan Schwenn",
   "language": "en",
-  "root": "book",
+  "root": "./book",
 
   "styles": {
        "pdf": "styles/pdf.css",
