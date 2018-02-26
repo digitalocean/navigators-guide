@@ -1,6 +1,5 @@
 # Summary
 
-* [The Book Concept](README.md)
 * [Introduction: Scaling and Growing Infrastructure](introduction.md)
 * [Part 1 - Background and Setup](01-intro/README.md)
     * [Chapter 1 - DigitalOcean, Customer Success, and You](01-intro/ch01-intro-to-do.md)
@@ -20,4 +19,4 @@
     * [Chapter 12 - Performance Testing](04-monitor/ch12-perf-testing.md)
 * [Part 5 - Securing Your Infrastructure](05-secure/README.md)
     * [Chapter 13 - Security Best Practices](05-secure/ch13-security.md)
-* [Conclusion: What's Next?](conclusion.md) 
+* [Conclusion: What's Next?](conclusion.md)
