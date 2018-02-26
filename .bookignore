@@ -1,2 +1,2 @@
-# Ignore everything in the directory "bin"
-code-samples/*
+# Ignore everything in the directory "example-code"
+example-code/*
