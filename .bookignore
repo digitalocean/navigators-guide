@@ -1,0 +1,2 @@
+# Ignore everything in the directory "bin"
+code-samples/*
