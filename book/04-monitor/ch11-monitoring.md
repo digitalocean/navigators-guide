@@ -1,7 +1,6 @@
-<!-- TODO: making sure do-agent is installed -->
+# Data Visualization
 
-<!-- TODO: things like grafana, prometheus, and 3rd party (datadog?) -->
-
+<!-- prometheous, sensu, honeycomb -->
 
 
 
