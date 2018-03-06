@@ -1,6 +1,19 @@
 # Data Visualization
+Now that you have an idea of what data is important to your business, we can begin to collect data. Collecting data will lead to visualizing and taking actions (alerts) based on the data. 
 
-<!-- prometheous, sensu, honeycomb -->
+It would be impossible to outline every option there is for achieving these goals. There are a lot of companies and open-source projects that make monitoring software. We're going to highlight a few to help you get started.
+
+## Prometheus & Grafana
+We'll start with an open-source software running on a Droplet. We'll use Prometheus to collect metrics and Grafana to visually display it.
+
+<!-- TODO: Playbook to roll out prometheus/grafana Droplet plus install exporters -->
+
+## Sensu
+
+
+## Honeycomb
+To this point, we have focused primarily on monitoring metrics. Our services and servers provide other valuable data in the form of logs. Aggregating log from your services and servers can be done with open source software like Elasticsearch, however it falls outside the scope of this book. It's not that we don't want to include it, but rather we feel that unless your business can dedicate engineering resources to operate an Elasticsearch cluster, it is worth your time and money to use a third party service for log aggregation. 
+
 
 
 
