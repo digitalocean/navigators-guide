@@ -12,12 +12,20 @@ There are two important aspects when it comes to testing backups:
 
 Obviously it is important to verify the backup process has worked. What most people don't measure is the time it takes to restore. If your restore process takes hours, you may want to include additional backup methods and locations that reduce the time it takes. You'll very much want that timeframe to be as short as possible when you are down and desperately relying on that data to get back online.  This can be a problem of scale as restoring very large data sets or collections of files are restricted by the physical network that connects your backups from production infrastructure.  
 
-<!-- TODO: Actually testing restores -->
+<!-- TODO: build a restore playbook that test and validates -->
 
-<!-- TODO: Considering timeframe to restore -->
+## Multi-region Deployments
+Actively choosing to not be reliant on a single region/datacenter within cloud infrastructure is important. Throughout this entire book, we're eliminating single points of failure. It is a rare event, but region-wide stability issues can occur due to the nature of how networking and physical infrastructure works. This may only be an option for larger businesses. Essentially every function of your infrastructure would need to be duplicated over multiple regions. 
 
-<!-- TODO: Considering multi region deployments for redundancy -->
+Working up to a fully redundant multi-region approach may look like keeping hot-standby instances running and in sync with production in another region that can take the place of your production instances if the region should go offline. Keeping the active and passive clusters in sync and the ability to use either cluster without missing some data can be the tricky part. Once a multiple clusters can actively participate in production workloads, adding additional logic can help. Using a geo-DNS service can direct users to the closest active cluster. To that point, you can remove a cluster from the DNS zone automatically based on alerts and health metrics and the impact to your users would be measured in a matter of minutes.
+
+The caveat to this theory is that outside forces such as large-scale DDoS attacks will still make every online cluster vulnerable and able to be taken offline. Routing all traffic through a CDN and DDoS service like CloudFlare will be your best defense and prevent the surge of traffic from reaching your infrastructure. 
+
+## Chaos Engineering
 
 <!-- TODO: Intro basics of Chaos Engineering? -->
 
 
+
+---
+- Cloudflare https://www.cloudflare.com/
