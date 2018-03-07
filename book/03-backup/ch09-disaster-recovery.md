@@ -22,6 +22,7 @@ Working up to a fully redundant multi-region approach may look like keeping hot-
 The caveat to this theory is that outside forces such as large-scale DDoS attacks will still make every online cluster vulnerable and able to be taken offline. Routing all traffic through a CDN and DDoS service like CloudFlare will be your best defense and prevent the surge of traffic from reaching your infrastructure. 
 
 ## Chaos Engineering
+The first step in fixing something is getting it to break. 
 
 <!-- TODO: Intro basics of Chaos Engineering? -->
 
