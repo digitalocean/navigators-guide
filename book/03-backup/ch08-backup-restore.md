@@ -43,7 +43,7 @@ Volume snapshots are functionally different. A volume snapshot exists within the
 Droplet and Volume Snapshot storage is billed at $0.05 per gigabyte each month.
 
 ### The Best Backup
-There is no one "best backup". The truth is that all the backup methods combined and tested are the best. This chapter has given scenarios and examples to help you make the best choices for backing up and restoring your data. In the next chapter we'll put these plans to the test with actively planning and forcing disaster recovery concepts. 
+There is no one "best backup". The truth is that all the backup methods combined and tested are the best. This chapter has given scenarios and examples to help you make the best choices for backing up and restoring your data. In the next chapter we'll put these plans to the test with actively planning and testing disaster recovery concepts. 
 
 
 

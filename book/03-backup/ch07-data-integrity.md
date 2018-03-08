@@ -17,9 +17,21 @@ This is the most common form of storage on DigitalOcean. Currently, each Droplet
 The local Droplet storage is the highest performing storage option that is available on DigitalOcean. Our entire fleet of hypervisors uses enterprise grade SSD drives and we continue to evaluate newer, faster options as they are more widely available. The virtual disks for Droplets stored on the hypervisor's local storage not encrypted at rest. Sensitive data that requires encryption protections should be stored accordingly.
 
 #####  Storage Checklist
-| Performance| Security | Redundancy | 
-| -- | -- | -- |
-| Great speed | Not encrypted at rest | Data stored on mutiple disk, but RAID is a single point of failure | 
+<table>
+<tr>
+<td><strong>Performance:</strong></td>
+<td>Great speed</td>
+</tr>
+<tr>
+<td><strong>Security:</strong></td>
+<td>Not encrypted at rest</td>
+</tr>
+<tr>
+<td><strong>Redundancy:</strong></td>
+<td>Data stored on multiple disks, but RAID is a single point of failure</td>
+</tr>
+</table>
+
 
 ### Block Storage Volumes
 Local Droplet storage sizes increase in a linear fashion with other resources. A larger Droplet will have more local storage. Often you may find that you need more storage on a smaller Droplet. Block Storage Volumes allow you to attach additional drives to Droplets. 
@@ -38,12 +50,28 @@ Block Storage Volumes are limited in performance when compared to the local Drop
 NOTE: Because a Volume is attached over a network connection to a Droplet, the Volume and Droplet need to be in the same region. 
 
 #####  Volume Region Availability
-| | | | 
-| -- | -- | -- |
-| **NYC1** | **~~NYC2~~** | **NYC3** |
-| **~~SFO1~~** | **SFO2** | **TOR1** | 
-| **~~AMS2~~** | **AMS3** | **FRA1** | 
-| **BLR1** | **LON1** | **SGP1** | 
+<table>
+<tr>
+<td><strong>NYC1</strong></td>
+<td><font color="grey">NYC2</font></td>
+<td><strong>NYC3</strong></td>
+<td><strong>TOR1</strong></td>
+</tr>
+<tr>
+<td><font color="grey">SFO1</font></td>
+<td><strong>SFO2</strong></td>
+<td><strong>LON1</strong></td>
+<td><strong>FRA1</strong></td>
+</tr>
+<tr>
+<td><strong>BLR1</strong></td>
+<td><font color="grey">AMS2</font></td>
+<td><strong>AMS3</strong></td>
+<td><strong>SGP1</strong></td>
+</tr>
+</table>
+
+
 
 
 Block Storage is literally a block of storage. You run a file system on top of the device and it the Droplet interprets it just as it would an additional hard drive on a physical server. This also means that you not only have to be mindful of the file system, but the size of the Volume as well.  **What if the file system has some level of corruption?** _The data is copied in multiple places of the storage cluster, but it is corrupted at the file system level and you have multiple copies of bad data._ If you resize the Volume, you also have to expand the file system as well. What if you used storage for thousands of images or for organizing logs? Object Storage using Spaces on DigitalOcean may be a better storage option.
@@ -51,9 +79,20 @@ Block Storage is literally a block of storage. You run a file system on top of t
 Just as the previous example showed, redundancy of storage is not a substitute for backing up data. What if a change was made to the only copy of a file, or a file was removed from a Volume when there was no backups?  We will cover more aspects of data backup and recovery in the next chapter.
 
 #####  Storage Checklist
-| Performance| Security | Redundancy | 
-| -- | -- | -- |
-| Good speed | Encrypted at rest | Data spans multiple nodes, but file systems could experience corruption | 
+<table>
+<tr>
+<td><strong>Performance:</strong></td>
+<td>Good speed</td>
+</tr>
+<tr>
+<td><strong>Security:</strong></td>
+<td>Encrypted at rest</td>
+</tr>
+<tr>
+<td><strong>Redundancy:</strong></td>
+<td>Data spans multiple nodes, but file systems could experience corruption</td>
+</tr>
+</table>
 
 
 ### Object Storage with Spaces
@@ -72,13 +111,26 @@ __Because any computer on the internet can send requests to the RGW's, there is 
 _Bandwidth for outbound traffic within the regional fiber rings is free of charge. The current regional fiber rings are NYC: [NYC1, NYC2, and NYC3] and Europe: [LON1, FRA1, AMS2, and AMS3]_
 
 ##### Spaces Region Availability
-| | | |
-| -- | -- | -- |
-| **~~NYC1~~** | **~~NYC2~~** | **NYC3** |
-| **~~SFO1~~** | **SFO2** | **~~TOR1~~** |
-| **~~AMS2~~** | **AMS3** | **~~FRA1~~** | 
-| **~~BLR1~~** | **~~LON1~~** | **SGP1** |
-
+<table>
+<tr>
+<td><font color="grey">NYC1</font></td>
+<td><font color="grey">NYC2</font></td>
+<td><strong>NYC3</strong></td>
+<td><font color="grey">TOR1</font></td>
+</tr>
+<tr>
+<td><font color="grey">SFO1</font></td>
+<td><strong>SFO2</strong></td>
+<td><font color="grey">LON1</font></td>
+<td><font color="grey">FRA1</font></td>
+</tr>
+<tr>
+<td><font color="grey">BLR1</font></td>
+<td><font color="grey">AMS2</font></td>
+<td><strong>AMS3</strong></td>
+<td><strong>SGP1</strong></td>
+</tr>
+</table>
 
 So far this storage option seems to be the best. We do not have to worry about a single Droplet being a point of failure. We don't have to worry about data corruption and the data stored is encrypted for security. While we have redundancy and security simplified with Spaces, performance is going to be the compromise. All requests to store or pull files from the Spaces backend goes through the RGW's. While we strive for a 99.99%<!-- TODO: ?? --> availability with the Spaces API, it is not the best use for serving files at a high rate of request per minute. The ideal situation is to place your Spaces behind a Content Delivery Network (CDN) to speed and availability. <!-- Hoping for DigitalOcean CDN option by publising -->
 
@@ -87,9 +139,23 @@ Spaces is going to be great for hosting images and static HTML files behind a CD
 If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Artri and Viaav Behembre are co-authors on [Learning Ceph - Second Edition: Unifed, scalable, and reliable open source storage solution](https://www.amazon.com/Learning-Ceph-scalable-reliable-solution-ebook/dp/B01NBP2D9I). We might be able to get them to sign your Kindle for you as well. 
 
 #####  Storage Checklist
-| Performance| Security | Redundancy | 
-| -- | -- | -- |
-| Slower speeds | Encrypted at rest | Data spans multiple nodes and files are checked for corruption | 
+<table>
+<tr>
+<td><strong>Performance:</strong></td>
+<td>Slower speeds</td>
+</tr>
+<tr>
+<td><strong>Security:</strong></td>
+<td>Encrypted at rest</td>
+</tr>
+<tr>
+<td><strong>Redundancy:</strong></td>
+<td>Data spans multiple nodes and files are checked for corruption</td>
+</tr>
+</table>
+
+
+
 
 <!-- TODO: 4th storage option? distributed file systems like GlusterFS ? -->
 
