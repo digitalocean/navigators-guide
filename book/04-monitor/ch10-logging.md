@@ -18,12 +18,12 @@ Your application is made up of many services. Some may be custom applications, o
 #### [D]uration
 *The time it takes for requests to be performed*
 
-This data will give you a clear picture of how well each service is running. It can be used to dial in the resources (servers) you need to dedicate to any given service. It's more important to use it as the metrics to be alerted by. Before creating alerts, you'll want to consider what each services tolerances are. How many reqeuests per second can be processed before customers start to see a problem, or what is an acceptable amount of errors. A spike in error rate or duration is a clear indicator your customers are seeing issues. 
+This data delivered by the RED Method[^1] will give you a clear picture of how well each service is running. It can be used to dial in the resources (servers) you need to dedicate to any given service. It's more important to use it as the metrics to be alerted by. Before creating alerts, you'll want to consider what each services tolerances are. How many reqeuests per second can be processed before customers start to see a problem, or what is an acceptable amount of errors. A spike in error rate or duration is a clear indicator your customers are seeing issues. 
 
 Alerts triggered by an issue with a service may have many causes and it can be difficult to identify the cause. It is important to take closer looks in your performance monitoring and testing controls we'll discuss in the next chapters. 
 
 ## Monitoring Servers
-Issues with services running slower or having errors may be caused by other services or a code deployment, but the cause may also be related to your servers as well. We recommend installing our opensource observability agent, do-agent, on all Droplets. Within the DigitalOcean platform, we see all Droplet conditions from the perspective of the hypervisor. The do-agent software gives us more insight on what is happening inside of the Droplets. These insights are a good base-line and we'll want even more detail and clarity to expedite troubleshooting. 
+Issues with services running slower or having errors may be caused by other services or a code deployment, but the cause may also be related to your servers as well. We recommend installing our opensource observability agent, do-agent[^3], on all Droplets. Within the DigitalOcean platform, we see all Droplet conditions from the perspective of the hypervisor. The do-agent software gives us more insight on what is happening inside of the Droplets. These insights are a good base-line and we'll want even more detail and clarity to expedite troubleshooting. 
 
 There is a method we can apply to monitoring server resources that will give vital data when troubleshooting more difficult issues.
 
@@ -35,7 +35,7 @@ There is a method we can apply to monitoring server resources that will give vit
 #### [E]rrors
 *Error counts*
 
-The USE method can be applied to the three main aspects of performance monitoring and tuning:
+The USE method[^2] can be applied to the three main aspects of performance monitoring and tuning:
 - CPU
 - I/O
 - Network 
@@ -48,12 +48,14 @@ In the next chapter we'll apply these monitoring methods to your infracture with
 
 
 --- 
-*These methods are only summarized here. If you want to dive deeper in the world of monitoring we suggest you look at other resources like the Google SRE book, or attend a conference like Monitorama.*
-- RED Method https://www.weave.works/blog/the-red-method-key-metrics-for-microservices-architecture/
-- USE Method http://www.brendangregg.com/usemethod.html
-- do-agent https://blog.digitalocean.com/improved-graphs/
-- Google SRE Book https://landing.google.com/sre/book/chapters/monitoring-distributed-systems.html
-- Monitorama Conference http://monitorama.com/ 
+*These methods are only summarized here. If you want to dive deeper in the world of monitoring we suggest you look at other resources like the Google SRE book[^4], or attend a conference like Monitorama[^5].*
+
+
+[^1]: RED Method https://www.weave.works/blog/the-red-method-key-metrics-for-microservices-architecture/
+[^2]: USE Method http://www.brendangregg.com/usemethod.html
+[^3]: do-agent https://blog.digitalocean.com/improved-graphs/
+[^4]: Google SRE Book https://landing.google.com/sre/book/chapters/monitoring-distributed-systems.html
+[^5]: Monitorama Conference http://monitorama.com/ 
 
 
 
