@@ -136,7 +136,7 @@ So far this storage option seems to be the best. We do not have to worry about a
 
 Spaces is going to be great for hosting images and static HTML files behind a CDN and for storing logs and backups. 
 
-If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Artri and Viaav Behembre are co-authors on [Learning Ceph - Second Edition: Unifed, scalable, and reliable open source storage solution](https://www.amazon.com/Learning-Ceph-scalable-reliable-solution-ebook/dp/B01NBP2D9I). We might be able to get them to sign your Kindle for you as well. 
+If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Atri and Vaibhav Bhembre are co-authors on [Learning Ceph - Second Edition: Unifed, scalable, and reliable open source storage solution](https://www.amazon.com/Learning-Ceph-scalable-reliable-solution-ebook/dp/B01NBP2D9I). We might be able to get them to sign your Kindle for you as well. 
 
 #####  Storage Checklist
 <table>
