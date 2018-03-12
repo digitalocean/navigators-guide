@@ -96,15 +96,20 @@ Just as the previous example showed, redundancy of storage is not a substitute f
 
 
 ### Object Storage with Spaces
-Up to this point, we have discussed storage options that are available to a single Droplet at a time. The Droplet is the main mechanism for accessing your data. Object Storage does away with this. Amazon pioneered mainstream Object Storage with their S3 product. <!-- TODO: Trademark/copywrite needed?  --> S3 stands for _Simple Storage Service_. While the concept is simple in nature, using S3 hasn't always been use friendly. Luckily a large amount of third party software writers have built software and libraries for interacting with S3 and the subsequent S3-compatible services that have sprung up. 
+Up to this point, we have discussed storage options that are available to a single Droplet at a time. The Droplet is the main mechanism for accessing your data within a file system. Object Storage does away with this in an extensible method with APIs. Amazon pioneered mainstream Object Storage with their S3 product. <!-- TODO: Trademark/copywrite needed?  --> S3 stands for _Simple Storage Service_. While the concept is simple in nature, using S3 hasn't always been use friendly. If you think about your first interaction with a file system and basic file work Luckily a large amount of third party software writers have built software and libraries for interacting with S3 and the subsequent S3-compatible services that have sprung up. 
 
-Spaces is DigitalOcean's version of Object Storage. DigitalOcean Spaces and Volumes are built on top of an open source project called Ceph. Ceph has multiple components and it is important to look at the components to understand the characteristics of this storage option. 
+Spaces is DigitalOcean's version of Object Storage. DigitalOcean Spaces and Volumes are built on top of an open source project called Ceph. Ceph has multiple components and it is important to look at the components to understand the characteristics of this storage option since it differs so much from traditional file system hierarchies. 
 
+#### Frontend: 
+* An Object is a binary "blob" that is your file contents with added attributes such as metadata 
+* A Space is the storage group for your objects. You can have multiple Spaces. This is equivalent to a Bucket on S3
+
+#### Backend:
 * The Object Storage Device (OSD) is the physical / logical drive storing data. Spaces is the only storage option on DigitalOcean that uses mostly hard disk drives (HDD) instead of only using solid state drives (SSD). The data (objects) are stored across multiple OSD's
 * The RADOS Gateway (RGW) is what provides the interface with the storage objects and acts as an S3-compatible API gateway
 * There are other monitor, map, and pool aspects that keep the cluster functioning, but are less important for our discussion
 
-The Spaces backend is made up of many OSD's. The data is stored is encrypted and is managed as individual files. The multiple copies of each object are compared daily to provide data integrity. There should no data corruption because if one copy doesn't match up, the cluster will resolve the issue by correcting the error automatically. 
+The Spaces backend is made up of many OSD's. The data is stored is encrypted and is managed as individual objects (files). The multiple copies of each object are compared daily to provide data integrity. There should no data corruption because if one copy doesn't match up, the cluster will resolve the issue by correcting the error automatically. 
 
 __Because any computer on the internet can send requests to the RGW's, there is no need for a Space to exist in the same region as a Droplet__. For example Droplets in NYC1 or NYC2 will have fast access to the Spaces in NYC3 through our NYC regional fiber ring. 
 
