@@ -37,7 +37,7 @@ The local Droplet storage is the highest performing storage option that is avail
 Local Droplet storage sizes increase in a linear fashion with other resources. A larger Droplet will have more local storage along with more memory and vCPU cores. Often you may find that you need more storage on a smaller Droplet. Block Storage Volumes allow you to do this by attaching additional drives to Droplets. For example, a 1GB Droplet that costs $5 per month could have an additional 16TB of storage by attaching a Volume. 
 
 There are a few main benefits to storing your data on a Volume:
-* The storage cluster has a built in redundancy ensuring multiple copies of your data within the cluster
+* The Volume storage cluster is a distributed system that has multiple copies of your data within the cluster
 * Volumes and Volume Snapshots are encrypted at rest with AES-256 bit LUKS encryption within the storage cluster
     * The file system on the Volume can also be placed in a LUKS encrypted drive
 * Volumes can be increased independently as needed up to 16TB
@@ -77,7 +77,7 @@ NOTE: Because a Volume is attached over a network connection to a Droplet, the V
 
 Block Storage is literally a block of storage. You run a file system on top of the device and it the Droplet interprets it just as it would an additional hard drive on a physical server. This also means that you not only have to be mindful of the file system, but the size of the Volume as well.  **What if the file system has some level of corruption?** _The data is copied in multiple places of the storage cluster, but it is corrupted at the file system level and you have multiple copies of bad data._ If you resize the Volume, you also have to expand the file system as well. What if you used storage for thousands of images or for organizing logs? Object Storage using Spaces on DigitalOcean may be a better storage option.
 
-Just as the previous example showed, redundancy of storage is not a substitute for backing up data. What if a change was made to the only copy of a file, or a file was removed from a Volume when there was no backups?  We will cover more aspects of data backup and recovery in the next chapter.
+Just as the local Droplet storage example showed, redundancy of storage is not a substitute for backing up data. What if a change was made to the only copy of a file, or a file was removed from a Volume when there was no backups?  We will cover more aspects of data backup and recovery in the next chapter.
 
 #####  Storage Checklist
 <table>
