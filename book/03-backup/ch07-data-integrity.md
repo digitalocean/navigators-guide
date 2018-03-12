@@ -34,16 +34,17 @@ The local Droplet storage is the highest performing storage option that is avail
 
 
 ### Block Storage Volumes
-Local Droplet storage sizes increase in a linear fashion with other resources. A larger Droplet will have more local storage. Often you may find that you need more storage on a smaller Droplet. Block Storage Volumes allow you to attach additional drives to Droplets. 
+Local Droplet storage sizes increase in a linear fashion with other resources. A larger Droplet will have more local storage along with more memory and vCPU cores. Often you may find that you need more storage on a smaller Droplet. Block Storage Volumes allow you to do this by attaching additional drives to Droplets. For example, a 1GB Droplet that costs $5 per month could have an additional 16TB of storage by attaching a Volume. 
 
 There are a few main benefits to storing your data on a Volume:
 * The storage cluster has a built in redundancy ensuring multiple copies of your data within the cluster
 * Volumes and Volume Snapshots are encrypted at rest with AES-256 bit LUKS encryption within the storage cluster
-    * The file system on the Volume can also be placed in a LUKES encrypted drive
+    * The file system on the Volume can also be placed in a LUKS encrypted drive
 * Volumes can be increased independently as needed up to 16TB
 * A Volume can be detached from one Droplet and attached to a different Droplet in the same region easily
 
-You can see that the redundancy and security of the data is increased with Volumes. Also, it's easy to move data to a new Droplet should an existing Droplet begin to exhibit problems. 
+You can see that the redundancy and security of the data is increased with Volumes. Also, it's easy to move data to a new Droplet should an existing Droplet begin to exhibit problems. Volumes are attached or detached by simple controls on the DigitalOcean web control panel or through the API. A new Droplet will 
+have access to existing data once attaching the Volume holding the data and mounting the file system on the Volume.
 
 Block Storage Volumes are limited in performance when compared to the local Droplet storage. The storage cluster that hosts Volumes are equipped with 100% solid state drives (SSD), but there is an inherent performance as the Volumes are attached to Droplets over network connections. Volumes may not be an ideal storage solution for use cases requiring an intense amount of input/output operations per second (IOPS). Placing the files for a database on a Volume is one example of a heavy I/O use case.
 
