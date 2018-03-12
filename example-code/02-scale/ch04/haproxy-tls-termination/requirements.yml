@@ -1,0 +1,4 @@
+# install roles
+- src: https://github.com/cmndrsp0ck/ansible-haproxy-tls-termination.git
+
+- src: https://github.com/cmndrsp0ck/ansible-nginx-backend.git

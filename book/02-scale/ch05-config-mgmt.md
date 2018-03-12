@@ -53,7 +53,7 @@ resource "digitalocean_loadbalancer" "public" {
     target_port     = 80
     target_protocol = "http"
 
-    certificate_id = "${digitalocean_certificate.slack_cert.id}"
+    certificate_id = "${digitalocean_certificate.example_cert.id}"
   }
 
   healthcheck {
@@ -107,7 +107,7 @@ Another option is to replicate the path of your file system on which your sessio
 
 The next two methods are also similar to one another and that is to create your application in a way that stores user sessions in either a database or in-memory cache like Redis. Using your database makes things easy because your application is already setup to connect to it for all other processes when requesting data. However, for a highly active site this does put a little more overhead on the database, but for most use-cases it's negligible. The last option I'm mentioning is using an in-memory cache like Redis or Memcached. It obviously means you'll be creating a few more Droplets but it is lightning fast, extremely versatile, and you can use it to cache database query responses which can speed things up for you.
 
-For the sake of making things easy, we're going to be launching a Ghost blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to code. 
+For the sake of making things easy, we're going to be launching a Ghost blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to code.
 
 **speeding up the ability to scale with prebuilt images**  
 * using packer

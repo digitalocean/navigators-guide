@@ -1,0 +1,11 @@
+.DS_Store
+site.retry
+*.retry
+*.tfstate.*
+*.tfstate
+*.tfvars
+*.pyc
+.terraform/
+roles/
+cert/cert*
+
