@@ -4,8 +4,8 @@ In the traditional sense, having a "DR Plan" meant that your business would be a
 In this chapter, we'll take a different approach and actively simulate disasters. This effort takes time and time is money. However this investment in time and planning will dramatically reduce the costs incurred during real disasters. As your business grows, your infrastructure needs scale, and building these processes now will form the direction you scale and the momentum your business has as it's growing.
 
 **Keep in mind, there can be two types of disasters:**
-1. Disasters out of your control (Incidents at the infrastructure provider layer)
-2. Disaster within your control (Incidents within your application layer)
+1. Disasters out of your control (incidents at the infrastructure provider layer)
+2. Disaster within your control (incidents within your application layer)
 
 We'll look at some concerns around backups and geographic locations that help to work around infrastructure provider incidents, but we'll quickly switch to types of incidents that are within our control and how to acitvly participate in measuring and reducing their impact. 
 
