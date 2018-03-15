@@ -3,6 +3,12 @@ In the traditional sense, having a "DR Plan" meant that your business would be a
 
 In this chapter, we'll take a different approach and actively simulate disasters. This effort takes time and time is money. However this investment in time and planning will dramatically reduce the costs incurred during real disasters. As your business grows, your infrastructure needs scale, and building these processes now will form the direction you scale and the momentum your business has as it's growing.
 
+**Keep in mind, there can be two types of Disasters:**
+1. Disasters out of your control (Incidents at the infrastructure provider layer)
+2. Disaster within your control (Incidents within your application layer)
+
+We'll look at some concerns around backups and geographic locations that help to work around infrastructure provider incidents, but we'll quickly switch to types of incidents that are within our control and how to acitvly participate in measuring and reducing their impact. 
+
 ## Actually Testing Backups
 I say "actually" because like the majority of most people, I trust my backups. Granted, when it comes to my personal infrastructure needs there are no consequences beyond loosing a small amount of data if a backup is corrupted.
 
@@ -22,11 +28,26 @@ Working up to a fully redundant multi-region approach may look like keeping hot-
 The caveat to this theory is that outside forces such as large-scale DDoS attacks will still make every online cluster vulnerable and able to be taken offline. Routing all traffic through a CDN and DDoS service like CloudFlare[^1] will be your best defense and prevent the surge of traffic from reaching your infrastructure. 
 
 ## Chaos Engineering
-The first step in fixing something is getting it to break. 
+The first step in fixing something is getting it to break. We reached out to DigitalOcean and Dropbox alum Tammy Butow who is a Principal SRE at Gremlin. Gremlin offers a 'Chaos Engineering as a Service' product and promotes the tools and methodologies that embody the Chaos Engineering movement.  When we asked Tammy to introduce us (and you) to Chaos Engineering, this is what she had to say:
 
-<!-- TODO: Intro basics of Chaos Engineering? -->
+> I have been able to gain a deep understanding of how failures impact reliability from a customer and cloud infrastructure provider perspective. According to Information Technology Intelligence Consulting Research[^2], 98% of organizations report that a single hour of downtime can cost upwards of $100,000. I urge all engineers to take charge of your infrastructure, don’t let failure bite you when you least expect it. 
+
+> There are three ways to minimize the impact of SEVs that I recommend:  
+
+> Establish an Incident Manager On-Call (IMOC) Role and Rotation
+> Identify and assess the reliability of your top five most critical services
+> Practice Chaos Engineering
+ 
+> Chaos Engineering is a disciplined approach to identify failures before they become high severity incidents (SEVs). The practice of Chaos Engineering involves “breaking things on purpose” to build more resilient systems. Think of Chaos Engineering as a controlled flu vaccine. You need to inject something harmful, in order to build an immunity. Chaos engineering compares what you think will happen when failure strikes to what actually happens. 
+
+> The Chaos Engineering Slack Community[^3] is a great place to learn more about Chaos Engineering. 
+ 
+
+
 
 
 
 ---
 [^1]: Cloudflare https://www.cloudflare.com/
+[^2]: How Much Does 1 Hour of Downtime Cost the Average Business? https://www.randgroup.com/insights/cost-of-business-downtime/
+[^3]: Chaos Engineering Slack Community https://slofile.com/slack/chaosengineering
