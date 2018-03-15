@@ -25,7 +25,7 @@ Actively choosing to not be reliant on a single region/datacenter within cloud i
 
 Working up to a fully redundant multi-region approach may look like keeping hot-standby instances running and in sync with production in another region that can take the place of your production instances if the region should go offline. Keeping the active and passive clusters in sync and the ability to use either cluster without missing some data can be the tricky part. Once a multiple clusters can actively participate in production workloads, adding additional logic can help. Using a geo-DNS service can direct users to the closest active cluster. To that point, you can remove a cluster from the DNS zone automatically based on alerts and health metrics and the impact to your users would be measured in a matter of minutes.
 
-The caveat to this theory is that outside forces such as large-scale DDoS attacks will still make every online cluster vulnerable and able to be taken offline. Routing all traffic through a CDN and DDoS service like CloudFlare[^1] will be your best defense and prevent the surge of traffic from reaching your infrastructure. 
+The caveat to this theory is that outside forces such as large-scale DDoS attacks will still make every online cluster vulnerable and able to be taken offline. Routing all traffic through a CDN and DDoS mitigation service like CloudFlare[^1] will be your best defense and prevent the surge of traffic from reaching your infrastructure. 
 
 ## Chaos Engineering
 The first step in fixing something is getting it to break. The Chaos Engineering movement seeks to fix issues and prevent incidents by forcing failover and service interruptions in a controlled test.
