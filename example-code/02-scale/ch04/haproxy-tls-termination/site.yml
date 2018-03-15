@@ -1,0 +1,14 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: True
+
+- hosts: web_node
+  roles:
+    - ansible-nginx-backend
+  become: True
+
+- hosts: load_balancer
+  roles:
+    - ansible-haproxy-tls-termination
+  become: True

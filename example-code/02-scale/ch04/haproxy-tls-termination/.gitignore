@@ -1,0 +1,10 @@
+.DS_Store
+site.retry
+*.tfstate.*
+*.tfstate
+*.tfvars
+.terraform
+terraform.tfstate.d
+vault*
+*.pyc
+venv
