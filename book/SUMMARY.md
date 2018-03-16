@@ -1,6 +1,6 @@
 # Summary
 
-* [Introduction: Scaling and Growing Infrastructure](README.md)
+* [Preface: Scaling and Growing Infrastructure](README.md)
 * [Part 1 - Background and Setup](01-intro/README.md)
     * [Chapter 1 - DigitalOcean, Customer Success, and You](01-intro/ch01-intro-to-do.md)
     * [Chapter 2 - The Problems and Our Solutions](01-intro/ch02-problems.md)
