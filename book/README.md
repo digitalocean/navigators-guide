@@ -36,6 +36,19 @@ Parts 2 through 5 are the meat of the book. That's where we'll teach you how to 
 
 Before we do that, we want to make sure that everyone start with the same foundation. That's what Part 1, Background and Setup, is for. It consists of the first three chapters of the book. Chapter 1 gives some background on DigitalOcean and us, the authors. Chapter 2 covers the problems we see businesses encounter with cloud computing and our solutions to them (i.e. a more detailed overview of Parts 2 through 5). Chapter 3 walks you through the tools we'll use to build the infrastructure described in this book, and how to get your environment set up to follow along.
 
+## Follow Code Examples
+
+This book was created as an open source project. Like many open source projects, the files and data that are used to generate the book are available in a repository. The repository is available online at https://github.com/{{ book.nav-repo }}. The two important directories are "book" which includes the markdown files for this book, and "code" which include all the code examples found in the book. 
+
+#### Book Contents:
+We are using the Gitbook Toolchain[^1] to create this book. You'll find the contents formatted in markdown. 
+#### Code Examples: 
+This book may mention a YAML file to be used as user-data when creating a Droplet or deploying a configuration with an Ansible playbook. All of those examples are found organized by chapter in the "code" directory. 
+<!-- TODO: Add OSS license to repo -->
+
+## Let's Get Started!
+
 We wrote this book with a single narrative in mind, which means it flows naturally if you read it linearly from start to finish. However, we kept each section as modular as possible, so if you're already familiar with the concepts covered in a particular chapter, you can skim it or just skip to the next one.
 
-Let's get started!
+[^1]: Gitbook Toolchain: https://toolchain.gitbook.com/ 
+
