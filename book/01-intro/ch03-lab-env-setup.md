@@ -56,6 +56,7 @@ You'll notice a text area open up when you select the option for *user data*. We
 
 ```yaml
 #cloud-config
+# Source:  https://github.com/{{ book.nav-repo }}/example-code/01-intro/ch03/cloud-config.yaml
 
 users:
   - name: <username>
@@ -80,6 +81,7 @@ runcmd:
   - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]
   - [pip, install, -U, pip, ansible]
 ```
+
 
 The Droplet is going to be up and running pretty quickly, but give the commands you pasted in some time to complete execution. You can always look in on */var/log/cloud-init-output.log* to see where it stands, or just shell into the Droplet and check to see if the ansible command is available yet since it's the last package installed. If you want to install all of the individual pieces of software manually, you absolutely can. Terraform and terraform-inventory are both just Go binaries that need to placed within your $PATH. As for ansible, I prefer installing it using pip over the system package manager since it stays up to date as well as being able to install within a virtualenv. 
 
