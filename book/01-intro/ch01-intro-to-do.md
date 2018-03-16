@@ -29,7 +29,7 @@ You can find detailed information on [our products](https://www.digitalocean.com
 
 We, the authors, are Fabian Barajas and Jon Schwenn <!-- TODO: Want to include links to your websites/Twitter/whatever? something something personal brand. -->. We're both Solutions Engineers on the Customer Success team at DigitalOcean.
 
-Fabian Barajas <!-- TODO: Fabian intro -->
+Fabian Barajas was ten years old when he first decided to apply to Starfleet. He knew deep down that passing the entrance exams to the Academy wouldn't be easy. After multiple attempts, Fabian aced his Hyperspace physics test. He currently holds the rank of Lieutenant  and is stationed at Starbase 375. He has masted time travel and that is how he is able to impart the wisdom to help deploy robust infrastructure in the twenty first century.<!-- TODO: Fabian intro -->
 
 Jon Schwenn has worked in multiple teams at DigitalOcean since 2015. His prior accomplishments include founding a specialty colocation service that hosted thousands of Mac servers, creating and administering a fairly large automotive internet forum, and building an e-commerece system from scratch with ColdFusion in 2001. It was different times back then. Jon is a Red Hat Certified Architect and has been using Linux professionally since 2003. 
 
