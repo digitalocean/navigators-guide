@@ -34,16 +34,17 @@ The local Droplet storage is the highest performing storage option that is avail
 
 
 ### Block Storage Volumes
-Local Droplet storage sizes increase in a linear fashion with other resources. A larger Droplet will have more local storage. Often you may find that you need more storage on a smaller Droplet. Block Storage Volumes allow you to attach additional drives to Droplets. 
+Local Droplet storage sizes increase in a linear fashion with other resources. A larger Droplet will have more local storage along with more memory and vCPU cores. Often you may find that you need more storage on a smaller Droplet. Block Storage Volumes allow you to do this by attaching additional drives to Droplets. For example, a 1GB Droplet that costs $5 per month could have an additional 16TB of storage by attaching a Volume. 
 
 There are a few main benefits to storing your data on a Volume:
-* The storage cluster has a built in redundancy ensuring multiple copies of your data within the cluster
+* The Volume storage cluster is a distributed system that has multiple copies of your data within the cluster
 * Volumes and Volume Snapshots are encrypted at rest with AES-256 bit LUKS encryption within the storage cluster
-    * The file system on the Volume can also be placed in a LUKES encrypted drive
+    * The file system on the Volume can also be placed in a LUKS encrypted drive
 * Volumes can be increased independently as needed up to 16TB
 * A Volume can be detached from one Droplet and attached to a different Droplet in the same region easily
 
-You can see that the redundancy and security of the data is increased with Volumes. Also, it's easy to move data to a new Droplet should an existing Droplet begin to exhibit problems. 
+You can see that the redundancy and security of the data is increased with Volumes. Also, it's easy to move data to a new Droplet should an existing Droplet begin to exhibit problems. Volumes are attached or detached by simple controls on the DigitalOcean web control panel or through the API. A new Droplet will 
+have access to existing data once attaching the Volume holding the data and mounting the file system on the Volume.
 
 Block Storage Volumes are limited in performance when compared to the local Droplet storage. The storage cluster that hosts Volumes are equipped with 100% solid state drives (SSD), but there is an inherent performance as the Volumes are attached to Droplets over network connections. Volumes may not be an ideal storage solution for use cases requiring an intense amount of input/output operations per second (IOPS). Placing the files for a database on a Volume is one example of a heavy I/O use case.
 
@@ -76,7 +77,7 @@ NOTE: Because a Volume is attached over a network connection to a Droplet, the V
 
 Block Storage is literally a block of storage. You run a file system on top of the device and it the Droplet interprets it just as it would an additional hard drive on a physical server. This also means that you not only have to be mindful of the file system, but the size of the Volume as well.  **What if the file system has some level of corruption?** _The data is copied in multiple places of the storage cluster, but it is corrupted at the file system level and you have multiple copies of bad data._ If you resize the Volume, you also have to expand the file system as well. What if you used storage for thousands of images or for organizing logs? Object Storage using Spaces on DigitalOcean may be a better storage option.
 
-Just as the previous example showed, redundancy of storage is not a substitute for backing up data. What if a change was made to the only copy of a file, or a file was removed from a Volume when there was no backups?  We will cover more aspects of data backup and recovery in the next chapter.
+Just as the local Droplet storage example showed, redundancy of storage is not a substitute for backing up data. What if a change was made to the only copy of a file, or a file was removed from a Volume when there was no backups?  We will cover more aspects of data backup and recovery in the next chapter.
 
 #####  Storage Checklist
 <table>
@@ -96,15 +97,20 @@ Just as the previous example showed, redundancy of storage is not a substitute f
 
 
 ### Object Storage with Spaces
-Up to this point, we have discussed storage options that are available to a single Droplet at a time. The Droplet is the main mechanism for accessing your data. Object Storage does away with this. Amazon pioneered mainstream Object Storage with their S3 product. <!-- TODO: Trademark/copywrite needed?  --> S3 stands for _Simple Storage Service_. While the concept is simple in nature, using S3 hasn't always been use friendly. Luckily a large amount of third party software writers have built software and libraries for interacting with S3 and the subsequent S3-compatible services that have sprung up. 
+Up to this point, we have discussed storage options that are available to a single Droplet at a time. The Droplet is the main mechanism for accessing your data within a file system. Object Storage does away with this in an extensible method with APIs. Amazon pioneered mainstream Object Storage with their S3 product. <!-- TODO: Trademark/copywrite needed?  --> S3 stands for _Simple Storage Service_. While the concept is simple in nature, using S3 hasn't always been use friendly. If you think about your first interaction with a file system and basic file work Luckily a large amount of third party software writers have built software and libraries for interacting with S3 and the subsequent S3-compatible services that have sprung up. 
 
-Spaces is DigitalOcean's version of Object Storage. DigitalOcean Spaces and Volumes are built on top of an open source project called Ceph. Ceph has multiple components and it is important to look at the components to understand the characteristics of this storage option. 
+Spaces is DigitalOcean's version of Object Storage. DigitalOcean Spaces and Volumes are built on top of an open source project called Ceph. Ceph has multiple components and it is important to look at the components to understand the characteristics of this storage option since it differs so much from traditional file system hierarchies. 
 
+#### Frontend: 
+* An Object is a binary "blob" that is your file contents with added attributes such as metadata 
+* A Space is the storage group for your objects. You can have multiple Spaces. This is equivalent to a Bucket on S3
+
+#### Backend:
 * The Object Storage Device (OSD) is the physical / logical drive storing data. Spaces is the only storage option on DigitalOcean that uses mostly hard disk drives (HDD) instead of only using solid state drives (SSD). The data (objects) are stored across multiple OSD's
 * The RADOS Gateway (RGW) is what provides the interface with the storage objects and acts as an S3-compatible API gateway
 * There are other monitor, map, and pool aspects that keep the cluster functioning, but are less important for our discussion
 
-The Spaces backend is made up of many OSD's. The data is stored is encrypted and is managed as individual files. The multiple copies of each object are compared daily to provide data integrity. There should no data corruption because if one copy doesn't match up, the cluster will resolve the issue by correcting the error automatically. 
+The Spaces backend is made up of many OSD's. The data is stored is encrypted and is managed as individual objects (files). The multiple copies of each object are compared daily to provide data integrity. There should no data corruption because if one copy doesn't match up, the cluster will resolve the issue by correcting the error automatically. 
 
 __Because any computer on the internet can send requests to the RGW's, there is no need for a Space to exist in the same region as a Droplet__. For example Droplets in NYC1 or NYC2 will have fast access to the Spaces in NYC3 through our NYC regional fiber ring. 
 

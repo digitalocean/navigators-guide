@@ -1,2 +1,3 @@
-#Part 1
-#Background and Setup
+# Part 1
+
+# Background and Setup

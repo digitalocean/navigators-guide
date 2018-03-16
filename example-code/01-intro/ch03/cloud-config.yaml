@@ -22,3 +22,4 @@ runcmd:
   - [curl, -L, -o, /tmp/terraform-inventory.zip, "https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip"]
   - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]
   - [pip, install, -U, pip, ansible]
+  - [git https git://github.com/digtialocean/navigators-guide.git]

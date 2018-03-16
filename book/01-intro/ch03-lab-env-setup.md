@@ -52,10 +52,11 @@ Go ahead and select **Create Droplet**. On the next page you'll see quite a few 
 * Droplet name of your choice
 * a quantity of 1
 
-You'll notice a text area open up when you select the option for *user data*. We're going to copy-paste this script inside to allow the cloud-init service to install Python 2.7, pip, git, zip, Terraform, terraform-inventory, and Ansible. Just remember to set your desired username and your public SSH key.
+You'll notice a text area open up when you select the option for *user data*. We're going to copy-paste this script inside to allow the cloud-init service to install Python 2.7, pip, git, zip, Terraform, terraform-inventory, and Ansible. **Just remember to set your desired username and your public SSH key.**
 
 ```yaml
 #cloud-config
+# Source:  https://github.com/{{ book.nav-repo }}/example-code/01-intro/ch03/cloud-config.yaml
 
 users:
   - name: <username>
@@ -79,9 +80,12 @@ runcmd:
   - [curl, -L, -o, /tmp/terraform-inventory.zip, "https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip"]
   - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]
   - [pip, install, -U, pip, ansible]
+  - [git clone https://github.com/digtialocean/navigators-guide.git]
 ```
 
 The Droplet is going to be up and running pretty quickly, but give the commands you pasted in some time to complete execution. You can always look in on */var/log/cloud-init-output.log* to see where it stands, or just shell into the Droplet and check to see if the ansible command is available yet since it's the last package installed. If you want to install all of the individual pieces of software manually, you absolutely can. Terraform and terraform-inventory are both just Go binaries that need to placed within your $PATH. As for ansible, I prefer installing it using pip over the system package manager since it stays up to date as well as being able to install within a virtualenv. 
+
+<!-- TODO: We'll need to explain a bit more about "shelling" into the Droplet and then also exploring the navigators-guide folder and where to find items (Jon) -->
 
 Now let's shell into the Droplet and create an ssh key for your ansible control machine which we'll later place on your nodes. Here's a simple one liner to create a key and comment it using your Droplet's hostname: `ssh-keygen -t rsa -C $(hostname -f)`
 
