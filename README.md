@@ -11,7 +11,7 @@ This repository contains the book: _The Navigator's Guide to DigitalOcean_ along
 * Jon Schwenn - @jonschwenn
 
 **Editor:**
-* Hazel Virdó - @hazel-DO
+* Hazel Virdó - @hazel-nut
 
 **Layout Info:**
 * We follow the [gitbook toolchain](https://toolchain.gitbook.com/) currently
