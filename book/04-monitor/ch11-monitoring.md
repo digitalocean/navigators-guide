@@ -3,6 +3,8 @@ Now that you have an idea of what data is important to your business, we can beg
 
 It would be impossible to outline every option there is for achieving these goals. There are a lot of companies and open-source projects that make monitoring software. We're going to highlight a few to help you get started.
 
+It's important to note that there is no specific best tools or limits of tooling. If you find one option works best for your business or a combination of multiple options, that's fine. Do what makes sense and has the best results.
+
 ## Prometheus & Grafana
 We'll start with an open-source software running on a Droplet. We'll use Prometheus to collect metrics and Grafana to visually display it.
 
