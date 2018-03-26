@@ -1,7 +1,5 @@
 # Storage on DigitalOcean
 
-<!-- TODO: Need to work on table formatting --> 
-
 Before we talk about backup, restore, and disaster recovery planning, it is important to explain the storage options available on DigitalOcean. Not all storage is created equal and it is important to know the implications of each storage option.
 
 There are three main considerations for each storage option. No one option has all these points perfectly solved. Each option has a compromise in one or more of the following areas:
