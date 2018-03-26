@@ -38,7 +38,7 @@ Before we do that, we want to make sure that everyone start with the same founda
 
 ## Follow Code Examples
 
-This book was created as an open source project. Like many open source projects, the files and data that are used to generate the book are available in a repository. The repository is available online at https://github.com/{{ book.nav-repo }}. The two important directories are "book" which includes the markdown files for this book, and "example-code" which include all the code examples found in the book. 
+This book was created as an open source project. Like many open source projects, the files and data that are used to generate the book are available in a repository. The repository is available online at https://github.com/{{ config.nav-repo }}. The two important directories are "book" which includes the markdown files for this book, and "example-code" which include all the code examples found in the book. 
 
 #### Book Contents:
 We are using the Gitbook Toolchain[^2] to create this book. You'll find the contents formatted in markdown. 
