@@ -43,10 +43,41 @@ There are a few main benefits to storing your data on a Volume:
 * Volumes can be increased independently as needed up to 16TB
 * A Volume can be detached from one Droplet and attached to a different Droplet in the same region easily
 
-You can see that the redundancy and security of the data is increased with Volumes. Also, it's easy to move data to a new Droplet should an existing Droplet begin to exhibit problems. Volumes are attached or detached by simple controls on the DigitalOcean web control panel or through the API. A new Droplet will 
-have access to existing data once attaching the Volume holding the data and mounting the file system on the Volume.
+You can see that the redundancy and security of the data is increased with Volumes. Also, it's easy to move data to a new Droplet should an existing Droplet begin to exhibit problems. Volumes are attached or detached by simple controls on the DigitalOcean web control panel or through the API. A new Droplet will have access to existing data once attaching the Volume holding the data and mounting the file system on the Volume.
 
 Block Storage Volumes are limited in performance when compared to the local Droplet storage. The storage cluster that hosts Volumes are equipped with 100% solid state drives (SSD), but there is an inherent performance as the Volumes are attached to Droplets over network connections. Volumes may not be an ideal storage solution for use cases requiring an intense amount of input/output operations per second (IOPS). Placing the files for a database on a Volume is one example of a heavy I/O use case.
+
+#### Performance Expectations
+<table>
+<tr>
+<td><strong>Droplet Type</strong></td>
+<td><strong>IOPS</strong></td>
+<td><strong>Throughput</strong></td>
+</tr>
+<tr>
+<td>Standard</td>
+<td>5,000</td>
+<td>200 mbps</td>
+</tr>
+<tr>
+<td>Standard - Burst</td>
+<td>7,500</td>
+<td>300 mbps</td>
+</tr>
+<tr>
+<td>Optimized</td>
+<td>7,500</td>
+<td>300 mbps</td>
+</tr>
+<tr>
+<td>Optimized - Burst</td>
+<td>10,000</td>
+<td>350 mbps</td>
+</tr>
+</table>
+
+Burst speeds are available automatically for 60 seconds. The Burst speed will be available once again after the I/O needs go below the default maximum speeds per Droplet type. For example, if your Optimized Droplet is sending more than 300 mbps to a Volume, it will burst up to 350 mbps for 60 seconds and can burst again once the I/O requests fall below 300 mbps.
+
 
 NOTE: Because a Volume is attached over a network connection to a Droplet, the Volume and Droplet need to be in the same region. 
 
