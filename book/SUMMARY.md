@@ -3,7 +3,7 @@
 * [Preface: Scaling and Growing Infrastructure](README.md)
 * [Part 1 - Background and Setup](01-intro/README.md)
   * [Chapter 1 - DigitalOcean, Customer Success, and You](01-intro/ch01-intro-to-do.md)
-  * [Chapter 2 - The Problems and Our Solutions](01-intro/ch02-problems.md)
+  * [Chapter 2 - Our Solutions for Cloud Computing](01-intro/ch02-solutions.md)
   * [Chapter 3 - Lab Environment Setup](01-intro/ch03-lab-env-setup.md)
 * [Part 2 - Scaling and Preventing Downtime](02-scale/README.md)
   * [Chapter 4 - High Availability](02-scale/ch04-ha.md)
