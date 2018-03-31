@@ -98,7 +98,6 @@ We mentioned the changes to user sessions you'd need to take into account when p
 | file system replication | :x: | :heavy_check_mark: | :x: |
 | database | :x: | :heavy_check_mark: | :heavy_check_mark: |
 | in-memory data store | :x: | :heavy_check_mark: | :heavy_check_mark: |
-
 Again, whichever method you think will work best for your application is up to you. IP source affinity looks at the originating requests IP address and then any subsequent request will continue to hit the same backend. This may not work for you though because if you have visitors coming from behind a router using NAT then they will all have the same IP as far as the load balancer is concerned and all requests from any users on that originating network will go to the same backend. If that backend does happen to go down and the sessions are not shared among all backends, then the users will need to log back in.
 
 The load balancer and application session are similar in their function since it really just configured the load balancer to look at the IP header information to determine which backend to send requests to and that can be adjusted even further by implementing a stick-table.
@@ -109,6 +108,10 @@ The next two methods are also similar to one another and that is to create your 
 
 For the sake of making things easy, we're going to be launching a Ghost blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to code.
 
+---
+
 **speeding up the ability to scale with prebuilt images**  
 * using packer
   * Ansible is yet again useful when building your images
+
+So far we've spun up a Load Balancer with a few dummy backends to give you an example of how easy it is to deploy a highly available service, but the dummy backends are not really useful in the real world. In most cases you'll have an application running on your backends that need to be ready to service requests as soon as they've been added to your Load Balancer's configuration. Spinning 
