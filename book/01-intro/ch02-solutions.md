@@ -14,6 +14,8 @@ In the late 2000s, in response to these growing market demands, the virtual serv
 
 Cloud computing was less clearly defined in its earlier days, but the concept was marketed as an fault-tolerant, always online infrastructure solution with built-in data redundancy. While may not be the case by default, it's possible to build, and this book will show you how. We'll architect solutions to prevent common cloud infrastructure issues, and by the end, your infrastructure will stay online, scale as you need it, and be both secure and easy to troubleshoot.
 
+A single cloud instance is a single point of failure. Our solution distributions your application across many instances.
+
 ## Our Solutions
 
 This book is broken into five parts. Here's a more detailed overview of each. If you don't understand some of the concepts in these overviews, don't worry. That's exactly what this book will teach you.

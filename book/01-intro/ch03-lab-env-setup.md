@@ -24,6 +24,8 @@ Playbooks are YAML files which define the automation you want to manage with Ans
 
 Ansible was created to push configuration changes outward which differs from other configuraiton management tools like  Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple ssh connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
 
+<!-- TODO: ansible modules overview, specific modules for DO; ansible isn't stateful like puppet, so don't make snowflakes; ansible + ansible-doc are user friendly. https://twitter.com/laserllama/status/976135074117808129 -->
+
 #### `terraform-inventory`
 
 `terraform-inventory` is a dynamic inventory script that pulls resource information from Terraform's state file and outputs it in a way that Ansible can use to target specific hosts when executing playbooks. It gets a little more complicated than that, but the key point is that `terraform-inventory` makes it easier for you to use Terraform and Ansible together.
