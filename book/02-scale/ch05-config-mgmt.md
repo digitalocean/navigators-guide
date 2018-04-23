@@ -107,18 +107,18 @@ Another option is to replicate the path of your file system on which your sessio
 
 The next two methods are also similar to one another and that is to create your application in a way that stores user sessions in either a database or in-memory cache like Redis. Using your database makes things easy because your application is already setup to connect to it for all other processes when requesting data. However, for a highly active site this does put a little more overhead on the database, but for most use-cases it's negligible. The last option I'm mentioning is using an in-memory cache like Redis or Memcached. It obviously means you'll be creating a few more Droplets but it is lightning fast, extremely versatile, and you can use it to cache database query responses which can speed things up for you.
 
-For the sake of making things easy, we're going to be launching a Ghost blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to the code.
+For the sake of making things easy, we're going to be launching a Ghost blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to the code. We will need to do some preliminary work to get get things up and running like splitting up our environments, looking for a way to handle file storage, and getting a separate database server stood up.
 
 ---
 
 <!-- split to own file for ch05.1 -->
-
+**Environments**
 <!-- environments -->
   * dev
   * staging
   * prod
 
-Before we jump into deploying Droplets and services all willy-nilly, let's go over our environments. In most cases you're going to have a dev, staging, and production environment to allow yourself room to tinker, test, and deploy without having to worry about bringing your live site down. Terraform provides a workspace feature that keeps the terraform.tfstate files separate from one another. However, we're actually not going to be using that since we're going to make use of Ansible for Droplet configuration at boot time and use directory structure to isolate environments. This can be done a few different ways and often times it comes down to personal preference or whatever works best for your project. Here's an example structure.
+Before we jump into deploying Droplets and services all willy-nilly, let's go over our environments. In most serious projects you're going to have a dev, staging, and production environment to allow yourself room to tinker, test, and deploy without having to worry about bringing your live site down. Doing a little planning ahead of time will go a long way in preventing headaches. Terraform provides a workspace feature that keeps the terraform.tfstate files separate from one another. However, we're actually not going to use that since we're going to make use of Ansible for Droplet configuration after boot up and use directory structure to isolate environments. This can be done a few different ways and often times it comes down to personal preference or whatever works best for your project. Here's an example structure.
 
 ```
 .
@@ -150,14 +150,14 @@ Before we jump into deploying Droplets and services all willy-nilly, let's go ov
 
 ```
 
-One other thing to note is that we're not configuring Terraform to use remote state since that's out of the scope of this book. Just know that when you're working with a team, you'll want to look into setting up a remote state backend like Consul which supports state locking. Okay, let's go over a few things to explain the logic behind this type of layout. The first is that we're keeping files that pertain to similar components in different environments apart from one another. The important thing is that we don't want to run some Ansible or Terraform scripts on the wrong environment and bring everything crashing down. We do this by placing directories in the **environments** dir and each one gets its own subdirectory. Since we're using Terraform, we can place our individual scripts per environment in each directory, and we can go even further by placing different parts of your infrastructure in further subdirectories in order to isolate each of them from one another. Let's use your staging environment as an example. You can break down staging into the components it's comprised of like your database, file storage (Spaces), Load Balancer, Application Droplets and so on. There are actually some really great write-ups about this topic online, one of which has actually turned into the book, *"Terraform: Up & Running"* by Yevgeniy Brikman. You can check out his blog post which covers this in more detail: https://blog.gruntwork.io/a-comprehensive-guide-to-terraform-b3d32832baca
+One other thing to note is that we're not configuring Terraform to use remote state since that's out of the scope of this book. Just know that when you're working with a team, you'll want to look into setting up a remote state backend like Consul which supports state locking. Okay, let's go over a few things to explain the logic behind this type of layout. The first is that we're keeping files that pertain to similar components in separate environments apart from one another. The important thing is that we don't want to run some Ansible or Terraform scripts on the wrong environment and bring everything crashing down. We do this by placing directories in the **environments** dir and each one gets its own subdirectory. Since we're using Terraform, we can place our individual scripts per environment in each directory, and we can go even further by placing different parts of your infrastructure in further subdirectories in order to isolate each of them from one another. Let's use your staging environment as an example. You can break down staging into the components it's comprised of like your database, file storage (Spaces), Load Balancer, Application Droplets and so on. There are actually some really great write-ups about this topic online, one of which has actually turned into the book, *"Terraform: Up & Running"* by Yevgeniy Brikman. You can check out his blog post which covers this in more detail: https://blog.gruntwork.io/a-comprehensive-guide-to-terraform-b3d32832baca
 
-We're also going to make use of versioned Terraform modules in our setup. What this allows you to do is make changes to your infrastructure in staging without affecting production. You don't want to make a breaking change in production just by updating a resource configuration in staging. Here's an example of what that would look like.
+We're also going to make use of versioned Terraform modules in our setup. What this allows you to do is make changes to your infrastructure in staging without affecting production. You don't want to make a breaking change in production just by updating a resource configuration in one of you modules. Here's an example of what that would look like.
 
 *staging*
 ```
 module "sippin_db" {
-  source           = "git::ssh://git@bitbucket.org/cmndrsp0ck/galera-cluster-tf.git?ref=v1.0.4"
+  source           = "github.com/cmndrsp0ck/galera-tf-mod.git?ref=v1.0.4"
   project          = "${var.project}"
   region           = "${var.region}"
   keys             = "${var.keys}"
@@ -171,7 +171,7 @@ module "sippin_db" {
 *prod*
 ```
 module "sippin_db" {
-  source           = "git::ssh://git@bitbucket.org/cmndrsp0ck/galera-cluster-tf.git?ref=v1.0.2"
+  source           = "github.com/cmndrsp0ck/galera-tf-mod.git?ref=v1.0.2"
   project          = "${var.project}"
   region           = "${var.region}"
   keys             = "${var.keys}"
@@ -182,9 +182,13 @@ module "sippin_db" {
 }
 ```
 
-
+The only change in the previous 2 examples is the value assigned to the *ref* key at the end of the source line. You'll also notice that the arguments passed into the module are referencing variables set in **terraform.tfvars**. You can pass in strings within the same block that calls your modules if that's your preference.
 
 <!-- build out terraform module for load balancer -->
+**Terraform module**
+
+
+
 <!-- build out database -->
 <!-- build out single instance of ghost -->
 
@@ -258,8 +262,6 @@ The last section is not required, but in our case we'll make use of the manifest
 
 
 <!-- Database build out -->
-
-<!-- jenkins -->
 
 <!--  -->
 
