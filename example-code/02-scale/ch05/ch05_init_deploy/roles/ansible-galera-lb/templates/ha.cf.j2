@@ -1,0 +1,8 @@
+node {{ primary_name }}
+ucast eth0 {{ primary_address }}
+node {{ secondary_name }}
+ucast eth0 {{ secondary_address }}
+warntime 60ms
+deadtime 120ms
+keepalive 20ms
+initdead 60

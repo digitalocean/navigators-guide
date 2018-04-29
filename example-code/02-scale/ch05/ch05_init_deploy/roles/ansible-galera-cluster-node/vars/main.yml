@@ -1,0 +1,8 @@
+---
+galera_root_password: "{{ vault_galera_root_password }}"
+galera_sys_maint_password: "{{ vault_galera_sys_maint_password }}"
+galera_clustercheck_password: "{{ vault_galera_clustercheck_password }}"
+
+ghost_db_user: "{{ vault_ghost_db_user }}"
+ghost_db_pass: "{{ vault_ghost_db_pass }}"
+ghost_db_name: "{{ vault_ghost_db_name }}"

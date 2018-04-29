@@ -1,0 +1,39 @@
+#{{ ansible_managed }}
+
+[mysqld]
+binlog_format = 'ROW'
+default-storage-engine = InnoDB
+innodb_autoinc_lock_mode = 2
+innodb_doublewrite = 1
+
+# Galera Provider Configuration
+wsrep_on = ON # Enable wsrep replication (starting 10.1.1)
+wsrep_provider = /usr/lib/galera/libgalera_smm.so
+
+# Galera Cluster Configuration
+wsrep_provider_options = "gcache.size = 2G;socket.checksum  =  1"
+wsrep_cluster_name = "{{ galera_cluster_name }}"
+
+{% if galera_bootstrap %}
+wsrep_cluster_address = gcomm://
+{% else %}
+wsrep_cluster_address = gcomm://{%- for host in groups['galera_cluster_node'] -%}
+    {%- if hostvars[host]['galera_node_ip'] is defined -%}
+        {{ hostvars[host]['galera_node_ip']|trim }}
+    {%- else -%}
+        {{ hostvars[host]['ansible_eth1']['ipv4']['address']|trim }}
+    {%- endif -%}
+    {%- if not loop.last  -%},{%- endif -%}
+    {%- endfor -%}
+{% endif %}
+
+# Galera Synchronization Configuration
+wsrep_sst_method = rsync
+
+# Galera Node Configuration
+wsrep_node_name = "{{ inventory_hostname }}"
+wsrep_node_address = "{% if hostvars[inventory_hostname]['galera_node_ip'] is defined -%}
+{{ hostvars[inventory_hostname]['galera_node_ip'] }}
+{%- else %}
+{{ hostvars[inventory_hostname]['ansible_eth1']['ipv4']['address'] }}
+{%- endif %}"

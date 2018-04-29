@@ -1,0 +1,9 @@
+---
+# defaults file for galera-loadbalancer
+floating_ip: "{{ hostvars[groups['ha_db_fip'][0]]['ip_address'] }}"
+primary_node: "{{ hostvars[groups['galera_loadbalancer'][0]] }}"
+primary_name: "{{ primary_node.name }}"
+primary_address: "{{ primary_node.ansible_default_ipv4.address }}"
+secondary_node: "{{ hostvars[groups['galera_loadbalancer'][1]] }}"
+secondary_name: "{{ secondary_node.name }}"
+secondary_address: "{{ secondary_node.ansible_default_ipv4.address }}"

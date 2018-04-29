@@ -1,0 +1,14 @@
+#cloud-config
+users:
+  - name: ${ansible_user}
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh-authorized-keys:
+      - ${public_key}
+
+packages:
+  - curl
+  - python
+  - python-pip
+  - python-requests
+  - python-dev

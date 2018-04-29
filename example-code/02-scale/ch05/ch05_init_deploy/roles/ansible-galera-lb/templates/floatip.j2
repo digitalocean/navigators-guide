@@ -1,0 +1,28 @@
+#!/bin/bash
+### BEGIN INIT INFO
+# Provides:          floatip
+# Required-Start:    $local_fs $network $remote_fs $syslog $named
+# Required-Stop:     $local_fs $remote_fs $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: floating ip re-assignment
+# Description:       This file shoud be used for DigitalOcean floating ip re-assignment
+### END INIT INFO
+
+param=$1
+
+export DO_TOKEN='{{ galera_ha_do_token }}'
+IP='{{ floating_ip }}'
+ID=$(curl -s http://169.254.169.254/metadata/v1/id)
+
+if [ "start" == "$param" ] ; then
+  python /usr/local/bin/assign-ip $IP $ID
+  exit 0
+elif [ "stop" == "$param" ] ; then
+  exit 0;
+elif [ "status" == "$param" ] ; then
+  exit 0;
+else
+  echo "no such command $param"
+  exit 1;
+fi

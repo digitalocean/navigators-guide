@@ -1,0 +1,7 @@
+---
+# main.yml to import tasks
+- import_tasks: asserts.yml
+- import_tasks: server-base-prep.yml
+- import_tasks: nodejs-install.yml
+- import_tasks: ghost-install.yml
+- import_tasks: nginx-configure.yml

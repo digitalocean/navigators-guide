@@ -1,0 +1,22 @@
+---
+# handlers file for galera-loadbalancer
+- name: restart rsyslog
+  systemd:
+    name: rsyslog.service
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+
+- name: restart haproxy
+  systemd:
+    name: haproxy.service
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+
+- name: restart heartbeat
+  systemd:
+    name: heartbeat.service
+    enabled: yes
+    state: restarted
+    daemon_reload: yes

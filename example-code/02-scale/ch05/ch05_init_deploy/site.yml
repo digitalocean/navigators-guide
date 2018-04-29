@@ -1,0 +1,27 @@
+---
+# packer build playbook
+- hosts: all
+  gather_facts: yes
+  become: True
+
+- hosts: galera_loadbalancer
+  gather_facts: yes
+  become: True
+  tasks:
+    - import_role:
+        name: ansible-galera-lb
+
+- hosts: galera_cluster_node
+  gather_facts: yes
+  become: True
+  order: inventory
+  tasks:
+    - import_role:
+        name: ansible-galera-cluster-node
+
+- hosts: ghost_node
+  gather_facts: yes
+  become: True
+  tasks:
+    - import_role:
+        name: ghostbuild

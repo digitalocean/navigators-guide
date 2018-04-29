@@ -1,0 +1,8 @@
+---
+# check for supported distros or fail
+- name: Check for supported distros
+  fail:
+    msg: "{{ ansible_distribution }} is not currently supported."
+  when:
+    - ansible_distribution != "Debian"
+    - ansible_distribution != "Ubuntu"

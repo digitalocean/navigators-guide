@@ -1,0 +1,35 @@
+global
+        log 127.0.0.1   local0 notice
+        daemon
+        master-worker
+        user    haproxy
+        group   haproxy
+        maxconn 4096
+
+defaults
+        log     global
+        retries  2
+        timeout connect 500ms
+        timeout client 5000ms
+        timeout server 5000ms
+
+listen galera
+        bind    {{ ansible_eth0_2.ipv4.address }}:3306
+        balance leastconn
+        mode    tcp
+        option  tcpka
+        option  httpchk
+        default-server port 9200 inter 2s downinter 4s rise 3 fall 2 slowstart 60s weight 1
+        {% for host in groups['galera_cluster_node'] %}
+        server {{ hostvars[host]['ansible_hostname'] }} {{ hostvars[host]['ansible_eth1']['ipv4']['address'] }}:3306 check
+        {% endfor %}
+
+listen stats
+        bind {{ ansible_eth0.ipv4.address }}:{{ haproxy_stats_port }}
+        mode  http
+        stats enable
+        stats scope galera
+        stats refresh 5s
+        stats uri /haproxy?stats
+        stats realm Strictly\ Private
+        stats auth {{ haproxy_stats_user }}:{{ haproxy_stats_pass }}
