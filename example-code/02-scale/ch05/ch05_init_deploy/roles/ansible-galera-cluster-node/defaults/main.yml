@@ -1,0 +1,25 @@
+---
+# defaults for galera-cluster
+galera_server_package: "mariadb-server-10.1"
+galera_cluster_name: "galera"
+galera_bootstrap: False
+
+#galera_node_ip:
+galera_bind_address: "0.0.0.0"
+galera_manage_users: True
+galera_gcomm_address: "\
+  {%- for host in groups['galera_cluster_node'] -%}\
+  {{ hostvars[host]['ansible_eth1']['ipv4']['address']|trim }}\
+  {%- if not loop.last  -%},{%- endif -%}\
+  {%- endfor -%}"
+
+#galera_grant_hosts: []
+
+# monitor cluster via http
+# @see https://github.com/olafz/percona-clustercheck
+galera_check_scripts: True
+galera_check_scripts_port: 9200
+# checkuser for haproxy
+galera_haproxy_user: True
+galera_haproxy_host1: "{{ hostvars[groups['galera_loadbalancer'][0]]['ipv4_address_private'] }}"
+galera_haproxy_host2: "{{ hostvars[groups['galera_loadbalancer'][1]]['ipv4_address_private'] }}"

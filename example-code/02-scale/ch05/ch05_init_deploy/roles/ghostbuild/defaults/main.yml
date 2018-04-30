@@ -1,0 +1,23 @@
+---
+# Default vars
+sys_user: "{{ vault_sys_user }}"
+server_name: "example.com"
+service_name: "ghost_{{ server_name|replace('.', '-') }}.service"
+server_alias: "www.{{ server_name }}"
+vhosts: "/var/www/vhosts"
+doc_root: "{{ vhosts }}/{{ server_name }}"
+
+node_version: "6.11.4"
+node_install_location: "/usr/local"
+node_path: "{{ node_install_location }}/bin"
+
+ghost_port: 4808
+ghost_version: "1.22.0"
+
+ghost_service_user: "{{ vault_ghost_service_user }}"
+ghost_service_user_uid: "{{ vault_ghost_service_user_uid }}"
+
+ghost_db_host: "{{ hostvars[groups['ha_db_fip'][0]]['ip_address'] }}"
+ghost_db_name: "{{ vault_ghost_db_name }}"
+ghost_db_user: "{{ vault_ghost_db_user }}"
+ghost_db_pass: "{{ vault_ghost_db_pass }}"

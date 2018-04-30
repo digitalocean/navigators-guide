@@ -1,0 +1,50 @@
+---
+# installing ghost
+- name: download specified ghost version
+  unarchive:
+    src: "https://github.com/TryGhost/Ghost/releases/download/{{ ghost_version }}/Ghost-{{ ghost_version }}.zip"
+    dest: "{{ doc_root }}"
+    remote_src: yes
+    owner: "{{ sys_user }}"
+    group: "{{ sys_user }}"
+
+- name: install node packages
+  npm:
+    state: present
+    production: yes
+    path: "{{ doc_root }}"
+
+- name: create config file
+  template:
+    dest: "{{ doc_root }}/config.production.json"
+    src: config.production.j2
+    owner: "{{ sys_user }}"
+    group: "{{ sys_user }}"
+    mode: 0644
+
+- name: run knex migrator
+  shell: NODE_ENV=production knex-migrator init
+  args:
+    chdir: "{{ doc_root }}"
+
+- name: chown content directory
+  file:
+    dest: "{{ doc_root }}/content"
+    owner: "{{ ghost_service_user }}"
+    group: "{{ ghost_service_user }}"
+    recurse: yes
+
+- name: setup ghost.service
+  template:
+    dest: "/lib/systemd/system/{{ service_name }}"
+    src: ghost.service.j2
+    owner: root
+    group: root
+    mode: 0644
+
+- name: enable ghost service
+  systemd:
+    name: "{{ service_name }}"
+    enabled: yes
+    state: started
+    daemon_reload: yes

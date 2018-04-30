@@ -103,11 +103,13 @@ Again, whichever method you think will work best for your application is up to y
 
 The load balancer and application session are similar in their function since it really just configured the load balancer to look at the IP header information to determine which backend to send requests to and that can be adjusted even further by implementing a stick-table.
 
-Another option is to replicate the path of your file system on which your sessions are stored so that no matter what backend a request is sent to, they will all have access to all user sessions. This is a perfectly valid way of doing things but you will need to determine what method of replication works best for you. One key aspect to consider is the speed at which the replication takes place. On a very busy site, even a small amount of lag between the backend nodes with a large number of sessions to replicate can cause some issues for the end user.
+Another option is to replicate the path of your file system on which your sessions are stored so that no matter what backend a request is sent to, they will all have access to all user sessions. This is a perfectly valid way of doing things but you will need to determine what method of replication works best for you. One key aspect to consider is the speed at which the replication takes place. On a very busy site, even a moderate amount of lag between the backend nodes with a large number of sessions to replicate can cause some issues for the end user.
 
 The next two methods are also similar to one another and that is to create your application in a way that stores user sessions in either a database or in-memory cache like Redis. Using your database makes things easy because your application is already setup to connect to it for all other processes when requesting data. However, for a highly active site this does put a little more overhead on the database, but for most use-cases it's negligible. The last option I'm mentioning is using an in-memory cache like Redis or Memcached. It obviously means you'll be creating a few more Droplets but it is lightning fast, extremely versatile, and you can use it to cache database query responses which can speed things up for you.
 
 For the sake of making things easy, we're going to be launching a Ghost blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to the code. We will need to do some preliminary work to get get things up and running like splitting up our environments, looking for a way to handle file storage, and getting a separate database server stood up.
+
+**File Storage**
 
 ---
 
@@ -150,7 +152,7 @@ Before we jump into deploying Droplets and services all willy-nilly, let's go ov
 
 ```
 
-One other thing to note is that we're not configuring Terraform to use remote state since that's out of the scope of this book. Just know that when you're working with a team, you'll want to look into setting up a remote state backend like Consul which supports state locking. Okay, let's go over a few things to explain the logic behind this type of layout. The first is that we're keeping files that pertain to similar components in separate environments apart from one another. The important thing is that we don't want to run some Ansible or Terraform scripts on the wrong environment and bring everything crashing down. We do this by placing directories in the **environments** dir and each one gets its own subdirectory. Since we're using Terraform, we can place our individual scripts per environment in each directory, and we can go even further by placing different parts of your infrastructure in further subdirectories in order to isolate each of them from one another. Let's use your staging environment as an example. You can break down staging into the components it's comprised of like your database, file storage (Spaces), Load Balancer, Application Droplets and so on. There are actually some really great write-ups about this topic online, one of which has actually turned into the book, *"Terraform: Up & Running"* by Yevgeniy Brikman. You can check out his blog post which covers this in more detail: https://blog.gruntwork.io/a-comprehensive-guide-to-terraform-b3d32832baca
+One other thing to note is that we're not configuring Terraform to use remote state. Just know that when you're working with a team, you'll want to look into setting up a remote state backend like Consul which supports state locking. Okay, let's go over a few things to explain the logic behind this type of layout. The first is that we're keeping files that pertain to similar components in separate environments apart from one another. The important thing is that we don't want to run some Ansible or Terraform scripts on the wrong environment and bring everything crashing down. We do this by placing directories in the **environments** dir and each one gets its own subdirectory. Since we're using Terraform, we can place our individual scripts per environment in each directory, and we can go even further by placing different parts of your infrastructure in further subdirectories in order to isolate each of them from one another. Let's use your staging environment as an example. You can break down staging into the components it's comprised of like your database, file storage (Spaces), Load Balancer, Application Droplets and so on. There are actually some really great write-ups about this topic online, one of which has actually turned into the book, *"Terraform: Up & Running"* by Yevgeniy Brikman. You can check out his blog post which covers this in more detail: https://blog.gruntwork.io/a-comprehensive-guide-to-terraform-b3d32832baca
 
 We're also going to make use of versioned Terraform modules in our setup. What this allows you to do is make changes to your infrastructure in staging without affecting production. You don't want to make a breaking change in production just by updating a resource configuration in one of you modules. Here's an example of what that would look like.
 
@@ -182,12 +184,12 @@ module "sippin_db" {
 }
 ```
 
-The only change in the previous 2 examples is the value assigned to the *ref* key at the end of the source line. You'll also notice that the arguments passed into the module are referencing variables set in **terraform.tfvars**. You can pass in strings within the same block that calls your modules if that's your preference.
+The only change in the previous 2 examples is the value assigned to the *ref* key at the end of the source line. You'll also notice that the arguments passed into the module are referencing variables set in **terraform.tfvars**. You can pass in strings within the same block that calls your modules if that's your preference. Let's take a look at the module to see what it's doing. If you were to clone the repo you'll see that it contains nothing more than a basic set of Terraform files that declare variables and create a set of resources. It's really nothing special to look at, however, using modules really allows you to
 
 <!-- build out terraform module for load balancer -->
 **Terraform module**
 
-
+Let's take a look at the module to see what it's doing. If you were to clone the repo you'll see that it contains nothing more than a basic set of Terraform files that declare variables and create a set of resources.
 
 <!-- build out database -->
 <!-- build out single instance of ghost -->

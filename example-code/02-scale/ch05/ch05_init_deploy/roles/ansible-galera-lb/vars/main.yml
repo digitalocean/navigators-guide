@@ -1,0 +1,7 @@
+---
+# vars file for galera-loadbalancer
+galera_ha_auth_key: "{{ vault_galera_ha_auth_key }}"
+galera_ha_do_token: "{{ vault_galera_ha_do_token }}"
+haproxy_stats_user: "{{ vault_haproxy_stats_user }}"
+haproxy_stats_pass: "{{ vault_haproxy_stats_pass }}"
+haproxy_stats_port: "{{ vault_haproxy_stats_port }}"

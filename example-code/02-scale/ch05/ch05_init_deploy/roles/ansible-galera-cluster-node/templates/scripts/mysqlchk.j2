@@ -1,0 +1,16 @@
+# {{ ansible_managed }}
+# default: on
+# description: mysqlchk
+service mysqlchk
+{
+        disable = no
+        flags = REUSE
+        socket_type = stream
+        port = {{ galera_check_scripts_port }}
+        wait = no
+        user = nobody
+        server = /usr/local/bin/clustercheck
+        log_on_failure += USERID
+        only_from = 0.0.0.0/0
+        per_source = UNLIMITED
+}

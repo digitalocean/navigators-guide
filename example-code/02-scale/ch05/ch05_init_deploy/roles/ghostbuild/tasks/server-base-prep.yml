@@ -1,0 +1,55 @@
+---
+# Base prep for setup for vhosts, and doc_root
+- name: create sys_user
+  user:
+    name: "{{ sys_user }}"
+    createhome: yes
+    state: present
+
+- name: create user for ghost service
+  user:
+    createhome: no
+    name: "{{ ghost_service_user }}"
+    state: present
+    uid: "{{ ghost_service_user_uid }}"
+    system: yes
+
+- name: Create "{{ vhosts }}" directory
+  file:
+    path: "{{ vhosts }}"
+    state: directory
+    owner: root
+    group: root
+    mode: 0755
+
+- name: Create doc root "{{ doc_root }}"
+  file:
+    path: "{{ doc_root }}"
+    state: directory
+    owner: "{{ ghost_service_user }}"
+    group: "{{ ghost_service_user }}"
+    mode: 0755
+
+- name: Wait for no more running dpkg or apt processes
+  shell: while pgrep '(dpkg|apt)' >/dev/null 2>&1; do sleep 1; done;
+  tags: dpkg-lock
+
+- name: Wait for lock files to be released
+  shell: >
+    while fuser /var/cache/apt/archives/lock
+    /var/lib/apt/lists/lock/var/lib/apt/lists/lock
+    /var/lib/dpkg/lock >/dev/null 2>&1; do sleep 1;
+    done;
+  tags: dpkg-lock
+
+- name: Install software dependencies
+  apt:
+    name: "{{ item }}"
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - nginx
+    - zip
+    - git
+    - mysql-client

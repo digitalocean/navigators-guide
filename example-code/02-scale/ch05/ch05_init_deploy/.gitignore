@@ -6,7 +6,3 @@ site.retry
 *.tfvars
 *.pyc
 .terraform/
-/example-code/**/cert/cert.*
-vault
-packer
-nav-guide

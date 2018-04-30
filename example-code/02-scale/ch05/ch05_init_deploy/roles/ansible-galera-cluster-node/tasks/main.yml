@@ -1,0 +1,270 @@
+---
+- name: Setting fact for first member in group
+  set_fact: galera_bootstrap=1
+  when: '"galera_cluster_node.0" in group_names'
+
+- name: install dirmngr
+  apt:
+    name: dirmngr
+    state: present
+
+- name: repository key
+  apt_key:
+    keyserver: ha.pool.sks-keyservers.net
+    id: "F1656F24C74CD1D8"
+  tags: apt-add
+
+- name: add apt repository
+  apt_repository:
+    repo: "deb [arch=amd64,i386] http://sfo1.mirrors.digitalocean.com/mariadb/repo/10.1/{{ ansible_os_family | lower }} {{ ansible_distribution_release }} main"
+    state: present
+    update_cache: yes
+  tags: apt-add
+
+- name: check bootstrapped
+  stat:
+    path: /etc/mysql/galera_node_bootstrapped
+  register: galera_node_bootstrapped
+  tags: check-bootstrap
+
+- name: debconf-set-selections galera root password
+  block:
+    - debconf:
+        name: "{{ galera_server_package }}"
+        question: mysql-server/root_password
+        value: "{{ galera_root_password }}"
+        vtype: password
+
+    - debconf:
+        name: "{{ galera_server_package }}"
+        question: mysql-server/root_password_again
+        value: "{{ galera_root_password }}"
+        vtype: password
+  when:
+    - galera_node_bootstrapped.stat.exists == false
+  tags: debconf
+
+- name: install required packages
+  apt:
+    pkg: "{{ item }}"
+    state: present
+    allow_unauthenticated: yes
+    update_cache: yes
+    cache_valid_time: 3600
+  with_items:
+    - "{{ galera_server_package }}"
+    - galera-3
+    - rsync
+    - python-mysqldb
+  tags: packages
+
+- name: generate client config
+  template:
+    src: my.cnf-root.j2
+    dest: /root/.my.cnf
+    owner: root
+    group: root
+    mode: 0400
+  tags: root-conf
+
+- name: set mysql root password
+  mysql_user:
+    config_file: /root/.my.cnf
+    name: root
+    password: "{{ galera_root_password }}"
+    host: "{{ item }}"
+    state: present
+    priv: "*.*:ALL,GRANT"
+  with_items:
+  - localhost
+  - "{{ inventory_hostname }}"
+  - "{{ ansible_fqdn }}"
+  - 127.0.0.1
+  - "::1"
+  - "{{ galera_haproxy_host1 }}"
+  - "{{ galera_haproxy_host2 }}"
+  when:
+    - galera_manage_users
+  tags: set-root-pass
+
+- name: set debian-sys-maint password
+  mysql_user:
+    config_file: /root/.my.cnf
+    name: debian-sys-maint
+    password: "{{ galera_sys_maint_password }}"
+    host: localhost
+    state: present
+    priv: "*.*:ALL"
+  when:
+    - galera_manage_users
+  tags: sys-maint
+
+- name: set clustercheck username and password
+  mysql_user:
+    config_file: /root/.my.cnf
+    name: clustercheck
+    password: "{{ galera_clustercheck_password }}"
+    host: localhost
+    state: present
+    priv: "*.*:PROCESS"
+  when:
+    - galera_manage_users
+  tags: clustercheck-user
+
+- name: galera configuration file
+  template:
+    src: cluster.cnf.j2
+    dest: /etc/mysql/conf.d/cluster.cnf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart mysql
+  tags: galera-conf
+
+- name: mariadb configuration file
+  template:
+    src: my.cnf-default.j2
+    dest: /etc/mysql/my.cnf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart mysql
+  tags: mariadb-conf
+
+- name: debian configuration file
+  template:
+    src: debian.cnf.j2
+    dest: /etc/mysql/debian.cnf
+    owner: root
+    group: root
+    mode: 0644
+  notify: restart mysql
+  tags: debian-conf
+
+- name: flush handlers
+  meta: flush_handlers
+
+# percona xtradb scripts and services
+- name: install xinetd
+  apt:
+    pkg: xinetd
+    state: present
+    update_cache: yes
+    cache_valid_time: 3600
+  when:
+    - galera_check_scripts
+  tags: xinetd
+
+- name: clustercheck shellscript
+  template:
+    src: scripts/clustercheck.j2
+    dest: /usr/local/bin/clustercheck
+    owner: root
+    group: root
+    mode: 0755
+  when:
+    - galera_check_scripts
+  tags: clustercheck-script
+
+- name: mysqlchk xinetd
+  template:
+    src: scripts/mysqlchk.j2
+    dest: /etc/xinetd.d/mysqlchk
+    owner: root
+    group: root
+    mode: 0644
+  when:
+    - galera_check_scripts
+  notify: restart xinetd
+  tags: mysqlchk
+
+- name: add mysqlchk to /etc/services
+  lineinfile:
+    dest: /etc/services
+    regexp: "^mysqlchk "
+    line: "mysqlchk    {{ galera_check_scripts_port }}/tcp    # MySQL check"
+    owner: root
+    group: root
+    mode: 0644
+  when:
+    - galera_check_scripts
+  notify: restart xinetd
+  tags: mysqlchk-service
+
+# take down mariadb servers without galera_bootstrap host variable set
+- name: stop servers if not galera_bootstrap
+  service:
+    name: mysql
+    state: stopped
+  when:
+    - not galera_bootstrap
+    - galera_node_bootstrapped.stat.exists == false
+  tags: stop-mariadb
+
+# stop mariadb bootstrap server
+- name: stop servers if galera_bootstrap
+  service:
+    name: mysql
+    state: stopped
+  when:
+    - galera_bootstrap
+    - galera_node_bootstrapped.stat.exists == false
+  tags: stop-mariadb
+
+- name: bootstrap new cluster master
+  shell: galera_new_cluster &
+         sleep 10
+  when:
+    - galera_bootstrap
+    - galera_node_bootstrapped.stat.exists == false
+  tags: bootstrap-cluster
+
+- name: restart newly added nodes
+  service:
+    name: mysql
+    state: restarted
+  when:
+    - not galera_bootstrap
+    - galera_node_bootstrapped.stat.exists == false
+  tags: restart-added-nodes
+
+- name: adjusting gcomm address on galera_bootstrap node
+  lineinfile:
+    dest: /etc/mysql/conf.d/cluster.cnf
+    regexp: "wsrep_cluster_address"
+    line: "wsrep_cluster_address = gcomm://{{ galera_gcomm_address }}"
+    state: present
+    owner: root
+    group: root
+    mode: 0644
+  when:  galera_bootstrap
+  tags: adjust-cluster.cnf
+
+- name: create bootstrap file
+  file:
+    path: /etc/mysql/galera_node_bootstrapped
+    state: touch
+  when:
+    - galera_node_bootstrapped.stat.exists == false
+  tags: touch-bootstrapped
+
+- name: create database and user
+  block:
+    - name: create ghost database
+      mysql_db:
+        name: "{{ ghost_db_name }}"
+        state: present
+
+    - name: create ghost user
+      mysql_user:
+        config_file: /root/.my.cnf
+        name: "{{ ghost_db_user }}"
+        password: "{{ ghost_db_pass }}"
+        state: present
+        host: "{{ item }}"
+        priv: "{{ ghost_db_name }}.*:ALL,GRANT"
+      with_items:
+        - "{{ galera_haproxy_host1 }}"
+        - "{{ galera_haproxy_host2 }}"
+  when:
+    - galera_bootstrap

@@ -1,0 +1,6 @@
+---
+# handlers file for ghostbuild
+- name: restart nginx
+  systemd:
+    name: nginx
+    state: restarted
