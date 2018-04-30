@@ -1,0 +1,4 @@
+---
+vault_galera_root_password: ""
+vault_galera_sys_maint_password: ""
+vault_galera_clustercheck_password: ""

@@ -1,0 +1,7 @@
+---
+vault_galera_ha_auth_key: ""
+vault_galera_ha_do_token: ""
+
+vault_haproxy_stats_user: ""
+vault_haproxy_stats_pass: ""
+vault_haproxy_stats_port: ""
