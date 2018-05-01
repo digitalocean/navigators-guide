@@ -20,7 +20,7 @@ private_key_path = ""
 /* You can execute the following to grab your SSH key fingerprint - ssh-keygen -lf ~/.ssh/id_rsa -E md5 */
 ssh_fingerprint = ""
 
-/* cat your id_ras.pub file */
+/* cat your id_rsa.pub file */
 public_key = ""
 
 ansible_user = "ansible"

@@ -1,5 +1,5 @@
 server {
-  listen {{ ansible_eth1.ipv4.address }}:80;
+  listen {{ ansible_eth0.ipv4.address }}:80;
   #listen [::]:80 default_server ipv6only=on;
 
   access_log /var/log/nginx/access.log;
