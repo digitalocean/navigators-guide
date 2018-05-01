@@ -8,6 +8,8 @@ The next step on the list is to fill in the variables in your **terraform.tfvars
 
 Ansible also requires some variables be set so don't forget to fill in **group_vars/*/vault.yml** with the appropriate info. You can use `ansible-vault encrypt` on the file if you'd like.
 
+<!-- TODO: Full Documentation Needed - examples, no dollar signs in galera passwords (fails the mysql cluster check script) -->
+
 **group_vars/all/vault.yml**
   * vault_ghost_db_name
   * vault_ghost_db_user
@@ -29,3 +31,6 @@ Ansible also requires some variables be set so don't forget to fill in **group_v
   * vault_sys_user
   * vault_ghost_service_user
   * vault_ghost_service_user_uid
+
+Execute the Ansible Playbook with the following command: ` ansible-playbook -i /usr/local/bin/terraform-inventory site.yml
+`
