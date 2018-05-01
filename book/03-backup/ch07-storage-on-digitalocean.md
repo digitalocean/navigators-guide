@@ -1,11 +1,16 @@
 # Storage on DigitalOcean
 
-Before we talk about backup, restore, and disaster recovery planning, it is important to explain the storage options available on DigitalOcean. Not all storage is created equal and it is important to know the implications of each storage option.
+Like we've said before — your data is one of the most important assets your company has. Before we talk about topics like restoring your data, we need to talk about how you store your data in the first place.
 
-There are three main considerations for each storage option. No one option has all these points perfectly solved. Each option has a compromise in one or more of the following areas:
-* **Performance:** speed of input/output
-* **Security:** encryption of data when not in use
-* **Redundancy:** multiple copies of data exists and is resilient to corruption
+Not all storage options are created equal. When evaluating storage options, there are three factors to keep in mind:
+
+* **Performance**, which is the speed of reading and writing data.
+* **Security**, which is the encryption of the data when it's not in use.
+* **Redundancy**, which is the resilience of the data to corruption, usually via having redundant copies.
+
+No one storage option perfectly solves all three of these points; improving one generally means making a compromise on another.
+
+The options available on DigitalOcean are local Droplet storage, block storage Volumes, and object storage with Spaces. In this chapter, we explain the advantages and trade-offs for each so you can make the right decision for your use case.
 
 ### Local Droplet Storage
 This is the most common form of storage on DigitalOcean. Currently, each Droplet is assigned a virtual disk that is located physically on the hypervisor. The hypervisors have redundant arrays of independent SSD drives (RAID). There are a few version of RAID in use within our hypervisor fleet, but they all offer protection over from a failing disk. It is statistically rare that a hypervisor would experience a total RAID failure, but it can happen. Because of this reason, having your data in more than one place is crucial.
