@@ -6,53 +6,55 @@ Not all storage options are created equal. When evaluating storage options, ther
 
 * **Performance**, which is the speed of reading and writing data.
 * **Security**, which is the encryption of the data when it's not in use.
-* **Redundancy**, which is the resilience of the data to corruption, usually via having redundant copies.
+* **Redundancy**, which is the resilience of the data to corruption, usually via having redundant copies. Redundancy of storage isn't a substitute for backups, but is still an important factor in protecting your data.
 
 No one storage option perfectly solves all three of these points; improving one generally means making a compromise on another.
 
 The options available on DigitalOcean are local Droplet storage, block storage Volumes, and object storage with Spaces. In this chapter, we explain the advantages and trade-offs for each so you can make the right decision for your use case.
 
 ## Local Droplet Storage
-### At A Glance
+### At a Glance
 
-* **Performance**: Great speed. <!-- TODO: Can we say something more objective or quantifiable? "Best speed of the 3 options on DO"? -->
-* **Security**: Data is not encrypted at rest.
-* **Redundancy**: Data is stored on multiple disks, but RAID is a single point of failure.
+Every Droplet is assigned a virtual disk located physically on its hypervisor. The amount of storage increases linearly with the Droplet plan, so a larger Droplet will have more local storage, more memory, and more vCPU cores.
 
-### In Detail
+* **Performance**: Highest performing storage option on DigitalOcean.
+* **Security**: Not encrypted at rest.
+* **Redundancy**: Data is stored on multiple disks. RAID is a single point of failure.
 
-This is the most common form of storage on DigitalOcean. Currently, each Droplet is assigned a virtual disk that is located physically on the hypervisor. The hypervisors have redundant arrays of independent SSD drives (RAID). There are a few version of RAID in use within our hypervisor fleet, but they all offer protection over from a failing disk. It is statistically rare that a hypervisor would experience a total RAID failure, but it can happen. Because of this reason, having your data in more than one place is crucial.
+### Performance
 
-<!-- TODO: Can we publish our failure rates?  -->
+This is the highest performing storage option available on DigitalOcean; our entire fleet of hypervisors uses enterprise-grade SSDs, and we continue to evaluate newer, faster options as they become widely available.
 
-The local Droplet storage is the highest performing storage option that is available on DigitalOcean. Our entire fleet of hypervisors uses enterprise grade SSD drives and we continue to evaluate newer, faster options as they are more widely available. The virtual disks for Droplets stored on the hypervisor's local storage not encrypted at rest. Sensitive data that requires encryption protections should be stored accordingly.
+### Security
+
+The virtual disks for Droplets stored on the hypervisor's local storage not encrypted at rest. Sensitive data that requires encryption protections should be stored accordingly.
+
+### Redundancy
+
+Our hypervisors have redundant arrays of independent drives (RAID). We use a few version of RAID in our fleet, but all versions offer protection from a failing disk.
+
+It is statistically rare that a hypervisor would experience a total RAID failure, but it can happen, so having your data in more than one place is crucial. <!-- TODO: Can we publish our failure rates?  -->
 
 
 ## Block Storage Volumes
-### At A Glance
+### At a Glance
 
-##### Storage Checklist
+Block storage Volumes allow you to attach additional drives to your Droplet. You can treat them like any locally-connected storage drive and are useful when you need more storage than your Droplet's plan includes.
 
-* **Performance**: Good speed. <!-- TODO: Same Q — more objective/quantifiable/comparable description here? "Faster than object storage, but slower than local Droplet storage"? -->
+You can increase the size of a Volume independently as needed up to 16TB and move a Volume from one Droplet to another within the same datacenter. For current region support, see our [block storage Volumes product documentation](https://www.digitalocean.com/community/tutorials/an-introduction-to-digitalocean-block-storage).
+
+* **Performance**: Good speed. Slower than local storage because of the network connection.
 * **Security**: Data is encrypted at rest.
-* **Redundancy**: Data spans multiple nodes, but file systems could experience corruption.
+* **Redundancy**: Data spans multiple nodes. File systems could experience corruption.
 
-### In Detail
+### Performance
 
-Local Droplet storage sizes increase in a linear fashion with other resources. A larger Droplet will have more local storage along with more memory and vCPU cores. Often you may find that you need more storage on a smaller Droplet. Block Storage Volumes allow you to do this by attaching additional drives to Droplets. For example, a 1GB Droplet that costs $5 per month could have an additional 16TB of storage by attaching a Volume. 
+Like local Droplet storage, the storage cluster that hosts Volumes are equipped with SSDs. Unlike local Droplet storage, Volumes are attached to Droplets over network connections, which comes with an inherent performance decrease compared to local storage.
 
-There are a few main benefits to storing your data on a Volume:
-* The Volume storage cluster is a distributed system that has multiple copies of your data within the cluster
-* Volumes and Volume Snapshots are encrypted at rest with AES-256 bit LUKS encryption within the storage cluster
-    * The file system on the Volume can also be placed in a LUKS encrypted drive
-* Volumes can be increased independently as needed up to 16TB
-* A Volume can be detached from one Droplet and attached to a different Droplet in the same region easily
+Volumes are a good fit for structured or dynamic data, like databases and applications written in server-side languages. They aren't an ideal solution for use cases that require a large number of IOPS (input/output operations per second).
 
-You can see that the redundancy and security of the data is increased with Volumes. Also, it's easy to move data to a new Droplet should an existing Droplet begin to exhibit problems. Volumes are attached or detached by simple controls on the DigitalOcean web control panel or through the API. A new Droplet will have access to existing data once attaching the Volume holding the data and mounting the file system on the Volume.
+Here are the performance expectations that Volumes can deliver:
 
-Block Storage Volumes are limited in performance when compared to the local Droplet storage. The storage cluster that hosts Volumes are equipped with 100% solid state drives (SSD), but there is an inherent performance as the Volumes are attached to Droplets over network connections. Volumes may not be an ideal storage solution for use cases requiring an intense amount of input/output operations per second (IOPS). The table below outlines the performance expectations that Block Storage Volumes can deliver.
-
-#### Performance Expectations
 <table>
 <tr>
 <td><strong>Droplet Type</strong></td>
@@ -65,7 +67,7 @@ Block Storage Volumes are limited in performance when compared to the local Drop
 <td>200 MB/s</td>
 </tr>
 <tr>
-<td>Standard - Burst</td>
+<td>Standard, Burst</td>
 <td>7,500</td>
 <td>300 MB/s</td>
 </tr>
@@ -75,112 +77,64 @@ Block Storage Volumes are limited in performance when compared to the local Drop
 <td>300 MB/s</td>
 </tr>
 <tr>
-<td>Optimized - Burst</td>
+<td>Optimized, Burst</td>
 <td>10,000</td>
 <td>350 MB/s</td>
 </tr>
 </table>
 
-Burst speeds are available automatically for 60 seconds. The Burst speed will be available once again after the I/O needs go below the default maximum speeds per Droplet type. For example, if your Optimized Droplet is sending more than 300 MB/s to a Volume, it will burst up to 350 MB/s for 60 seconds and can burst again once the I/O requests fall below 300 MB/s.
+Burst speeds are automatically available for 60 seconds and become available again after the I/O requests drop below the default maximum speed for that Droplet type. For example, if your Optimized Droplet is sending more than 300 MB/s to a Volume, it will burst up to 350 MB/s for 60 seconds and can burst again once the I/O requests fall below 300 MB/s.
 
+### Security
 
-NOTE: Because a Volume is attached over a network connection to a Droplet, the Volume and Droplet need to be in the same region. 
+Volumes and Volume Snapshots are encrypted at rest with AES-256 bit LUKS encryption within the storage cluster. The file system on the Volume can also be placed in a LUKS encrypted drive.
 
-#####  Volume Region Availability
-<table>
-<tr>
-<td><strong>NYC1</strong></td>
-<td><font color="grey">NYC2</font></td>
-<td><strong>NYC3</strong></td>
-<td><strong>TOR1</strong></td>
-</tr>
-<tr>
-<td><font color="grey">SFO1</font></td>
-<td><strong>SFO2</strong></td>
-<td><strong>LON1</strong></td>
-<td><strong>FRA1</strong></td>
-</tr>
-<tr>
-<td><strong>BLR1</strong></td>
-<td><font color="grey">AMS2</font></td>
-<td><strong>AMS3</strong></td>
-<td><strong>SGP1</strong></td>
-</tr>
-</table>
+### Redundancy
 
+Block storage is a relatively straightforward storage paradigm: you run a file system on the device and your Droplet interprets it just like it would with an additional hard drive on a physical server. In terms of redundancy, this means you need to be mindful of the file system and the size of the Volume as well.
 
-
-
-Block Storage is literally a block of storage. You run a file system on top of the device and it the Droplet interprets it just as it would an additional hard drive on a physical server. This also means that you not only have to be mindful of the file system, but the size of the Volume as well.  **What if the file system has some level of corruption?** _The data is copied in multiple places of the storage cluster, but it is corrupted at the file system level and you have multiple copies of bad data._ If you resize the Volume, you also have to expand the file system as well. What if you used storage for thousands of images or for organizing logs? Object Storage using Spaces on DigitalOcean may be a better storage option.
-
-Just as the local Droplet storage example showed, redundancy of storage is not a substitute for backing up data. What if a change was made to the only copy of a file, or a file was removed from a Volume when there was no backups?  We will cover more aspects of data backup and recovery in the next chapter.
+The Volume storage cluster is a distributed system that has multiple copies of your data within the cluster, but if your file system has some level of corruption, you'll have multiple copies of corrupted data. If you resize your Volume, you'll need to expand the file system as well.
 
 
 ## Object Storage with Spaces
-### At A Glance
+### At a Glance
 
-* **Performance**: Slower speeds. <!-- TODO: Same, same. "Slower than local Droplet storage and block storage." -->
-* **Security**: Data is encrypted at rest.
-* **Redundancy**: Data spans multiple nodes and files are checked for corruption. <!-- TODO: Compare with other options? "Best data redundancy option on DO." -->
+Object storage lets you store and retrieve unstructured data using an HTTP API. It's great for hosting images, static HTML files, logs, and backups.
+
+Amazon pioneered mainstream object storage with their S3 product, and Spaces is DIgitalOcean's object storage offering. You can have multiple Spaces and, because any computer on the internet can send requests to them, your Droplets don't have to be in the same datacenter.
+
+- **Performance**: Slower speeds than block storage and local storage. See [Best Practices for Performance on DigitalOcean Spaces](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces).
+- **Security**: Data is encrypted at rest.
+- **Redundancy**: Data spans multiple nodes and files are checked for corruption. <!-- TODO: Compare with other options? "Best data redundancy option on DO." -->
+
+Object storage differs significantly from traditional file system hierarchies, so we need to take a look at Spaces' underlying components to fully understand its advantages and detriments.
+
+Spaces in particular is built on top of an open-source project called Ceph. If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Atri and Vaibhav Bhembre are co-authors on [Learning Ceph - Second Edition: Unifed, scalable, and reliable open source storage solution](https://www.amazon.com/Learning-Ceph-scalable-reliable-solution-ebook/dp/B01NBP2D9I).
+
+On the front end, an object is a binary blob that includes your file contents with some added attributes, like metadata. On the back end, the object storage device (OSD) is the physical drive storing data and Ceph's RADOS Gateway (RGW) provides the interface with the storage objects.
+
+### Performance
+
+Spaces is the only storage option on DigitalOcean that uses mostly hard disk drives (HDD) instead of only using solid state drives (SSD).
+
+All requests to store or pull files from the Spaces backend goes through the RGWs. While we strive for very high <!-- TODO: %? --> availability with the Spaces API, it is not the best use for serving files at a high rate of requests per minute. 
+
+You'll see the best performance when [the Droplets accessing your Space](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces#choose-the-right-data-center-for-your-resources) are in the same data center or in data centers connected by [DigitalOcean's regional backbones](https://blog.digitalocean.com/whats-new-with-the-digitalocean-network). If the connections to your Spaces are from end users on the Internet, you'll see the best performance when you [use a CDN](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces#use-a-content-delivery-network-(cdn)), regardless of which region your Spaces are in.
+
+### Security
+
+The data is stored is encrypted and is managed as individual objects (files).
+
+### Redundancy
+
+The Spaces backend is made up of many OSDs. The redundant copies of each object are compared daily to provide data integrity. The cluster will automatically error correct any inconsistent copies, so there should be no data corruption.
 
 ### In Detail
-
-Up to this point, we have discussed storage options that are available to a single Droplet at a time. The Droplet is the main mechanism for accessing your data within a file system. Object Storage does away with this in an extensible method with APIs. Amazon pioneered mainstream Object Storage with their S3 product. <!-- TODO: Trademark/copywrite needed?  --> S3 stands for _Simple Storage Service_. While the concept is simple in nature, using S3 hasn't always been use friendly. If you think about your first interaction with a file system and basic file work Luckily a large amount of third party software writers have built software and libraries for interacting with S3 and the subsequent S3-compatible services that have sprung up. 
-
-Spaces is DigitalOcean's version of Object Storage. DigitalOcean Spaces and Volumes are built on top of an open source project called Ceph. Ceph has multiple components and it is important to look at the components to understand the characteristics of this storage option since it differs so much from traditional file system hierarchies. 
-
-#### Frontend
-
-* An Object is a binary "blob" that is your file contents with added attributes such as metadata 
-* A Space is the storage group for your objects. You can have multiple Spaces. This is equivalent to a Bucket on S3
-
-#### Backend
-* The Object Storage Device (OSD) is the physical / logical drive storing data. Spaces is the only storage option on DigitalOcean that uses mostly hard disk drives (HDD) instead of only using solid state drives (SSD). The data (objects) are stored across multiple OSD's
-* The RADOS Gateway (RGW) is what provides the interface with the storage objects and acts as an S3-compatible API gateway
-* There are other monitor, map, and pool aspects that keep the cluster functioning, but are less important for our discussion
-
-The Spaces backend is made up of many OSD's. The data is stored is encrypted and is managed as individual objects (files). The multiple copies of each object are compared daily to provide data integrity. There should no data corruption because if one copy doesn't match up, the cluster will resolve the issue by correcting the error automatically. 
-
-__Because any computer on the internet can send requests to the RGW's, there is no need for a Space to exist in the same region as a Droplet__. For example Droplets in NYC1 or NYC2 will have fast access to the Spaces in NYC3 through our NYC regional fiber ring. 
-
-_Bandwidth for outbound traffic within the regional fiber rings is free of charge. The current regional fiber rings are NYC: [NYC1, NYC2, and NYC3] and Europe: [LON1, FRA1, AMS2, and AMS3]_
-
-#### Spaces Region Availability
-<table>
-<tr>
-<td><font color="grey">NYC1</font></td>
-<td><font color="grey">NYC2</font></td>
-<td><strong>NYC3</strong></td>
-<td><font color="grey">TOR1</font></td>
-</tr>
-<tr>
-<td><font color="grey">SFO1</font></td>
-<td><strong>SFO2</strong></td>
-<td><font color="grey">LON1</font></td>
-<td><font color="grey">FRA1</font></td>
-</tr>
-<tr>
-<td><font color="grey">BLR1</font></td>
-<td><font color="grey">AMS2</font></td>
-<td><strong>AMS3</strong></td>
-<td><strong>SGP1</strong></td>
-</tr>
-</table>
-
-So far this storage option seems to be the best. We do not have to worry about a single Droplet being a point of failure. We don't have to worry about data corruption and the data stored is encrypted for security. While we have redundancy and security simplified with Spaces, performance is going to be the compromise. All requests to store or pull files from the Spaces backend goes through the RGW's. While we strive for a 99.99%<!-- TODO: ?? --> availability with the Spaces API, it is not the best use for serving files at a high rate of request per minute. The ideal situation is to place your Spaces behind a Content Delivery Network (CDN) to speed and availability. <!-- Hoping for DigitalOcean CDN option by publising -->
-
-Spaces is going to be great for hosting images and static HTML files behind a CDN and for storing logs and backups. 
-
-If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Atri and Vaibhav Bhembre are co-authors on [Learning Ceph - Second Edition: Unifed, scalable, and reliable open source storage solution](https://www.amazon.com/Learning-Ceph-scalable-reliable-solution-ebook/dp/B01NBP2D9I). We might be able to get them to sign your Kindle for you as well. 
 
 
 <!-- TODO: 4th storage option? distributed file systems like GlusterFS ? -->
 
-## The Best Storage Option
-So after all that, there is one clear best choice right? Unfortunately, it's not that easy. The goal with this chapter is to outline ways to best use all of the storage options for their prominent features. Knowing the downfalls of each storage option allows you to plan accordingly. The next chapter talks about this. Planning your data backup and recovery needs properly hedges against corruption or data loss. 
+## The Best Storage Option?
+There's no one best storage choice for every use case, but knowing the ups and downs of the options available to you will let you plan appropriately. For example, when using local Droplet storage, we'll want copies of that data outside of the Droplet's hypervisor. For Volumes, we'll want historical copies of mission-critical files. For Spaces, we want to make sure we can easily restore from any backups we save there.
 
-If data exists on the Droplet's local storage, we'll want to make sure copies exist outside of that Droplet's hypervisor. If the data exists on a Volume, we'll want historical copies of mission critical files. If we store all our backups in Spaces, we'll want to make sure we can easily restore from them.
-
-
-
-
+The next chapter goes into detail on how to make sure your backup and recovery strategies properly hedge against corruption and data loss.
