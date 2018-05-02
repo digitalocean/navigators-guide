@@ -10,7 +10,7 @@
   * [Chapter 5 - Configuration Management](02-scale/ch05-config-mgmt.md)
   * [Chapter 6 - Continuous Development](02-scale/ch06-continuous-dev.md)
 * [Part 3 - Keeping Your Data Safe](03-backup/README.md)
-  * [Chapter 7 - Data Integrity](03-backup/ch07-data-integrity.md)
+  * [Chapter 7 - Storage on DigitalOcean](03-backup/ch07-storage-on-digitalocean.md)
   * [Chapter 8 - Backup and Restore Methodologies](03-backup/ch08-backup-restore.md)
   * [Chapter 9 - Disaster Recovery Planning](03-backup/ch09-disaster-recovery.md)
 * [Part 4 - Knowing Everything About Your Infrastructure](04-monitor/README.md)
