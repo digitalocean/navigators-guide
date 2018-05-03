@@ -1,0 +1,34 @@
+server {
+  listen {{ ansible_eth1.ipv4.address }}:80;
+  #listen [::]:80 default_server ipv6only=on;
+
+  access_log /var/log/nginx/access.log;
+  client_max_body_size  20m;
+
+  root {{ doc_root }};
+  index index.php index.html index.htm index.nginx-debian.html;
+
+  server_name {{ domain }} {{ subdomain }};
+
+  location / {
+    try_files $uri $uri/ /index.php$is_args$args;
+  }
+
+  location ~ \.php$ {
+    include snippets/fastcgi-php.conf;
+    fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+  }
+
+  location ~ /\.ht {
+    deny all;
+  }
+
+  location = /favicon.ico { log_not_found off; access_log off; }
+
+  location = /robots.txt { log_not_found off; access_log off; allow all; }
+
+  location ~* \.(css|gif|ico|jpeg|jpg|js|png)$ {
+    expires max;
+    log_not_found off;
+  }
+}

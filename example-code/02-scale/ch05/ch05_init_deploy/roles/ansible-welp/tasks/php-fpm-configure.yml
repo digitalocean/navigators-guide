@@ -1,0 +1,11 @@
+---
+- name: configure php-fpm
+  lineinfile:
+    path: /etc/php/7.0/fpm/php.ini
+    regexp: '^;cgi.fix_pathinfo=1'
+    line: 'cgi.fix_pathinfo=0'
+    owner: root
+    group: root
+    mode: 0644
+    state: present
+  notify: restart php7

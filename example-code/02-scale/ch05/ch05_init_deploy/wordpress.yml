@@ -1,0 +1,11 @@
+---
+# playbook
+- hosts: all
+  gather_facts: yes
+  become: True
+
+- hosts: wp_node
+  become: True
+  tasks:
+    - import_role:
+        name: ansible-welp
