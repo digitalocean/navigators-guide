@@ -1,2 +1,5 @@
 ---
+vault_sys_user: ""
 
+vault_wp_salt: |
+  

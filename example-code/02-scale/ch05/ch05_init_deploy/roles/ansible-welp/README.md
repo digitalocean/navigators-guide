@@ -26,24 +26,35 @@ defaults/main.yml
 * wp_plugin_list
 
 group_vars/all/vault
-* vault_sys_user
 * vault_wp_db_name
 * vault_wp_db_user
 * vault_wp_db_pass
 
 group_vars/wp_node/vault
+* vault_sys_user
 * vault_wp_salt
 
-Dependencies
-------------
+*note:* vault_wp_salt should be set as an indented block and can be generated using `curl -s https://api.wordpress.org/secret-key/1.1/salt/`
 
-A list of other roles hosted on Galaxy should go here, plus any details in regards to parameters that may need to be set for other roles, or variables that are used from other roles.
+```yaml
+vault_wp_salt: |
+    define('AUTH_KEY',         'put your unique phrase here');
+    define('SECURE_AUTH_KEY',  'put your unique phrase here');
+    define('LOGGED_IN_KEY',    'put your unique phrase here');
+    define('NONCE_KEY',        'put your unique phrase here');
+    define('AUTH_SALT',        'put your unique phrase here');
+    define('SECURE_AUTH_SALT', 'put your unique phrase here');
+    define('LOGGED_IN_SALT',   'put your unique phrase here');
+    define('NONCE_SALT',       'put your unique phrase here');
+```
 
 Example Playbook
 ----------------
 
-Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
-
-    - hosts: servers
-      roles:
-         - { role: username.rolename, x: 42 }
+```yaml
+- hosts: wp_node
+  become: True
+  tasks:
+    - import_role:
+        name: ansible-welp
+```
