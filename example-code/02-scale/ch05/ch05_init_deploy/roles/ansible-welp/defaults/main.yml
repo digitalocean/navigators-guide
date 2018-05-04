@@ -4,6 +4,9 @@ domain: "example.com"
 subdomain: "www.{{ domain }}"
 doc_root: "/var/www/{{ domain }}"
 
+upload_max_filesize: "20M"
+post_max_size: "20M"
+
 wp_db_host: "{{ hostvars[groups['ha_db_fip'][0]]['ip_address'] }}"
 wp_db_name: "{{ vault_wp_db_name }}"
 wp_db_user: "{{ vault_wp_db_user }}"

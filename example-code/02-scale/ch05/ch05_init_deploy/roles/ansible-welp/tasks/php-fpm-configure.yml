@@ -2,10 +2,14 @@
 - name: configure php-fpm
   lineinfile:
     path: /etc/php/7.0/fpm/php.ini
-    regexp: '^;cgi.fix_pathinfo=1'
-    line: 'cgi.fix_pathinfo=0'
+    regexp: "{{ item.exp }}"
+    line: "{{ item.line }}"
     owner: root
     group: root
     mode: 0644
     state: present
+  with_items:
+    - { exp: '^;cgi.fix_pathinfo=1', line: 'cgi.fix_pathinfo=0' }
+    - { exp: '^upload_max_filesize =', line: 'upload_max_filesize = {{ upload_max_filesize }}' }
+    - { exp: '^post_max_size =', line: 'post_max_size = {{ post_max_size }}' }
   notify: restart php7

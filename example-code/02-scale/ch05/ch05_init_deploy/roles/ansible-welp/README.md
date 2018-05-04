@@ -1,7 +1,7 @@
-Role Name
+ansible-welp
 =========
 
-A brief description of the role goes here.
+Sets up a linux server running nginx, php7-fpm, and WordPress.
 
 Requirements
 ------------
@@ -11,7 +11,28 @@ Any pre-requisites that may not be covered by Ansible itself or the role should 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+defaults/main.yml
+* sys_user
+* domain
+* subdomain
+* doc_root
+* upload_max_filesize
+* post_max_size
+* wp_db_name
+* wp_db_pass
+* wp_db_user
+* wp_salt
+* tbl_prefix
+* wp_plugin_list
+
+group_vars/all/vault
+* vault_sys_user
+* vault_wp_db_name
+* vault_wp_db_user
+* vault_wp_db_pass
+
+group_vars/wp_node/vault
+* vault_wp_salt
 
 Dependencies
 ------------
@@ -26,13 +47,3 @@ Including an example of how to use your role (for instance, with variables passe
     - hosts: servers
       roles:
          - { role: username.rolename, x: 42 }
-
-License
--------
-
-BSD
-
-Author Information
-------------------
-
-An optional section for the role authors to include contact information, or a website (HTML is not allowed).

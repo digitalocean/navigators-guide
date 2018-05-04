@@ -23,7 +23,7 @@ variable "algorithm" {
 }
 
 variable "node_count" {
-  default = 1
+  default = 3
 }
 
 variable "node_size" {

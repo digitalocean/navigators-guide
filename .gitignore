@@ -8,6 +8,5 @@ site.retry
 .terraform/
 /example-code/**/cert/cert.*
 vault.yml
-salt.yml
 packer
 nav-guide
