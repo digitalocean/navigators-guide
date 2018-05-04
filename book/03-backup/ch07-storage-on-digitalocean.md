@@ -5,7 +5,7 @@ Like we've said before — your data is one of the most important assets your co
 Not all storage options are created equal. When evaluating storage options, there are three factors to keep in mind:
 
 * **Performance**, which is the speed of reading and writing data.
-* **Security**, which is the encryption of the data when it's not in use.
+* **Security**, which, in this conversation, is the encryption of the data when it's not in use.
 * **Redundancy**, which is the resilience of the data to corruption, usually via having redundant copies. Redundancy of storage isn't a substitute for backups, but is still an important factor in protecting your data.
 
 No one storage option perfectly solves all three of these points; improving one generally means making a compromise on another.
@@ -101,7 +101,7 @@ The Volume storage cluster is a distributed system that has multiple copies of y
 
 Object storage lets you store and retrieve unstructured data using an HTTP API. It's great for hosting images, static HTML files, logs, and backups.
 
-Amazon pioneered mainstream object storage with their S3 product, and Spaces is DIgitalOcean's object storage offering. You can have multiple Spaces and, because any computer on the internet can send requests to them, your Droplets don't have to be in the same datacenter.
+Amazon pioneered mainstream object storage with their S3 product, and Spaces is DigitalOcean's object storage offering. You can have multiple Spaces and, because any computer on the internet can send requests to them, your Droplets don't have to be in the same datacenter.
 
 - **Performance**: Slower speeds than block storage and local storage. See [Best Practices for Performance on DigitalOcean Spaces](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces).
 - **Security**: Data is encrypted at rest.
@@ -109,7 +109,7 @@ Amazon pioneered mainstream object storage with their S3 product, and Spaces is 
 
 Object storage differs significantly from traditional file system hierarchies, so we need to take a look at Spaces' underlying components to fully understand its advantages and detriments.
 
-Spaces in particular is built on top of an open-source project called Ceph. If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Atri and Vaibhav Bhembre are co-authors on [Learning Ceph - Second Edition: Unifed, scalable, and reliable open source storage solution](https://www.amazon.com/Learning-Ceph-scalable-reliable-solution-ebook/dp/B01NBP2D9I).
+Spaces and Volumes in particular are built on top of an open-source project called Ceph. If you want to learn more about Ceph, DigitalOcean's very own Anthony D'Atri and Vaibhav Bhembre are co-authors on [Learning Ceph - Second Edition: Unifed, scalable, and reliable open source storage solution](https://www.amazon.com/Learning-Ceph-scalable-reliable-solution-ebook/dp/B01NBP2D9I).
 
 On the front end, an object is a binary blob that includes your file contents with some added attributes, like metadata. On the back end, the object storage device (OSD) is the physical drive storing data and Ceph's RADOS Gateway (RGW) provides the interface with the storage objects.
 
@@ -119,7 +119,7 @@ Spaces is the only storage option on DigitalOcean that uses mostly hard disk dri
 
 All requests to store or pull files from the Spaces backend goes through the RGWs. While we strive for very high <!-- TODO: %? --> availability with the Spaces API, it is not the best use for serving files at a high rate of requests per minute. 
 
-You'll see the best performance when [the Droplets accessing your Space](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces#choose-the-right-data-center-for-your-resources) are in the same data center or in data centers connected by [DigitalOcean's regional backbones](https://blog.digitalocean.com/whats-new-with-the-digitalocean-network). If the connections to your Spaces are from end users on the Internet, you'll see the best performance when you [use a CDN](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces#use-a-content-delivery-network-(cdn)), regardless of which region your Spaces are in.
+In terms of end user speed, you'll see the best performance when [the Droplets accessing your Space](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces#choose-the-right-data-center-for-your-resources) are in the same data center or in data centers connected by [DigitalOcean's regional backbones](https://blog.digitalocean.com/whats-new-with-the-digitalocean-network). If the connections to your Spaces are from end users on the Internet, you'll see the best performance when you [use a CDN](https://www.digitalocean.com/community/tutorials/best-practices-for-performance-on-digitalocean-spaces#use-a-content-delivery-network-(cdn)), regardless of which region your Spaces are in.
 
 ### Security
 
