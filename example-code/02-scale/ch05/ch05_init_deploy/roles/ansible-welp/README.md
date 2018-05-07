@@ -6,22 +6,22 @@ Sets up a linux server running nginx, php7-fpm, and WordPress.
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+This roles makes the assumption that you will be running an external database and will supply connetion details in **group_vars/all/vault**.
 
 Role Variables
 --------------
 
 defaults/main.yml
-* sys_user
+* sys_user -> *vault_sys_user*
 * domain
 * subdomain
 * doc_root
 * upload_max_filesize
 * post_max_size
-* wp_db_name
-* wp_db_pass
-* wp_db_user
-* wp_salt
+* wp_db_name -> *vault_wp_db_name*
+* wp_db_pass -> *vault_wp_db_pass*
+* wp_db_user -> *vault_wp_db_user*
+* wp_salt -> *vault_wp_salt*
 * tbl_prefix
 * wp_plugin_list
 
