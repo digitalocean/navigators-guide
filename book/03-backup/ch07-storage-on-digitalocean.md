@@ -129,9 +129,6 @@ The data is stored is encrypted and is managed as individual objects (files).
 
 The Spaces backend is made up of many OSDs. The redundant copies of each object are compared daily to provide data integrity. The cluster will automatically error correct any inconsistent copies, so there should be no data corruption.
 
-### In Detail
-
-
 <!-- TODO: 4th storage option? distributed file systems like GlusterFS ? -->
 
 ## The Best Storage Option?
