@@ -18,5 +18,5 @@ This repository contains the book: _The Navigator's Guide to DigitalOcean_ along
 * The table of contents and file list can be found in [book/SUMMARY.md](book/SUMMARY.md)
 
 **Current Workflow:**
-* Loosely review pull requests and priority is getting words on paper ASAP
-* Shift to a thorough review process after first wave of content is committed
+* 2 week sprints for development work 
+* Editorial process to review draft work

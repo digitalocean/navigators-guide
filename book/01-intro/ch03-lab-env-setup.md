@@ -2,7 +2,7 @@
 
 This is the first hands-on portion of the book. First, we'll go over the tools we'll be using, how they fit together, and how they can be beneficial to you as you begin to create and manage your infrastructure on DigitalOcean.
 
-Then, we'll set up a single Droplet which we'll use as as a controller to run and use the rest of our tool belt. 
+Then, we'll set up a single Droplet which we'll use as as a controller to run and use the rest of our tool belt.
 
 ## Our Tool Belt
 
@@ -12,7 +12,7 @@ We'll primarily be using [Terraform](https://www.terraform.io), [Ansible](https:
 
 [Terraform](https://www.digitalocean.com/community/tutorials/how-to-use-terraform-with-digitalocean) is a open-source tool that allows you to easily describe your infrastructure as code. This means you can version control your resources in the same way you would if you were writing a program, which allows you to roll back to a working state if you hit an error.
 
-Terraform uses a declarative syntax ([HCL](https://github.com/hashicorp/hcl)) that is designed to be easy for humans and computers alike to understand. HCL lets you plan your changes for review and automatically handles infrastructure dependencies for you. 
+Terraform uses a declarative syntax ([HCL](https://github.com/hashicorp/hcl)) that is designed to be easy for humans and computers alike to understand. HCL lets you plan your changes for review and automatically handles infrastructure dependencies for you.
 
 We'll be using Terraform to *create* our infrastructure — that is, creating Droplets, Floating IPs, Firewalls, Block Storage Volumes, and DigitalOcean Load Balancers — but we won't be using it to *configure* those resources. That's where Ansible comes in.
 
@@ -22,7 +22,7 @@ We'll be using Terraform to *create* our infrastructure — that is, creating Dr
 
 Playbooks are YAML files which define the automation you want to manage with Ansible. Like Terraform, you can version control your playbooks. Unlike Terraform, a change in the configuration of a resource does not require the destruction and recreation of that resource.
 
-Ansible was created to push configuration changes outward which differs from other configuraiton management tools like  Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple ssh connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
+Ansible was created to push configuration changes outward which differs from other configuration management tools like Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple ssh connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
 
 <!-- TODO: ansible modules overview, specific modules for DO; ansible isn't stateful like puppet, so don't make snowflakes; ansible + ansible-doc are user friendly. https://twitter.com/laserllama/status/976135074117808129 -->
 
@@ -57,16 +57,17 @@ Now it's time to [create the Droplet](https://cloud.digitalocean.com/droplets/ne
 * **Image:** Ubuntu 16.04 x64.
 * **Size:** 1GB Standard Droplet.
 * **Datacenter region**: Your choice.
-* **Additional options:** private networking, backups, user data, and monitoring.
+* **Additional options:** Enable private networking, backups, user data, and monitoring.
 * **SSH keys**: Select yours.
+* **Hostname**: We recommend choosing a recognizable name. 'Lab-Control' for example.
 
 When you select the user data option, a text field will open up. [User data](https://www.digitalocean.com/community/tutorials/an-introduction-to-droplet-metadata) is arbitrary data that a user can supply to a Droplet at creation time. User data is consumed by CloudInit, typically during the first boot of a cloud server, to perform tasks or run scripts as the root user.
 
-Copy and paste the following script into the user data text field. It installs Python 2.7, `pip` (a Python package manager), Git, `zip`, Terraform, `terraform-inventory`, and Ansible. The only modification you need to make to this file is setting your desired username and your public SSH key.
+Copy and paste the following script into the user data text field. The cloud-config script installs Python 2.7, `pip` (a Python package manager), Git, `zip`, Terraform, `terraform-inventory`, and Ansible. The only modification you need to make to this file is setting your desired username and your public SSH key. Your public key is the same one that was pasted into the DigitalOcean control panel when creating an SSH key.
 
 ```yaml
 #cloud-config
-# Source:  https://github.com/{{ config.nav-repo }}/example-code/01-intro/ch03/cloud-config.yaml
+# Source:  https://git.io/nav-guide-cloud-config
 
 users:
   - name: your_desired_username_here # <-- Specify your username here.
@@ -99,7 +100,7 @@ From here, click **Create**. The Droplet itself will be up and running quickly, 
 >
 > You can also install this software manually if you prefer. Terraform and `terraform-inventory` are Go binaries that need to be placed within your `$PATH`. We recommend installing Ansible with Pip instead of a system package manager like APT because it stays up to date and allows you to install it within a `virtualenv`.
 
-The last step is to create an SSH key for the controller Droplet. We'll later place this on each of the nodes in our infrastructure. You can run this one-liner when logged into your server to create a key and comment it with your Droplet's hostname:
+The last step is to create a second SSH key. This one is used for the controller Droplet to manage the infrastructure Droplets. We'll later place this on each of the nodes in our infrastructure automatically through terraform. You can run this one-liner when logged into your server to create a key and comment it with your Droplet's hostname:
 
 ```
 ssh-keygen -t rsa -C $(hostname -f)
