@@ -11,6 +11,7 @@ We were founded in 2012, and today we have over 400 employees working out of our
 Because our cloud computing platform was built with simplicity at the forefront, managing infrastructure on DO is easy whether your business is running one virtual machine or ten thousand. Here are some of the products we offer:
 
 * **Droplets** are more than just virtual machines. They are a scalable compute platform with free additional features, like Cloud Firewalls, Monitoring, Floating IP Addresses, and DNS zone hosting, that allow you to easily run production applications.
+* **Kubernetes** is DigitalOcean's native support for the most popular orchestration tool for containerized applications. We'll cover containers and Kubernetes more in other books and resources.
 * **Load Balancers** automatically distribute incoming traffic across your Droplets, enabling you to build more reliable and performant applications by creating redundancy.
 * **Volumes** are additional SSD-based block storage devices you can add to your Droplet to suit your database, file storage, application, service, mobile, and backup needs.
 * **Spaces** is scalable and simple object storage to store, serve, backup, and archive any amount of web content, images, media, and static files for your web applications.
@@ -25,7 +26,7 @@ We, the authors, are Fabian Barajas and Jon Schwenn. We're both Solutions Engine
 
 Fabian Barajas joined DigitalOcean in 2015 as a Customer Success Engineer and became a Solutions Engineer in early 2017. He is an LPIC-1 and SUSE Certified Linux Administrator, and holds a number of certifications, including ComTIA Linux+ and A+.
 
-Jon Schwenn has worked in multiple teams at DigitalOcean since 2015. His prior accomplishments include founding a specialty colocation service that hosted thousands of Mac servers, creating and administering a fairly large automotive internet forum, and building an e-commerece system from scratch with ColdFusion in 2001. It was different times back then. Jon is a Red Hat Certified Architect and has been using Linux professionally since 2003. 
+Jon Schwenn has worked in multiple teams at DigitalOcean since 2015. His prior accomplishments include founding a specialty colocation service that hosted thousands of Mac servers, creating and administering a fairly large automotive internet forum, and building an e-commerece system from scratch with ColdFusion in 2001. It was different times back then. Jon is a Red Hat Certified Architect and has been using Linux professionally since 2003.
 
 As a business customer, the Customer Success team is your dedicated resource for help with any platform-related issues. We can solve your problems, answer your questions, or connect you with other people at DigitalOcean who work directly on Product or Engineering.
 
