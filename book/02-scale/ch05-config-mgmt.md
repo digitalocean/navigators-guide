@@ -190,7 +190,10 @@ vault_wp_salt: |
     define('NONCE_SALT',       'put your unique phrase here');
 ```
 
-Note: In a normal situation, you're going to want to encrypt all of your vault files using `ansible-vault`. In fact, if you look at **ansible.cfg**, you'll see that `vault_password_file = ~/.vaultpass.txt` has been placed inside. If you do decide to encrypt the files, you can place your plain text password in a file named **.vaultpass.txt** in your user's home directory. It can really be placed anywhere you'd like, but I recommend keeping it out of your repo.
+***Note:*** In a normal situation, you're going to want to encrypt all of your vault files using `ansible-vault`. In fact, if you look at **ansible.cfg**, you'll see that `vault_password_file = ~/.vaultpass.txt` has been placed inside. If you do decide to encrypt the files, you can place your plain text password in a file named **.vaultpass.txt** in your user's home directory. It can really be placed anywhere you'd like, but I recommend keeping it out of your repo.
+
+Some default variables have also been set in **roles/ansible-welp/defaults/main.yml** for things like the domain and maximum upload file size and these can be overridden by either editing them or assigning new values in **roles/ansible-welp/vars/main.yml**.
+
 
 A couple additional items to look out for when setting up these passwords, including your auth salts, these passwords are being run through the jinja templating system and there a few character combinations that can cause errors since they are jinja delimeters. So watch out for the following character combos:
 
@@ -198,4 +201,23 @@ A couple additional items to look out for when setting up these passwords, inclu
 * `{{`
 * `{#`
 
-<!--  -->
+With your variables set you can now run your playbook to install and configure all of the software that is needed to run your WordPress application. You can start by running the following command:
+
+```sh
+ansible-playbook -i /usr/local/bin/terraform-inventory site.yml
+```
+
+All progress, including any errors, will be output in your terminal so you can review it later. Once the playbook finishes up you should be able to head over to the domain you used. If you used the default of `example.com`, set the entry in your hosts file and point it to your DigitalOcean Load Balancer's IP address. If you used a domain you control, just be sure to set up the DNS mapping on your name servers and let it propagate. You should now be able to navigate over using the domain name.
+
+Just a quick warning, things may look a bit off. First, if you're using a self-signed cert, you'll need to allow the security exception so you can reach the site. Second, some of the content won't display properly and this has to do with using https to start when setting up WordPress. You should be able to disable protection for the site until you log in to activate and run the `SSL insecure content fixer` plugin that is installed. That will change the links set up in your database so they all use https when being referenced.
+
+The last item you'll need to take care of is activating and configuring the `DigitalOcean Spaces Sync` plugin that's installed by default as well. Be sure to create a Space through the UI and set up your keys for access. The process is really quick and straightforward, but if you're looking for some more information, we actually have that process fully documented in our community articles. Here are a couple links that will walk you through setting up a Space and access keys, and the second actually explains how to use Spaces to store WordPress assets.
+
+https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key
+
+https://www.digitalocean.com/community/tutorials/how-to-store-wordpress-assets-on-digitalocean-spaces
+
+**Congrats!** At this point you should now be able to go to your domain and see a default WordPress site similar to this one.
+![](https://i.imgur.com/jBPbu1n.png)
+
+There are still some additional changes we need to make to help secure your Droplets and data, but we're going to cover those in a later chapter along with how you can speed up your deployment process. For now you should be able to see how simple it is to get started.
