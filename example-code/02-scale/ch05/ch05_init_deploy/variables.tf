@@ -31,4 +31,7 @@ variable "node_size" {
   default = "s-1vcpu-1gb"
 }
 
-variable "ansible_user" {}
+variable "ansible_user" {
+	type = "string"
+	default = "ansible"
+}
