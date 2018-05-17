@@ -7,6 +7,8 @@ site.retry
 *.pyc
 .terraform/
 /example-code/**/cert/cert.*
-vault
+/example-code/**/bin/automesos.sh
+/example-code/**/bin/init_config
+vault.yml
 packer
 nav-guide

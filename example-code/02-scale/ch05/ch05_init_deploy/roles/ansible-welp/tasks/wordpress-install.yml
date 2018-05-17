@@ -1,0 +1,60 @@
+---
+- name: download wordpress
+  unarchive:
+    src: "https://wordpress.org/latest.tar.gz"
+    dest: "{{ doc_root }}"
+    remote_src: yes
+    owner: "{{ sys_user }}"
+    group: www-data
+    extra_opts: "--strip-components=1"
+
+- name: install plugins
+  unarchive:
+    src: "{{ item }}"
+    dest: "{{ doc_root }}/wp-content/plugins"
+    remote_src: yes
+    owner: "{{ sys_user }}"
+    group: www-data
+  with_items:
+    - "{{ wp_plugin_list }}"
+
+- name: remove sample config file
+  file:
+    dest: "{{ doc_root }}/wp-config-sample.php"
+    state: absent
+
+- name: create new wp-config.php file
+  template:
+    dest: "{{ doc_root }}/wp-config.php"
+    src: wp-config.j2
+    owner: "{{ sys_user }}"
+    group: www-data
+    mode: 0640
+
+- name: list all dirs in doc_root
+  find:
+    paths: "{{ doc_root }}"
+    recurse: yes
+    file_type: directory
+  register: setgid_dirs
+
+- name: setgid bit on all dirs in doc_root
+  file:
+    dest: "{{ item.path }}"
+    mode: g+s
+  with_items:
+    - "{{ setgid_dirs.files[0:] }}"
+
+- name: group write access to wp-content
+  file:
+    dest: "{{ doc_root }}/wp-content"
+    mode: g+w
+
+- name: group write access to themes and plugins
+  file:
+    dest: "{{ doc_root }}/wp-content/{{ item }}"
+    mode: g+w
+    recurse: yes
+  with_items:
+    - themes
+    - plugins

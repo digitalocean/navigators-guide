@@ -23,7 +23,7 @@ variable "algorithm" {
 }
 
 variable "node_count" {
-  default = 1
+  default = 3
 }
 
 variable "node_size" {
@@ -31,4 +31,7 @@ variable "node_size" {
   default = "s-1vcpu-1gb"
 }
 
-variable "ansible_user" {}
+variable "ansible_user" {
+	type = "string"
+	default = "ansible"
+}

@@ -1,5 +1,4 @@
 ---
-# Setting up nginx and other deps
 - name: Configure nginx service
   template:
     src: nginx.conf.j2
@@ -16,17 +15,17 @@
     path: "/etc/nginx/sites-enabled/{{ item }}"
     state: absent
   with_items: "{{ active.stdout_lines }}"
-  when: item != server_name
+  when: item != domain
 
 - name: Configure server block
   template:
     src: server-block.conf.j2
-    dest: "/etc/nginx/sites-available/{{ server_name }}"
+    dest: "/etc/nginx/sites-available/{{ domain }}"
     mode: 0644
 
 - name: Enable new site
   file:
-    src: "/etc/nginx/sites-available/{{ server_name }}"
-    dest: "/etc/nginx/sites-enabled/{{ server_name }}"
+    src: "/etc/nginx/sites-available/{{ domain }}"
+    dest: "/etc/nginx/sites-enabled/{{ domain }}"
     state: link
   notify: restart nginx

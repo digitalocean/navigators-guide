@@ -1,15 +1,13 @@
-# Use modules to build stack
-
 #set up a tag
 resource "digitalocean_tag" "backend_tag" {
-  name = "${var.project}-ghost-backend"
+  name = "${var.project}-wp-app"
 }
 
 # backend nodes
-resource "digitalocean_droplet" "ghost_node" {
+resource "digitalocean_droplet" "wp_node" {
   count              = "${var.node_count}"
   image              = "${var.image_slug}"
-  name               = "${var.project}-ghost-${format("%02d", count.index + 1)}"
+  name               = "${var.project}-wp-${format("%02d", count.index + 1)}"
   region             = "${var.region}"
   size               = "${var.node_size}"
   private_networking = true

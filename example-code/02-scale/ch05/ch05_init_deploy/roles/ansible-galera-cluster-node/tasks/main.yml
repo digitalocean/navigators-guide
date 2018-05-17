@@ -250,19 +250,19 @@
 
 - name: create database and user
   block:
-    - name: create ghost database
+    - name: create WordPress database
       mysql_db:
-        name: "{{ ghost_db_name }}"
+        name: "{{ wp_db_name }}"
         state: present
 
-    - name: create ghost user
+    - name: create WordPress database user
       mysql_user:
         config_file: /root/.my.cnf
-        name: "{{ ghost_db_user }}"
-        password: "{{ ghost_db_pass }}"
+        name: "{{ wp_db_user }}"
+        password: "{{ wp_db_pass }}"
         state: present
         host: "{{ item }}"
-        priv: "{{ ghost_db_name }}.*:ALL,GRANT"
+        priv: "{{ wp_db_name }}.*:ALL,GRANT"
       with_items:
         - "{{ galera_haproxy_host1 }}"
         - "{{ galera_haproxy_host2 }}"

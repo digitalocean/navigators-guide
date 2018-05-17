@@ -45,6 +45,7 @@ resource "digitalocean_loadbalancer" "public" {
   region                 = "${var.region}"
   droplet_tag            = "${digitalocean_tag.backend_tag.id}"
   redirect_http_to_https = true
+  depends_on             = ["digitalocean_tag.backend_tag"]
 
   forwarding_rule {
     entry_port     = 443
@@ -53,7 +54,15 @@ resource "digitalocean_loadbalancer" "public" {
     target_port     = 80
     target_protocol = "http"
 
-    certificate_id = "${digitalocean_certificate.example_cert.id}"
+    certificate_id = "${digitalocean_certificate.DOLB_cert.id}"
+  }
+
+  forwarding_rule {
+    entry_port     = 80
+    entry_protocol = "http"
+
+    target_port     = 80
+    target_protocol = "http"
   }
 
   healthcheck {
@@ -107,164 +116,108 @@ Another option is to replicate the path of your file system on which your sessio
 
 The next two methods are also similar to one another and that is to create your application in a way that stores user sessions in either a database or in-memory cache like Redis. Using your database makes things easy because your application is already setup to connect to it for all other processes when requesting data. However, for a highly active site this does put a little more overhead on the database, but for most use-cases it's negligible. The last option I'm mentioning is using an in-memory cache like Redis or Memcached. It obviously means you'll be creating a few more Droplets but it is lightning fast, extremely versatile, and you can use it to cache database query responses which can speed things up for you.
 
-For the sake of making things easy, we're going to be launching a Ghost blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to the code. We will need to do some preliminary work to get get things up and running like splitting up our environments, looking for a way to handle file storage, and getting a separate database server stood up.
+For the sake of making things easy, we're going to be launching a WordPress blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to the code.
 
 **File Storage**
 
+If you're splitting request across multiple application nodes, you'll need to think about how you want to handle file storage. Just like sessions, this can be done on the local file system and replicated among your application nodes. However, this does mean you have another service to worry about on the Droplets and some additional configuration changes to make. I recommend making use an object storage solution since it's simple, cheap, reliable, and given that we're using WordPress all you need to do is install a plugin and configure it. We'll be making use of the DigitalOcean Spaces Sync plugin. https://wordpress.org/plugins/do-spaces-sync/
+
+Using this option means you won't have to worry about replication, availability, or management of the underlying storage space. This should free up some more of your time to worry about other things, like what movie you're going to watch this weekend.
+
+
+
+**Database**
+
+We're going to be building out a highly available WordPress blog, but it wouldn't really be HA if we run a single external database server that could go down. WordPress relies on it's database for just about everything so we need to make sure that it's able to respond to queries. There are multiple options for setting up database cluster since parts can be mixed together depending on what you find works best for you, but we're going to build a Galera cluster running on MariaDB all placed behind a couple of HAProxy nodes with an attached floating IP. If you want to out the source repo go ahead and navigate to https://github.com/cmndrsp0ck/galera-cluster. This is going to set up some very simple TCP routing to your 3 node cluster allowing your application to stay online in the event a single node fails. You can increase the number of cluster members or add an arbitrator to allow for a higher number of allowed failures, but we're going to keep it simple with 3.
+
 ---
 
-<!-- split to own file for ch05.1 -->
-**Environments**
-<!-- environments -->
-  * dev
-  * staging
-  * prod
-
-Before we jump into deploying Droplets and services all willy-nilly, let's go over our environments. In most serious projects you're going to have a dev, staging, and production environment to allow yourself room to tinker, test, and deploy without having to worry about bringing your live site down. Doing a little planning ahead of time will go a long way in preventing headaches. Terraform provides a workspace feature that keeps the terraform.tfstate files separate from one another. However, we're actually not going to use that since we're going to make use of Ansible for Droplet configuration after boot up and use directory structure to isolate environments. This can be done a few different ways and often times it comes down to personal preference or whatever works best for your project. Here's an example structure.
-
-```
-.
-├── ansible.cfg
-├── bin/
-├── environments/
-│   ├── config/
-│   │   └── cloud-config.yaml
-│   ├── dev/
-│   ├── prod/
-│   ├── staging/
-│   │   ├── config -> ../config
-│   │   ├── group_vars
-│   │   ├── host_vars
-│   │   └── terraform-inventory -> ../terraform-inventory
-│   ├── symfiles/
-│   │   └── manifest.json
-│   ├── symvars/
-│   │   ├── galera-cluster-node.yml
-│   │   ├── galera-loadbalancer.yml
-│   │   ├── README.md
-│   │   ├── shared-group-vars.yml
-│   │   └── shared-vault.yml
-│   └── terraform-inventory
-├── galera-deploy.yml
-├── ghost-build.yml
-├── packer-build.yml
-└── roles/
-
-```
-
-One other thing to note is that we're not configuring Terraform to use remote state. Just know that when you're working with a team, you'll want to look into setting up a remote state backend like Consul which supports state locking. Okay, let's go over a few things to explain the logic behind this type of layout. The first is that we're keeping files that pertain to similar components in separate environments apart from one another. The important thing is that we don't want to run some Ansible or Terraform scripts on the wrong environment and bring everything crashing down. We do this by placing directories in the **environments** dir and each one gets its own subdirectory. Since we're using Terraform, we can place our individual scripts per environment in each directory, and we can go even further by placing different parts of your infrastructure in further subdirectories in order to isolate each of them from one another. Let's use your staging environment as an example. You can break down staging into the components it's comprised of like your database, file storage (Spaces), Load Balancer, Application Droplets and so on. There are actually some really great write-ups about this topic online, one of which has actually turned into the book, *"Terraform: Up & Running"* by Yevgeniy Brikman. You can check out his blog post which covers this in more detail: https://blog.gruntwork.io/a-comprehensive-guide-to-terraform-b3d32832baca
-
-We're also going to make use of versioned Terraform modules in our setup. What this allows you to do is make changes to your infrastructure in staging without affecting production. You don't want to make a breaking change in production just by updating a resource configuration in one of you modules. Here's an example of what that would look like.
-
-*staging*
-```
-module "sippin_db" {
-  source           = "github.com/cmndrsp0ck/galera-tf-mod.git?ref=v1.0.4"
-  project          = "${var.project}"
-  region           = "${var.region}"
-  keys             = "${var.keys}"
-  private_key_path = "${var.private_key_path}"
-  ssh_fingerprint  = "${var.ssh_fingerprint}"
-  public_key       = "${var.public_key}"
-  ansible_user     = "${var.ansible_user}"
-}
-```
-
-*prod*
-```
-module "sippin_db" {
-  source           = "github.com/cmndrsp0ck/galera-tf-mod.git?ref=v1.0.2"
-  project          = "${var.project}"
-  region           = "${var.region}"
-  keys             = "${var.keys}"
-  private_key_path = "${var.private_key_path}"
-  ssh_fingerprint  = "${var.ssh_fingerprint}"
-  public_key       = "${var.public_key}"
-  ansible_user     = "${var.ansible_user}"
-}
-```
-
-The only change in the previous 2 examples is the value assigned to the *ref* key at the end of the source line. You'll also notice that the arguments passed into the module are referencing variables set in **terraform.tfvars**. You can pass in strings within the same block that calls your modules if that's your preference. Let's take a look at the module to see what it's doing. If you were to clone the repo you'll see that it contains nothing more than a basic set of Terraform files that declare variables and create a set of resources. It's really nothing special to look at, however, using modules really allows you to
-
-<!-- build out terraform module for load balancer -->
-**Terraform module**
-
-Let's take a look at the module to see what it's doing. If you were to clone the repo you'll see that it contains nothing more than a basic set of Terraform files that declare variables and create a set of resources.
-
-<!-- build out database -->
-<!-- build out single instance of ghost -->
-
-**Speeding up the ability to scale with snapshots**
-
-* Creating a template
-* Templating software
-  * Packer
-  * Ansible is yet again useful when building your images
-
-So far we've spun up a Load Balancer with a few dummy backends to give you an example of how easy it is to deploy a highly available service, but the dummy backends are not really useful in the real world. In most cases you'll have an application running on your backends that need to be ready for incoming requests as soon as they've been added to your Load Balancer's configuration. Spinning up base images and installing all dependencies and making configuration changes when you need to increase your application's capacity is not efficient. To speed things up and minimize the amount of work required to add new backends you can simply create your own images with all of your software dependencies pre-baked in leaving you to only configure the application when the Droplet is provisioned.
-
-Creating a template can be manual process if you'd like. That means spinning up a single Droplet, logging in and running through all of the steps one-by-one, testing it out, then finally creating a snapshot. This isn't very practical though since it's a slow, error prone process. A step in the right direction would be to script the process. You can use whatever language you're comfortable with. Often times using bash scripts works well for simple builds but keep in mind that as your project requirements grow, your scripts will also as will the effort to maintain those scripts.
-
-Another option would be to use server templating tool like Packer. Now while Packer isn't going to configure your image for you on its own, it does allow you to easily create a repeatable and testable process. Packer works with the scripts you already have and supports a large set of additional configuration tools including Chef, Puppet, Salt, and Ansible. It also has the ability to work with tons of providers and is able to generate multiple image formats including Docker. For our example we're going to make use of Packer's Ansible remote provisioner to create an image with a Ghost blog and all of its dependencies installed.
-
-Packer templates are written using JSON to describe the builds it will perform. It's a straightforward approach that allows you to get your images created quickly. For an in-depth view of the components that can be used in a template file check out https://www.packer.io/docs/templates/index.html. Here's the example template that we'll be using.
-
-**ghost-node.json**
-```json
-{
-    "builders": [
-        {
-            "type": "digitalocean",
-            "api_token": "{{user `do_api_token`}}",
-            "image": "{{user `app_node_image`}}",
-            "region": "sfo2",
-            "size": "s-1vcpu-1gb",
-            "private_networking": true,
-            "monitoring": true,
-            "user_data_file": "./config/cloud-config.yaml",
-            "snapshot_name": "{{user `project_name`}}_{{isotime \"06-01-02-03-04-05\"}}",
-            "communicator": "ssh",
-            "ssh_username": "root"
-        }
-    ],
-    "provisioners": [
-        {
-            "type": "ansible",
-            "playbook_file": "packer-build.yml",
-            "ansible_env_vars": [ "ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o ControlMaster=auto -o ControlPersist=60s'"],
-            "extra_arguments": ["-vvv"],
-            "inventory_directory": "{{template_dir}}",
-            "user": "root"
-        }
-    ],
-    "post-processors": [
-        {
-            "type": "manifest",
-            "output": "manifest.json",
-            "strip_path": true
-        }
-    ]
-}
-```
-
-So the first part we're describing is the builder. This is responsible for declaring what type of image will be produced, and in our case that means the cloud provider we'll be setting the image up with. Each builder takes a number of arguments to set what base image to use, the Droplet size, region availability, pass in user-data, set the snapshot name and any connection settings. Also note that Packer allows you to set variables and has some built-in functions that cab be used throughout the template file. Anything that is placed within `{{ }}` is run through the packer template engine. For a full listing of functions check out https://www.packer.io/docs/templates/engine.html. You'll notice that some of the values are variables, but the variables are not listed in this file. You're able to create a separate file in order to store variables and pass the file to Packer as a command-line argument when executing your template by using `-var-file=`. This allows you to set the file name in your **.gitignore** so it doesn't get sent up to your repo. You don't really have to place base image type, or the project name in this file along with the API token, but for the sake of organization we'll keep all the variables in one file. Here's an example variable file.
-
-**variable.json**
-```json
-{
-	"app_node_image": "debian-9-x64",
-	"do_api_token": "1r7l8dsmd6g09g56qdwakvkjzvn4q046wwfolqeputcgz5og26vyheg781f5bvbz",
-	"project_name": "nav-guide"
-}
-```
-
-We're passing in a cloud-config.yaml file just to make sure that we install any dependencies for our provisioner, wihch in this instance is Ansible. We're using Ansible to keep things organized, clean, and should then need arise, you can run some playbooks later on your existing infrastructure and know that steps won't be ran again since it's idempotent. Packer is going to take care of create the Droplet and supplying the private key and inventory to Ansible. All you need to do is toss in any flags you think are necessary and you're good to go.
-
-The last section is not required, but in our case we'll make use of the manifest post-processor later on. This is simply going to output a listing of completed builds that Packer has created and store them in a file. We'll use this later on to grab the snapshot ID.
-
-
-<!-- Database build out -->
-
+### Getting set up
 <!--  -->
 
-<!--  -->
+**Terraform**
+
+Let's get started with setting up a WordPress site. You can check out the example code included in this book's repo. We're going to start off by creating the configuration files for Terraform and Ansible. Each one is going to need a DigitalOcean API token, so be sure to have that ready. We'll start off with the **terraform.tvfars** file. You'll want to set up values for the following variables.
+
+* do_token
+* project
+* region
+* keys
+* private_key_path
+* ssh_fingerprint
+* public_key
+
+There are some additional variables in the file that can be set like `image_slug` and `ansible_user`, but keep in mind that the associated roles were written to be used with Debian 9 x64. If you do decide to alter the `ansible_user`, you'll need to make an adjustment to `remote_user` in the **ansible.cfg** file. We also wanted to use a TLS certificate for this example. The script currently looks for a couple of files named **cert.key** and **cert.crt** in the succinctly named **cert** directory. There's a simple script you can run to generate a self-signed cert in **bin/certifyme**. Even though this was written to use a self-signed TLS cert, if you already have a certificate you can toss it in the **cert** directory and modify **main.tf** to add in the `certificate_chain` argument. For more info on that check out: https://www.terraform.io/docs/providers/do/r/certificate.html#certificate_chain.
+
+Once you've filled out the required variables you can run `terraform init` to download the pluigins required to create your Droplets, then execute the terraform script using `terraform apply`. It shouldn't take too long before you see all of the new resources created in your account.
+
+**Ansible**
+
+Okay, so this part is a little more involved since you need to create some passwords to fill in variables, but it's not difficult. You can do it, I believe in you. Here is a listing of the variables you need to set and where they should set.
+
+**group_vars/all/vault.yml**
+  * vault_wp_db_name
+  * vault_wp_db_user
+  * vault_wp_db_pass
+
+**group_vars/galera_cluster_node/vault.yml**
+  * vault_galera_root_password
+  * vault_galera_sys_maint_password
+  * vault_galera_clustercheck_password
+
+**group_vars/galera_loadbalancer/vault.yml**
+  * vault_galera_ha_auth_key
+  * vault_galera_ha_do_token
+  * vault_haproxy_stats_user
+  * vault_haproxy_stats_pass
+  * vault_haproxy_stats_port
+
+**group_vars/wp_node/vault.yml**
+  * vault_sys_user
+  * vault_wp_salt:
+
+*note:* vault_wp_salt should be set as an indented block and can be generated using `curl -s https://api.wordpress.org/secret-key/1.1/salt/`
+
+```yaml
+vault_wp_salt: |
+    define('AUTH_KEY',         'put your unique phrase here');
+    define('SECURE_AUTH_KEY',  'put your unique phrase here');
+    define('LOGGED_IN_KEY',    'put your unique phrase here');
+    define('NONCE_KEY',        'put your unique phrase here');
+    define('AUTH_SALT',        'put your unique phrase here');
+    define('SECURE_AUTH_SALT', 'put your unique phrase here');
+    define('LOGGED_IN_SALT',   'put your unique phrase here');
+    define('NONCE_SALT',       'put your unique phrase here');
+```
+
+***Note:*** In a normal situation, you're going to want to encrypt all of your vault files using `ansible-vault`. In fact, if you look at **ansible.cfg**, you'll see that `vault_password_file = ~/.vaultpass.txt` has been placed inside. If you do decide to encrypt the files, you can place your plain text password in a file named **.vaultpass.txt** in your user's home directory. It can really be placed anywhere you'd like, but I recommend keeping it out of your repo.
+
+Some default variables have also been set in **roles/ansible-welp/defaults/main.yml** for things like the domain and maximum upload file size and these can be overridden by either editing them or assigning new values in **roles/ansible-welp/vars/main.yml**.
+
+
+A couple additional items to look out for when setting up these passwords, including your auth salts, these passwords are being run through the jinja templating system and there a few character combinations that can cause errors since they are jinja delimeters. So watch out for the following character combos:
+
+* `{%`
+* `{{`
+* `{#`
+
+With your variables set you can now run your playbook to install and configure all of the software that is needed to run your WordPress application. You can start by running the following command:
+
+```sh
+ansible-playbook -i /usr/local/bin/terraform-inventory site.yml
+```
+
+All progress, including any errors, will be output in your terminal so you can review it later. Once the playbook finishes up you should be able to head over to the domain you used. If you used the default of `example.com`, set the entry in your hosts file and point it to your DigitalOcean Load Balancer's IP address. If you used a domain you control, just be sure to set up the DNS mapping on your name servers and let it propagate. You should now be able to navigate over using the domain name.
+
+Just a quick warning, things may look a bit off. First, if you're using a self-signed cert, you'll need to allow the security exception so you can reach the site. Second, some of the content won't display properly and this has to do with using https to start when setting up WordPress. You should be able to disable protection for the site until you log in to activate and run the `SSL insecure content fixer` plugin that is installed. That will change the links set up in your database so they all use https when being referenced.
+
+The last item you'll need to take care of is activating and configuring the `DigitalOcean Spaces Sync` plugin that's installed by default as well. Be sure to create a Space through the UI and set up your keys for access. The process is really quick and straightforward, but if you're looking for some more information, we actually have that process fully documented in our community articles. Here are a couple links that will walk you through setting up a Space and access keys, and the second actually explains how to use Spaces to store WordPress assets.
+
+https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key
+
+https://www.digitalocean.com/community/tutorials/how-to-store-wordpress-assets-on-digitalocean-spaces
+
+**Congrats!** At this point you should now be able to go to your domain and see a default WordPress site similar to this one.
+![](https://i.imgur.com/jBPbu1n.png)
+
+There are still some additional changes we need to make to help secure your Droplets and data, but we're going to cover those in a later chapter along with how you can speed up your deployment process. For now you should be able to see how simple it is to get started.
