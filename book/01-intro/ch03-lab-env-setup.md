@@ -63,7 +63,7 @@ Now it's time to [create the Droplet](https://cloud.digitalocean.com/droplets/ne
 
 When you select the user data option, a text field will open up. [User data](https://www.digitalocean.com/community/tutorials/an-introduction-to-droplet-metadata) is arbitrary data that a user can supply to a Droplet at creation time. User data is consumed by CloudInit, typically during the first boot of a cloud server, to perform tasks or run scripts as the root user.
 
-Copy and paste the following script into the user data text field. The cloud-config script installs Python 2.7, `pip` (a Python package manager), Git, `zip`, Terraform, `terraform-inventory`, and Ansible. The only modification you need to make to this file is setting your desired username and your public SSH key. Your public key is the same one that was pasted into the DigitalOcean control panel when creating an SSH key.
+Copy and paste the following script into the user data text field. _If you are viewing this book in a PDF viewer, you may want to copy the cloud-config script directly from the Github repository._ The cloud-config script installs Python 2.7, `pip` (a Python package manager), Git, `zip`, Terraform, `terraform-inventory`, and Ansible. The only modification you need to make to this file is setting your desired username and your public SSH key. Your public key is the same one that was pasted into the DigitalOcean control panel when creating an SSH key.
 
 ```yaml
 #cloud-config

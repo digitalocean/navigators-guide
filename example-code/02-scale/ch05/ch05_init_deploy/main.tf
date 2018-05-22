@@ -1,9 +1,13 @@
-#set up a tag
+# Creating Tags for Load Balacner and Firewall Controls
 resource "digitalocean_tag" "backend_tag" {
   name = "${var.project}-wp-app"
 }
 
-# backend nodes
+resource "digitalocean_tag" "project_tag" {
+  name = "${var.project}"
+}
+
+# Creating Web Server Nodes
 resource "digitalocean_droplet" "wp_node" {
   count              = "${var.node_count}"
   image              = "${var.image_slug}"
@@ -13,7 +17,7 @@ resource "digitalocean_droplet" "wp_node" {
   private_networking = true
   ssh_keys           = ["${split(",",var.keys)}"]
   user_data          = "${data.template_file.user_data.rendered}"
-  tags               = ["${digitalocean_tag.backend_tag.id}"]
+  tags               = ["${digitalocean_tag.backend_tag.id}", "${digitalocean_tag.project_tag.id}"]
 
   connection {
     user        = "root"
@@ -33,30 +37,13 @@ data "template_file" "user_data" {
   }
 }
 
-# Create a new TLS certificate
-resource "digitalocean_certificate" "DOLB_cert" {
-  name             = "${var.project}-cert"
-  private_key      = "${file("./cert/cert.key")}"
-  leaf_certificate = "${file("./cert/cert.crt")}"
-}
-
-# DigitalOcean Load Balancer
+# Creating DigitalOcean Load Balancer for Web Servers
 resource "digitalocean_loadbalancer" "public" {
   name                   = "${var.project}-lb"
   region                 = "${var.region}"
   droplet_tag            = "${digitalocean_tag.backend_tag.id}"
-  redirect_http_to_https = true
+  redirect_http_to_https = false
   depends_on             = ["digitalocean_tag.backend_tag"]
-
-  forwarding_rule {
-    entry_port     = 443
-    entry_protocol = "https"
-
-    target_port     = 80
-    target_protocol = "http"
-
-    certificate_id = "${digitalocean_certificate.DOLB_cert.id}"
-  }
 
   forwarding_rule {
     entry_port     = 80
@@ -77,7 +64,7 @@ resource "digitalocean_loadbalancer" "public" {
   }
 }
 
-# Building out Galera cluster
+# Create the Highly Available Database Cluster using Galera and HAProxy
 module "sippin_db" {
   source           = "github.com/cmndrsp0ck/galera-tf-mod.git?ref=v1.0.2"
   project          = "${var.project}"
