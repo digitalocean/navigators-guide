@@ -28,7 +28,13 @@ Back in Chapter 5 we created a WordPress Cluster. In order to easily deploy the 
 ### Create a Cloud Firewall
 Each Droplet within the WordPress Cluster has a private IP address and public IP address. Any other computer on the internet can reach the public IP addresses, including those of your database nodes. The DigitalOcean Load Balancer will reach the WordPress nodes through their private IP addresses and every subsequent transmission within your cluster is handled within the private network. Luckily every Droplet in the cluster has a tag to help us associate the cluster from our other Droplets.
 
-We can create a Cloud Firewall under the "Networking" portion of the DigitalOcean web control panel. Give it a descriptive name like "wordpress-firewall". Under `Inbound Rules` you can have a single rule with a Type of `All TCP` and have the source be the tag `navguide` and the Droplet name for the control Droplet you created in Chapter 3. We'll leave the `Outbound Rules` as is. Under `Apply to Droplets` add the tag `navguide`. Once that Cloud Firewall is created all of the nodes in your cluster are not accessible via the internet. Only web traffic directed to the DigitalOcean Load Balancer is allowed into the cluster nodes.
+We can create a Cloud Firewall under the "Networking" portion of the DigitalOcean web control panel. Give it a descriptive name like "wordpress-firewall". Under `Inbound Rules` you can have three single rules:
+
+1. All TCP traffic with the source of the Tag "navguide" and the IP or name of your control Droplet
+2. HTTP traffic with the source of the "navguide-lb" DigitalOcean Load Balancer
+3. HTTPS traffic with the source of the  "navguide-lb" DigitalOcean Load Balancer
+
+ We'll leave the `Outbound Rules` as is. Under `Apply to Droplets` add the tag `navguide`. Once that Cloud Firewall is created all of the nodes in your cluster are not accessible via the internet. Only web traffic directed to the DigitalOcean Load Balancer is allowed into the cluster nodes.
 
 <!--- TODO: Screenshots --->
 

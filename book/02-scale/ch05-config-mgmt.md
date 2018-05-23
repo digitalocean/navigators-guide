@@ -151,7 +151,7 @@ We've created an initialization script that will walk you through all the requir
 <!--- TODO: Write, Test, and Document init script --->
 
 ```sh
-./wp-cluster-init.sh
+sh bin/init_config 
 ```
 
 Once the initialization script has completed, you can run execute the terraform plan which will create the following items on your DigitalOcean account:
