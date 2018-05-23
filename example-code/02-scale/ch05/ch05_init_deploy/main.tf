@@ -1,4 +1,4 @@
-# Creating Tags for Load Balacner and Firewall Controls
+# Creating Tags for Load Balancer and Firewall Controls
 resource "digitalocean_tag" "backend_tag" {
   name = "${var.project}-wp-app"
 }
