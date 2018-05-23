@@ -22,22 +22,57 @@ function listGen() {
   echo;
 }
 
+function makeSalt() {
+  # Create variable length passwords
+  LC_CTYPE=C;
+  local saltine=$(tr -dc 'A-Za-z0-9_@#$%^&*~!?;`./|:{} <>[]()-+='  < /dev/urandom | head -c 64)
+  if [[ $(echo ${saltine} | grep -P '({%|%}|{#|#}|{{|}}|##)') ]]; then
+    makeSalt;
+  else
+    echo "${saltine}";
+  fi
+}
+
+function makePass() {
+  # Generate variable length passwords
+  LC_CTYPE=C;
+  local len=${1:-14}
+  local my_pass=$(tr -dc 'A-Za-z0-9_@#%^&*()-+='  < /dev/urandom | head -c ${len})
+  echo "${my_pass}";
+}
+
+function randNum() {
+  # Generate random number of variable length with a default of 5 digits
+  local val
+  local len=${1:-5}
+  for (( x=0; x<${len}; x++ )); do
+    val+=($(echo $((RANDOM%9))));
+  done
+  printf -- "%s" "${val[@]}"
+}
+
+function randNum() {
+  # Generate random number
+  echo $(( RANDOM%99999 + 10000 ))
+}
+
 function certifyMe() {
-  # create self-signed TLS certificate
+  # Create self-signed TLS certificate
   sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ../cert/cert.key -out ../cert/cert.crt;
 }
 
 function haAuthKey() {
-  # create ha_auth_key
+  # Create ha_auth_key
   ha_auth_key=$(dd if='/dev/urandom' bs=512 count=1 2>'/dev/null' | openssl sha1 | awk '{print $2}')
 }
 
 function setProjectName() {
-  # request project name from user
+  # Get project name from user
   read -p "Please enter in your project name: " terraform_vars[project_name];
 }
 
 function setDomain() {
+  # Get domain name from user
   read -p "Enter in the domain you would like to use: " domain;
 }
 
@@ -47,7 +82,7 @@ function getDC() {
 }
 
 function setKeyVars() {
-  # set individual variables used for ssh key
+  # Set individual variables used for ssh key
   keyID=$(echo $keyObject | jq '.id')
   keyFinger=$(echo $keyObject | jq -r '.fingerprint')
   public_key=$(echo $keyObject | jq -r '.public_key')
@@ -65,7 +100,7 @@ function remoteKeyExists() {
 }
 
 function getRemoteFingers() {
-  # create array of remote key MD5 fingerprints
+  # Create array of remote key MD5 fingerprints
   unset remote_fingers;
   for k in $(echo "${remote_keys}" | jq -r '.ssh_keys[].fingerprint'); do
     remote_fingers+=(${k});
@@ -73,7 +108,7 @@ function getRemoteFingers() {
 }
 
 function localKeyExists() {
-  # check for local ssh key
+  # Check for local ssh key
   if [[ -f ${HOME}/.ssh/id_rsa ]]; then
     true;
   else
@@ -82,7 +117,7 @@ function localKeyExists() {
 }
 
 function getLocalFinger() {
-  # get local ssh key MD5 fingerprint and public key data
+  # Get local ssh key MD5 fingerprint and public key data
   local_finger=$(ssh-keygen -lf ${HOME}/.ssh/id_rsa -E md5 | cut -c10-56)
   local_pub_key=$(cat ~/.ssh/id_rsa.pub)
 }
@@ -93,11 +128,11 @@ function putKey() {
 }
 
 function keyCheck() {
-  remoteKeyExists; # TEMP: remove after testing
+  #remoteKeyExists; # TEMP: remove after testing
   if [[ localKeyExists && remoteKeyExists ]]; then
     getRemoteFingers;
     getLocalFinger;
-    for (( i= 0; i<${#remote_fingers[@]}; i++ )); do
+    for (( i=0; i<${#remote_fingers[@]}; i++ )); do
       if [[ "${local_finger}" =~ "${remote_fingers[i]}" ]]; then
         echo "Match Found - ${remote_fingers[i]}"
         keyObject=$(echo ${remote_keys} | jq -r --arg fp "${remote_fingers[i]}" '.ssh_keys[] | select(.fingerprint==$fp)')
@@ -121,9 +156,9 @@ function keyCheck() {
   fi
 }
 
-function getVaultPass() {
-  # Set up a password to be used for ansible-vault
-  local valid
+function SetVaultPass() {
+  # Set password for ansible-vault
+  local valid;
   until [[ "${valid}" == "true" ]]; do
     read -sp "Enter a password for ansible-vault: " vault_pass;
     echo;
@@ -139,6 +174,7 @@ function getVaultPass() {
       echo "You cannot use a blank password. Please try again.";
     fi
   done
+  echo "${vault_pass}" > ${HOME}/.vaultpass.txt;
 }
 
 function setDC() {
@@ -184,16 +220,19 @@ ansible_user = "ansible"
 EOF
 }
 
-function makeSalt() {
-  # Create variable length passwords
-  LC_CTYPE=C;
-  saltine=$(tr -dc 'A-Za-z0-9_@#$%^&*~!?;`./|:{} <>[]()-+='  < /dev/urandom | head -c 64)
-  if [[ $(echo ${saltine} | grep -P '({%|%}|{#|#}|{{|}}|##)') ]]; then
-    makeSalt;
-  else
-    echo "${saltine}";
-  fi
-}
+ha_auth_key="$(haAuthKey)"
+ha_proxy_stats_user="stats_$(randNum)"
+ha_proxy_stats_pass="$(makePass)"
+ha_proxy_stats_port="$(echo $(( RANDOM%9999+1024 )))"
+
+galera_root_pass="$(makePass)"
+galera_maint_pass="$(makePass)"
+galera_clustercheck="$(makePass)"
+
+sys_user="user_$(randNum)"
+db_name="db_$(randNum)"
+db_user="db_user$(randNum)"
+db_pass="$(makePass)"
 
 # create vars file for Ansible
 function ansibleVars() {
