@@ -1,11 +1,20 @@
 #!/usr/bin/env bash
+set -eo pipefail
 
 green="\e[92m"
 fin="\e[0m"
 
 # Set dirs
-o_dir=$(pwd)
-b_dir=$(echo "${o_dir%/bin}")
+if [[ $(dirname $0) == "bin" ]]; then
+  b_dir=$(pwd)
+    echo "$b_dir"
+else
+  o_dir=$(pwd)
+  b_dir=$(echo "${o_dir%/bin}")
+  echo "$b_dir"
+fi
+
+
 # Get API token from user
 until [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | jq -r '.id') != "unauthorized" ]]; do
   read -p "Please enter in your DigitalOcean API token: " do_token;
@@ -203,7 +212,7 @@ function setDC() {
 function terraConf() {
   # create terraform configuration
   setKeyVars;
-cat << EOF > ../terraform.tfvars
+cat > ${b_dir}/terraform.tfvars << 'EOF' 
 do_token = "${terraform_vars[do_token]}"
 
 project = "${terraform_vars[project_name]}"
@@ -302,6 +311,7 @@ function setDomain() {
   [[ ! -z "${domain}" ]] && echo 'domain: "'"${domain}"'"' >> "${b_dir}/roles/ansible-welp/vars/main.yml";
 }
 
+# Terraform Functions:
 setProjectName;
 getDomain;
 getDC;
@@ -309,6 +319,7 @@ keyCheck;
 setDC;
 terraConf;
 
+# Ansible Functions:
 SetVaultPass;
 setDomain;
 galeraNodes;
@@ -316,7 +327,7 @@ galeraLB;
 wpNode;
 allGroups;
 
-
+# Final Output:
 echo -e "\nRun the following commands to create your resources using Terraform:\n"
 echo -e "${green}$ terraform init${fin}"
 echo -e "${green}$ terraform apply${fin}"
