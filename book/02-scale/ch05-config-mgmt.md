@@ -151,7 +151,7 @@ We've created an initialization script that will walk you through all the requir
 <!--- TODO: Write, Test, and Document init script --->
 
 ```sh
-sh bin/init_config 
+sh bin/init_config
 ```
 
 Once the initialization script has completed, you can run execute the terraform plan which will create the following items on your DigitalOcean account:
@@ -172,6 +172,13 @@ The `apply` option will confirm your intention and require you to type `yes` and
 ```sh
 terraform apply
 ```
+
+**Note:** Terraform can also remove your cluster automatically. You can use this workflow for rapid testing, but know that any data saved to the cluster will be removed. The `destroy` option will remove your cluster. This is the fastest way to clean up from the work we do in this chapter. You can re-run `apply` and re-run the Ansible playbook to generate a new cluster.
+
+```sh
+terraform destroy #Only run this to destroy your cluster - all data will be lost!
+```
+
 
 Once your Terraform is completed with creating all of your infrastructure components, we'll use Ansible to configure everything. We're going to execute three Ansible roles to configure the database servers, the database load balancers and WordPress on the the web nodes.
 
