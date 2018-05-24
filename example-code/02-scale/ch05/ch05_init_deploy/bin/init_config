@@ -306,7 +306,9 @@ EOF
 
 function setDomain() {
   # Set domain in vars/main.yml file
-  [[ ! -z "${domain}" ]] && echo 'domain: "'"${domain}"'"' >> "${b_dir}/roles/ansible-welp/vars/main.yml";
+  if [[ ! -z "${domain}" ]]; then
+    echo 'domain: "'"${domain}"'"' >> "${b_dir}/roles/ansible-welp/vars/main.yml";
+  fi
 }
 
 # Terraform Functions:
