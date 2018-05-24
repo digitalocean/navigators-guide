@@ -1,5 +1,11 @@
 #!/usr/bin/env bash
 
+green="\e[92m"
+fin="\e[0m"
+
+# Set dirs
+o_dir=$(pwd)
+b_dir=$(echo "${o_dir%/bin}")
 # Get API token from user
 until [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | jq -r '.id') != "unauthorized" ]]; do
   read -p "Please enter in your DigitalOcean API token: " do_token;
@@ -56,14 +62,9 @@ function randNum() {
   echo $(( RANDOM%99999 + 10000 ))
 }
 
-function certifyMe() {
-  # Create self-signed TLS certificate
-  sudo openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout ../cert/cert.key -out ../cert/cert.crt;
-}
-
 function haAuthKey() {
   # Create ha_auth_key
-  ha_auth_key=$(dd if='/dev/urandom' bs=512 count=1 2>'/dev/null' | openssl sha1 | awk '{print $2}')
+  dd if='/dev/urandom' bs=512 count=1 2>'/dev/null' | openssl sha1 | awk '{print $2}'
 }
 
 function setProjectName() {
@@ -71,7 +72,7 @@ function setProjectName() {
   read -p "Please enter in your project name: " terraform_vars[project_name];
 }
 
-function setDomain() {
+function getDomain() {
   # Get domain name from user
   read -p "Enter in the domain you would like to use: " domain;
 }
@@ -128,7 +129,9 @@ function putKey() {
 }
 
 function keyCheck() {
-  #remoteKeyExists; # TEMP: remove after testing
+  echo "Checking for existing SSH keys.";
+  sleep 1;
+  remoteKeyExists;
   if [[ localKeyExists && remoteKeyExists ]]; then
     getRemoteFingers;
     getLocalFinger;
@@ -150,6 +153,7 @@ function keyCheck() {
     getLocalFinger;
     putKey;
   else
+    echo "No keys exist. Creating a new key pair and pushing it up to the DigitalOcean API."
     ssh-keygen -t rsa -C "$(hostname -f)" -q -N "" -f ${HOME}/.ssh/id_rsa;
     local_pub_key=$(cat ${HOME}/.ssh/id_rsa.pub)
     putKey;
@@ -220,83 +224,106 @@ ansible_user = "ansible"
 EOF
 }
 
-ha_auth_key="$(haAuthKey)"
-ha_proxy_stats_user="stats_$(randNum)"
-ha_proxy_stats_pass="$(makePass)"
-ha_proxy_stats_port="$(echo $(( RANDOM%9999+1024 )))"
-
-galera_root_pass="$(makePass)"
-galera_maint_pass="$(makePass)"
-galera_clustercheck="$(makePass)"
-
-sys_user="user_$(randNum)"
-db_name="db_$(randNum)"
-db_user="db_user$(randNum)"
-db_pass="$(makePass)"
-
-# create vars file for Ansible
-function ansibleVars() {
-cat << EOF > group_vars/all/vars
-sites:
-  ${app_name}:
-    doc_root: ${doc_root}
-    server_name: ${server_name}
-EOF
-
-cat << EOF > group_vars/all/load_balancer
-# DigitalOcean access token
-do_token: "{{ vault_do_token }}"
-
-# Generated ha auth key. Consult README.md for how to generate.
-ha_auth_key: "{{ vault_ha_auth_key }}"
-EOF
-}
-
-# create vault file
-function ansibleVault() {
-
-cat << EOF > group_vars/all/vault
+function galeraNodes() {
+  # Create group_vars file for galera_cluster_node
+  local group_file="${b_dir}/group_vars/galera_cluster_node/vault.yml"
+cat << EOF > "${group_file}"
 ---
-vault_do_token: ${terraform_vars[do_token]}
-vault_ha_auth_key: ${ha_auth_key}
+vault_galera_root_password: "$(makePass)"
+vault_galera_sys_maint_password: "$(makePass)"
+vault_galera_clustercheck_password: "$(makePass)"
 EOF
-
-  echo "${vault_pass}" > ${HOME}/.vaultpass.txt;
-  ansible-vault encrypt group_vars/all/vault;
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
 }
 
-# prompt user to execute scripts
-function deployNow() {
-  until [[ "${valid}" ]]; do
-    read -p "Would you like to deploy now? y/n: " deploy;
-    case "${deploy}" in
-        "Y"|"y")  terraform init
-									terraform apply;
-                  echo -en "\nWaiting for cloud-config to complete.";
-                  for i in {1..45}; do
-                    printf ".";
-                    sleep 1;
-                  done
-                  ansible-playbook -i /usr/local/bin/terraform-inventory site.yml;
-                  fip=$(terraform state show digitalocean_floating_ip.fip | grep ip_address | cut -d" " -f3);
-                  echo -e "\n Congratulations! You now have your initial load balancers and backend nodes set up. Your public floating IP is ${fip}.";
-                  valid=true;
-            ;;
-        "N"|"n")  echo -e "\nTo complete your deployment, navigate over to ${project_dir} and execute 'terraform init', 'terraform apply', then 'ansible-playbook -i /usr/local/bin/terraform-inventory site.yml;'. Goodbye!";
-                  valid=true;
-            ;;
-        *)        echo -e "\nPlease enter in a valid choice.\n"
-            ;;
-    esac
-  done
+function galeraLB() {
+  # Create group_vars file for galera_loadbalancer
+  ha_proxy_stats_user="stats_$(randNum)"
+  ha_proxy_stats_pass="$(makePass)"
+  ha_proxy_stats_port="$(echo $(( RANDOM%9999+1024 )))"
+  local group_file="${b_dir}/group_vars/galera_loadbalancer/vault.yml"
+cat << EOF > "${group_file}"
+---
+vault_galera_ha_auth_key: "$(haAuthKey)"
+vault_galera_ha_do_token: "${do_token}"
+
+vault_haproxy_stats_user: "${ha_proxy_stats_user}"
+vault_haproxy_stats_pass: "${ha_proxy_stats_pass}"
+vault_haproxy_stats_port: "${ha_proxy_stats_port}"
+EOF
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
 }
 
+function wpNode() {
+  # Create group_vars file for wp_node
+  local group_file="${b_dir}/group_vars/wp_node/vault.yml"
+cat << EOF > "${group_file}"
+---
+vault_sys_user: "user_$(randNum)"
+vault_wp_salt: |
+    define('AUTH_KEY',         '$(makeSalt)');
+    define('SECURE_AUTH_KEY',  '$(makeSalt)');
+    define('LOGGED_IN_KEY',    '$(makeSalt)');
+    define('NONCE_KEY',        '$(makeSalt)');
+    define('AUTH_SALT',        '$(makeSalt)');
+    define('SECURE_AUTH_SALT', '$(makeSalt)');
+    define('LOGGED_IN_SALT',   '$(makeSalt)');
+    define('NONCE_SALT',       '$(makeSalt)');
+EOF
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
+}
 
+function allGroups(){
+  # Create group_vars file for all groups
+  local group_file="${b_dir}/group_vars/all/vault.yml"
+cat << EOF > "${group_file}"
+---
+vault_wp_db_name: "db_$(randNum)"
+vault_wp_db_user: "db_user$(randNum)"
+vault_wp_db_pass: "$(makePass)"
+EOF
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
+}
 
-# Execute functions
-setVars;
-certifyMe;
+function setDomain() {
+  # Set domain in vars/main.yml file
+  [[ ! -z "${domain}" ]] && echo 'domain: "'"${domain}"'"' >> "${b_dir}/roles/ansible-welp/vars/main.yml";
+}
+
+setProjectName;
+getDomain;
+getDC;
+keyCheck;
+setDC;
 terraConf;
-ansibleVars;
-ansibleVault;
-deployNow;
+
+SetVaultPass;
+setDomain;
+galeraNodes;
+galeraLB;
+wpNode;
+allGroups;
+
+
+echo -e "\nRun the following commands to create your resources using Terraform:\n"
+echo -e "${green}$ terraform init${fin}"
+echo -e "${green}$ terraform apply${fin}"
+echo -e "\nOnce that's done, execute the site.yml playbook:\n"
+echo -e "${green}$ ansible-playbook -i /usr/local/bin/terraform-inventory site.yml${fin}"
+echo -e "\nNginx will be configured to use ${domain}."
+echo -e "\nYou can also check your stats page for haproxy by going to the Droplet's public IP address.\n"
+echo -e "username: ${green}${ha_proxy_stats_user}${fin}"
+echo -e "password: ${green}${ha_proxy_stats_pass}${fin}"
+echo -e "port:     ${green}${ha_proxy_stats_port}${fin}"
