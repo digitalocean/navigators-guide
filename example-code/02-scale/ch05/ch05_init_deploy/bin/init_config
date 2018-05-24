@@ -7,11 +7,9 @@ fin="\e[0m"
 # Set dirs
 if [[ $(dirname $0) == "bin" ]]; then
   b_dir=$(pwd)
-    echo "$b_dir"
 else
   o_dir=$(pwd)
   b_dir=$(echo "${o_dir%/bin}")
-  echo "$b_dir"
 fi
 
 
@@ -212,7 +210,7 @@ function setDC() {
 function terraConf() {
   # create terraform configuration
   setKeyVars;
-cat > ${b_dir}/terraform.tfvars << 'EOF' 
+cat > ${b_dir}/terraform.tfvars <<EOF
 do_token = "${terraform_vars[do_token]}"
 
 project = "${terraform_vars[project_name]}"
