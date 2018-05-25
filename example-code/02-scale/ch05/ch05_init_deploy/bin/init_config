@@ -1,7 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+blue="\e[34m"
 green="\e[92m"
+red="\e[31m"
+und="\e[4m"
+bold="\e[1m"
 fin="\e[0m"
 
 # Set dirs
@@ -15,16 +19,13 @@ fi
 
 # Get API token from user
 until [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | jq -r '.id') != "unauthorized" ]]; do
-  read -p $'Please enter in your DigitalOcean API token\n> ' do_token;
+  read -p $'\e[34mPlease enter in your DigitalOcean API token\e[0m\n> ' do_token;
 done
 
 # TODO: decide if we want to use python or jq for parsing json
 # while [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | python -c 'import sys, json; print(json.load(sys.stdin)["id"])' 2>/dev/null) ]]; do
 #   read -p "Please enter in your DigitalOcean API token: " do_token;
 # done
-
-# terraform config vars
-declare -A terraform_vars=([project_name]="" [do_token]="${do_token}" [region]="");
 
 function listGen() {
   # Generic list creation: pass reference to array ( arrayname ) not value ( $arrayname )
@@ -76,12 +77,13 @@ function haAuthKey() {
 
 function setProjectName() {
   # Get project name from user
-  read -p $'Enter your project name.\n> ' terraform_vars[project_name];
+  read -p $'\n\e[34mEnter your project name\e[0m\nLeave blank for \'navguide\'\n> ' project_name;
+  project_name="${project_name:-navguide}"
 }
 
 function getDomain() {
   # Get domain name from user
-  read -p $'Enter in the domain you would like to use\nLeave blank for a default of example.com\n> ' domain;
+  read -p $'\n\e[34mEnter in the domain you would like to use\e[0m\nLeave blank for a default of example.com\n> ' domain;
 }
 
 function getDC() {
@@ -136,7 +138,8 @@ function putKey() {
 }
 
 function keyCheck() {
-  echo "Checking for existing SSH keys.";
+  # Check and compare local and remote SSH keys
+  echo -e "${blue}\nChecking for existing SSH keys.${fin}";
   sleep 1;
   remoteKeyExists;
   if [[ localKeyExists && remoteKeyExists ]]; then
@@ -144,7 +147,7 @@ function keyCheck() {
     getLocalFinger;
     for (( i=0; i<${#remote_fingers[@]}; i++ )); do
       if [[ "${local_finger}" =~ "${remote_fingers[i]}" ]]; then
-        echo "Match Found - ${remote_fingers[i]}"
+        echo -e "${green}Match Found${fin} - ${remote_fingers[i]}"
         keyObject=$(echo ${remote_keys} | jq -r --arg fp "${remote_fingers[i]}" '.ssh_keys[] | select(.fingerprint==$fp)')
         match=true;
         break;
@@ -153,14 +156,14 @@ function keyCheck() {
       fi
     done
     if [[ "${match}" == "false" ]]; then
-      echo -e "No Match located.\nPushing your local SSH key up to DigitalOcean."
+      echo -e "${red}No Match located$.${fin}\nPushing your local SSH key up to DigitalOcean."
       putKey;
     fi
   elif [[ localKeyExists && ! remoteKeyExists ]]; then
     getLocalFinger;
     putKey;
   else
-    echo "No keys exist. Creating a new key pair and pushing it up to the DigitalOcean API."
+    echo -e "${red}No keys exist.${fin}\n${blue}Creating a new key pair and pushing it up to the DigitalOcean API.${fin}"
     ssh-keygen -t rsa -C "$(hostname -f)" -q -N "" -f ${HOME}/.ssh/id_rsa;
     local_pub_key=$(cat ${HOME}/.ssh/id_rsa.pub)
     putKey;
@@ -171,39 +174,39 @@ function SetVaultPass() {
   # Set password for ansible-vault
   local valid;
   until [[ "${valid}" == "true" ]]; do
-    read -sp $'Enter a password for ansible-vault\n> ' vault_pass;
+    read -sp $'\n\e[34mEnter a password for ansible-vault\e[0m\n> ' vault_pass;
     echo;
     if [[ ! -z "${vault_pass}" ]]; then
-      read -sp $'Re-enter your ansible-vault password\n> ' vault_pass_confirm;
+      read -sp $'\e[34mRe-enter your ansible-vault password\e[0m\n> ' vault_pass_confirm;
       if [[ "${vault_pass}" == "${vault_pass_confirm}" ]]; then
-        echo -e "\nYour ansible-vault password has been set.\n";
+        echo -e "${green}\nYour ansible-vault password has been set.\n${fin}";
         valid=true;
       else
-        echo -e "\nThe passwords did not match. Please try again.\n";
+        echo -e "${red}\nThe passwords did not match. Please try again.\n${fin}";
       fi
     else
-      echo "You cannot use a blank password. Please try again.";
+      echo -e "${red}You cannot use a blank password. Please try again.${fin}";
     fi
   done
   echo "${vault_pass}" > ${HOME}/.vaultpass.txt;
 }
 
 function setDC() {
-  # Have the user select a data center region
+  # Set data center selection
   local valid
   until [[ "${valid}" == "true" ]]; do
-    echo "Available data centers"
+    echo -e "\n${blue}Available data centers${fin}"
     listGen regions
-    read -p $'Enter number for your selection\n> ' dc_selection;
+    read -p $'\e[34mEnter number for your selection\e[0m > ' dc_selection;
     if (( ${dc_selection} > 0 && ${dc_selection} <= "${#regions[@]}" )) &>/dev/null; then
-      echo -e "\nData center is now set.\n";
+      echo -e "\n${green}Data center is now set.${fin}\n";
       valid=true;
     else
-      echo -e "\nPlease enter in a valid choice.\n";
+      echo -e "\n${red}Please enter in a valid choice.${fin}\n";
     fi
   done
   n=$(( ${dc_selection}-1 ));
-  terraform_vars[region]=${regions[n]};
+  region=${regions[n]};
 }
 
 
@@ -211,11 +214,11 @@ function terraConf() {
   # create terraform configuration
   setKeyVars;
 cat > ${b_dir}/terraform.tfvars <<EOF
-do_token = "${terraform_vars[do_token]}"
+do_token = "${do_token}"
 
-project = "${terraform_vars[project_name]}"
+project = "${project_name}"
 
-region = "${terraform_vars[region]}"
+region = "${region}"
 
 image_slug = "debian-9-x64"
 
@@ -307,7 +310,13 @@ EOF
 function setDomain() {
   # Set domain in vars/main.yml file
   if [[ ! -z "${domain}" ]]; then
-    echo 'domain: "'"${domain}"'"' >> "${b_dir}/roles/ansible-welp/vars/main.yml";
+    if [[ $(grep -P '^domain:' "${b_dir}/roles/ansible-welp/vars/main.yml") ]]; then
+      sed -i "s/domain.*/domain: \"${domain}\"/" "${b_dir}/roles/ansible-welp/vars/main.yml";
+    else
+      echo 'domain: "'"${domain}"'"' >> "${b_dir}/roles/ansible-welp/vars/main.yml";
+    fi
+  else
+    sed -i '/domain.*/d' "${b_dir}/roles/ansible-welp/vars/main.yml";
   fi
 }
 
@@ -328,13 +337,13 @@ wpNode;
 allGroups;
 
 # Final Output:
-echo -e "\nRun the following commands to create your resources using Terraform:\n"
+echo -e "${bold}${blue}\nRun the following commands to create your resources using Terraform:\n${fin}"
 echo -e "${green}$ terraform init${fin}"
 echo -e "${green}$ terraform apply${fin}"
-echo -e "\nOnce that's done, execute the site.yml playbook:\n"
+echo -e "${blue}\nOnce that's done, execute the site.yml playbook:\n${fin}"
 echo -e "${green}$ ansible-playbook -i /usr/local/bin/terraform-inventory site.yml${fin}"
-echo -e "\nNginx will be configured to use ${domain}."
-echo -e "\nYou can also check your stats page for haproxy by going to the Droplet's public IP address.\n"
+echo -e "${blue}\nNginx will be configured to use ${und}${domain:-example.com}${fin}."
+echo -e "${blue}\nYou can also check your stats page for haproxy by going to the Droplet's public IP address.\n${fin}"
 echo -e "username: ${green}${ha_proxy_stats_user}${fin}"
 echo -e "password: ${green}${ha_proxy_stats_pass}${fin}"
 echo -e "port:     ${green}${ha_proxy_stats_port}${fin}"
