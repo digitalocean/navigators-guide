@@ -15,7 +15,7 @@ fi
 
 # Get API token from user
 until [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | jq -r '.id') != "unauthorized" ]]; do
-  read -p "Please enter in your DigitalOcean API token: " do_token;
+  read -p $'Please enter in your DigitalOcean API token\n> ' do_token;
 done
 
 # TODO: decide if we want to use python or jq for parsing json
@@ -76,12 +76,12 @@ function haAuthKey() {
 
 function setProjectName() {
   # Get project name from user
-  read -p "Please enter in your project name: " terraform_vars[project_name];
+  read -p $'Enter your project name.\n> ' terraform_vars[project_name];
 }
 
 function getDomain() {
   # Get domain name from user
-  read -p "Enter in the domain you would like to use: " domain;
+  read -p $'Enter in the domain you would like to use\nLeave blank for a default of example.com\n> ' domain;
 }
 
 function getDC() {
@@ -171,10 +171,10 @@ function SetVaultPass() {
   # Set password for ansible-vault
   local valid;
   until [[ "${valid}" == "true" ]]; do
-    read -sp "Enter a password for ansible-vault: " vault_pass;
+    read -sp $'Enter a password for ansible-vault\n> ' vault_pass;
     echo;
     if [[ ! -z "${vault_pass}" ]]; then
-      read -sp "Re-enter your ansible-vault password: " vault_pass_confirm;
+      read -sp $'Re-enter your ansible-vault password\n> ' vault_pass_confirm;
       if [[ "${vault_pass}" == "${vault_pass_confirm}" ]]; then
         echo -e "\nYour ansible-vault password has been set.\n";
         valid=true;
@@ -194,7 +194,7 @@ function setDC() {
   until [[ "${valid}" == "true" ]]; do
     echo "Available data centers"
     listGen regions
-    read -p "Enter number for your selection: " dc_selection;
+    read -p $'Enter number for your selection\n> ' dc_selection;
     if (( ${dc_selection} > 0 && ${dc_selection} <= "${#regions[@]}" )) &>/dev/null; then
       echo -e "\nData center is now set.\n";
       valid=true;
