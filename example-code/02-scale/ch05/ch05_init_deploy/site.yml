@@ -1,5 +1,5 @@
 ---
-# playbook
+# Ansible playbook to call the roles required to deploy our WordPress cluster
 - hosts: all
   gather_facts: yes
   become: True

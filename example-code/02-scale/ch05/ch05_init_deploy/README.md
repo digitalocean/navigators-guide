@@ -43,10 +43,9 @@ vault_wp_salt: |
     define('NONCE_SALT',       'put your unique phrase here');
 ```
 
-If you're all set, you can execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml` to configure your servers and deploy the application. Once the application has been deployed you'll need to visit your domain. You'll notice mixed content warnings which has to do with WordPress using only http by default during initialization. You can disable protection temporarily to allow your browser to pull all javascript and CSS files. Once you're logged in, you'll see that 2 plugins have already been installed
-  * SSL insecure content fixer
+If you're all set, you can execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml` to configure your servers and deploy the application. Once the application has been deployed you'll need to visit the IP address of your DigitalOcean Load Balancer. Once you're logged in, you'll see that plugins have already been installed
   * DO Spaces Sync
 
-Go ahead and activate *SSL insecure content fixer* to change any http links to https. Once that's done you can switch the siteurl and home in your general settings to use https as well. With that done you can activate and configure the *DO Spaces Sync* plugin with your Spaces API Key and Secret.
+You can activate and configure the *DO Spaces Sync* plugin with your Spaces API Key and Secret. This will store all assets within Spaces to help keep all the web nodes in sync.
 
 If you alter the number of application nodes using `node_count`, you can use **wordpress.yml** to call just the **ansible-welp** role.
