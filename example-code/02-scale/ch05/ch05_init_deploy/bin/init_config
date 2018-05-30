@@ -1,0 +1,349 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+blue="\e[34m"
+green="\e[92m"
+red="\e[31m"
+und="\e[4m"
+bold="\e[1m"
+fin="\e[0m"
+
+# Set dirs
+if [[ $(dirname $0) == "bin" ]]; then
+  b_dir=$(pwd)
+else
+  o_dir=$(pwd)
+  b_dir=$(echo "${o_dir%/bin}")
+fi
+
+
+# Get API token from user
+until [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | jq -r '.id') != "unauthorized" ]]; do
+  read -p $'\e[34mPlease enter in your DigitalOcean API token\e[0m\n> ' do_token;
+done
+
+# TODO: decide if we want to use python or jq for parsing json
+# while [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | python -c 'import sys, json; print(json.load(sys.stdin)["id"])' 2>/dev/null) ]]; do
+#   read -p "Please enter in your DigitalOcean API token: " do_token;
+# done
+
+function listGen() {
+  # Generic list creation: pass reference to array ( arrayname ) not value ( $arrayname )
+  local -n ref=$1;
+  for v in "${!ref[@]}"; do
+    echo "$(( v+1 ))) ${ref[v]}";
+  done | column -t
+  echo;
+}
+
+function makeSalt() {
+  # Create variable length passwords
+  LC_CTYPE=C;
+  local saltine=$(tr -dc 'A-Za-z0-9_@#$%^&*~!?;`./|:{} <>[]()-+='  < /dev/urandom | head -c 64)
+  if [[ $(echo ${saltine} | grep -P '({%|%}|{#|#}|{{|}}|##)') ]]; then
+    makeSalt;
+  else
+    echo "${saltine}";
+  fi
+}
+
+function makePass() {
+  # Generate variable length passwords
+  LC_CTYPE=C;
+  local len=${1:-14}
+  local my_pass=$(tr -dc 'A-Za-z0-9_@#%^&*()-+='  < /dev/urandom | head -c ${len})
+  echo "${my_pass}";
+}
+
+function randNum() {
+  # Generate random number of variable length with a default of 5 digits
+  local val
+  local len=${1:-5}
+  for (( x=0; x<${len}; x++ )); do
+    val+=($(echo $((RANDOM%9))));
+  done
+  printf -- "%s" "${val[@]}"
+}
+
+function randNum() {
+  # Generate random number
+  echo $(( RANDOM%99999 + 10000 ))
+}
+
+function haAuthKey() {
+  # Create ha_auth_key
+  dd if='/dev/urandom' bs=512 count=1 2>'/dev/null' | openssl sha1 | awk '{print $2}'
+}
+
+function setProjectName() {
+  # Get project name from user
+  read -p $'\n\e[34mEnter your project name\e[0m\nLeave blank for \'navguide\'\n> ' project_name;
+  project_name="${project_name:-navguide}"
+}
+
+function getDomain() {
+  # Get domain name from user
+  read -p $'\n\e[34mEnter in the domain you would like to use\e[0m\nLeave blank for a default of example.com\n> ' domain;
+}
+
+function getDC() {
+  # Get data center list list
+  regions=($(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/regions" | jq -r '.regions[].slug'))
+}
+
+function setKeyVars() {
+  # Set individual variables used for ssh key
+  keyID=$(echo $keyObject | jq '.id')
+  keyFinger=$(echo $keyObject | jq -r '.fingerprint')
+  public_key=$(echo $keyObject | jq -r '.public_key')
+}
+
+function remoteKeyExists() {
+  # Check if any ssh keys exist using the DO API
+  remote_keys=$(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account/keys" | jq '.')
+  num_keys=$(echo "${remote_keys}" | jq '.meta.total')
+  if (( $num_keys > 0 )); then
+    true;
+  else
+    false;
+  fi
+}
+
+function getRemoteFingers() {
+  # Create array of remote key MD5 fingerprints
+  unset remote_fingers;
+  for k in $(echo "${remote_keys}" | jq -r '.ssh_keys[].fingerprint'); do
+    remote_fingers+=(${k});
+  done
+}
+
+function localKeyExists() {
+  # Check for local ssh key
+  if [[ -f ${HOME}/.ssh/id_rsa ]]; then
+    true;
+  else
+    false;
+  fi
+}
+
+function getLocalFinger() {
+  # Get local ssh key MD5 fingerprint and public key data
+  local_finger=$(ssh-keygen -lf ${HOME}/.ssh/id_rsa -E md5 | cut -c10-56)
+  local_pub_key=$(cat ~/.ssh/id_rsa.pub)
+}
+
+function putKey() {
+  # Add an SSH key through the DigitalOcean API - pass function variable with public key for value
+  keyObject=$(curl -s -X POST -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" -d '{"name":"'$(hostname -f)'","public_key":"'"${local_pub_key[@]}"'"}' "https://api.digitalocean.com/v2/account/keys" | jq '.ssh_key')
+}
+
+function keyCheck() {
+  # Check and compare local and remote SSH keys
+  echo -e "${blue}\nChecking for existing SSH keys.${fin}";
+  sleep 1;
+  remoteKeyExists;
+  if [[ localKeyExists && remoteKeyExists ]]; then
+    getRemoteFingers;
+    getLocalFinger;
+    for (( i=0; i<${#remote_fingers[@]}; i++ )); do
+      if [[ "${local_finger}" =~ "${remote_fingers[i]}" ]]; then
+        echo -e "${green}Match Found${fin} - ${remote_fingers[i]}"
+        keyObject=$(echo ${remote_keys} | jq -r --arg fp "${remote_fingers[i]}" '.ssh_keys[] | select(.fingerprint==$fp)')
+        match=true;
+        break;
+      else
+        match=false;
+      fi
+    done
+    if [[ "${match}" == "false" ]]; then
+      echo -e "${red}No Match located$.${fin}\nPushing your local SSH key up to DigitalOcean."
+      putKey;
+    fi
+  elif [[ localKeyExists && ! remoteKeyExists ]]; then
+    getLocalFinger;
+    putKey;
+  else
+    echo -e "${red}No keys exist.${fin}\n${blue}Creating a new key pair and pushing it up to the DigitalOcean API.${fin}"
+    ssh-keygen -t rsa -C "$(hostname -f)" -q -N "" -f ${HOME}/.ssh/id_rsa;
+    local_pub_key=$(cat ${HOME}/.ssh/id_rsa.pub)
+    putKey;
+  fi
+}
+
+function SetVaultPass() {
+  # Set password for ansible-vault
+  local valid;
+  until [[ "${valid}" == "true" ]]; do
+    read -sp $'\n\e[34mEnter a password for ansible-vault\e[0m\n> ' vault_pass;
+    echo;
+    if [[ ! -z "${vault_pass}" ]]; then
+      read -sp $'\e[34mRe-enter your ansible-vault password\e[0m\n> ' vault_pass_confirm;
+      if [[ "${vault_pass}" == "${vault_pass_confirm}" ]]; then
+        echo -e "${green}\nYour ansible-vault password has been set.\n${fin}";
+        valid=true;
+      else
+        echo -e "${red}\nThe passwords did not match. Please try again.\n${fin}";
+      fi
+    else
+      echo -e "${red}You cannot use a blank password. Please try again.${fin}";
+    fi
+  done
+  echo "${vault_pass}" > ${HOME}/.vaultpass.txt;
+}
+
+function setDC() {
+  # Set data center selection
+  local valid
+  until [[ "${valid}" == "true" ]]; do
+    echo -e "\n${blue}Available data centers${fin}"
+    listGen regions
+    read -p $'\e[34mEnter number for your selection\e[0m > ' dc_selection;
+    if (( ${dc_selection} > 0 && ${dc_selection} <= "${#regions[@]}" )) &>/dev/null; then
+      echo -e "\n${green}Data center is now set.${fin}\n";
+      valid=true;
+    else
+      echo -e "\n${red}Please enter in a valid choice.${fin}\n";
+    fi
+  done
+  n=$(( ${dc_selection}-1 ));
+  region=${regions[n]};
+}
+
+
+function terraConf() {
+  # create terraform configuration
+  setKeyVars;
+cat > ${b_dir}/terraform.tfvars <<EOF
+do_token = "${do_token}"
+
+project = "${project_name}"
+
+region = "${region}"
+
+image_slug = "debian-9-x64"
+
+keys = "${keyID}"
+
+private_key_path = "~/.ssh/id_rsa"
+
+ssh_fingerprint = "${keyFinger}"
+
+public_key = "${public_key}"
+
+ansible_user = "ansible"
+EOF
+}
+
+function galeraNodes() {
+  # Create group_vars file for galera_cluster_node
+  local group_file="${b_dir}/group_vars/galera_cluster_node/vault.yml"
+cat << EOF > "${group_file}"
+---
+vault_galera_root_password: "$(makePass)"
+vault_galera_sys_maint_password: "$(makePass)"
+vault_galera_clustercheck_password: "$(makePass)"
+EOF
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
+}
+
+function galeraLB() {
+  # Create group_vars file for galera_loadbalancer
+  ha_proxy_stats_user="stats_$(randNum)"
+  ha_proxy_stats_pass="$(makePass)"
+  ha_proxy_stats_port="$(echo $(( RANDOM%9999+1024 )))"
+  local group_file="${b_dir}/group_vars/galera_loadbalancer/vault.yml"
+cat << EOF > "${group_file}"
+---
+vault_galera_ha_auth_key: "$(haAuthKey)"
+vault_galera_ha_do_token: "${do_token}"
+
+vault_haproxy_stats_user: "${ha_proxy_stats_user}"
+vault_haproxy_stats_pass: "${ha_proxy_stats_pass}"
+vault_haproxy_stats_port: "${ha_proxy_stats_port}"
+EOF
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
+}
+
+function wpNode() {
+  # Create group_vars file for wp_node
+  local group_file="${b_dir}/group_vars/wp_node/vault.yml"
+cat << EOF > "${group_file}"
+---
+vault_sys_user: "user_$(randNum)"
+vault_wp_salt: |
+    define('AUTH_KEY',         '$(makeSalt)');
+    define('SECURE_AUTH_KEY',  '$(makeSalt)');
+    define('LOGGED_IN_KEY',    '$(makeSalt)');
+    define('NONCE_KEY',        '$(makeSalt)');
+    define('AUTH_SALT',        '$(makeSalt)');
+    define('SECURE_AUTH_SALT', '$(makeSalt)');
+    define('LOGGED_IN_SALT',   '$(makeSalt)');
+    define('NONCE_SALT',       '$(makeSalt)');
+EOF
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
+}
+
+function allGroups(){
+  # Create group_vars file for all groups
+  local group_file="${b_dir}/group_vars/all/vault.yml"
+cat << EOF > "${group_file}"
+---
+vault_wp_db_name: "db_$(randNum)"
+vault_wp_db_user: "db_user$(randNum)"
+vault_wp_db_pass: "$(makePass)"
+EOF
+  cd "${HOME}";
+  echo -n "${group_file#*ch05_init_deploy/} - ";
+  ansible-vault encrypt --vault-password-file "${HOME}/.vaultpass.txt" "${group_file}";
+  cd - &>/dev/null;
+}
+
+function setDomain() {
+  # Set domain in vars/main.yml file
+  if [[ ! -z "${domain}" ]]; then
+    if [[ $(grep -P '^domain:' "${b_dir}/roles/ansible-welp/vars/main.yml") ]]; then
+      sed -i "s/domain.*/domain: \"${domain}\"/" "${b_dir}/roles/ansible-welp/vars/main.yml";
+    else
+      echo 'domain: "'"${domain}"'"' >> "${b_dir}/roles/ansible-welp/vars/main.yml";
+    fi
+  else
+    sed -i '/domain.*/d' "${b_dir}/roles/ansible-welp/vars/main.yml";
+  fi
+}
+
+# Terraform Functions:
+setProjectName;
+getDomain;
+getDC;
+keyCheck;
+setDC;
+terraConf;
+
+# Ansible Functions:
+SetVaultPass;
+setDomain;
+galeraNodes;
+galeraLB;
+wpNode;
+allGroups;
+
+# Final Output:
+echo -e "${bold}${blue}\nRun the following commands to create your resources using Terraform:\n${fin}"
+echo -e "${green}$ terraform init${fin}"
+echo -e "${green}$ terraform apply${fin}"
+echo -e "${blue}\nOnce that's done, execute the site.yml playbook:\n${fin}"
+echo -e "${green}$ ansible-playbook -i /usr/local/bin/terraform-inventory site.yml${fin}"
+echo -e "${blue}\nNginx will be configured to use ${und}${domain:-example.com}${fin}."
+echo -e "${blue}\nYou can also check your stats page for haproxy by going to the Droplet's public IP address.\n${fin}"
+echo -e "username: ${green}${ha_proxy_stats_user}${fin}"
+echo -e "password: ${green}${ha_proxy_stats_pass}${fin}"
+echo -e "port:     ${green}${ha_proxy_stats_port}${fin}"
