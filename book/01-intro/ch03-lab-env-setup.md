@@ -16,15 +16,21 @@ Terraform uses a declarative syntax ([HCL](https://github.com/hashicorp/hcl)) th
 
 We'll be using Terraform to *create* our infrastructure — that is, creating Droplets, Floating IPs, Firewalls, Block Storage Volumes, and DigitalOcean Load Balancers — but we won't be using it to *configure* those resources. That's where Ansible comes in.
 
+<!-- TODO: refine suggestions -->
+If you'd really like to dig more into the details and learn more about Terraform, we recommend the book [_Terraform up and running_](https://www.terraformupandrunning.com/).
+
 #### Ansible
 
 [Ansible](https://www.digitalocean.com/community/tutorials/configuration-management-101-writing-ansible-playbooks) is a [configuration management](https://www.digitalocean.com/community/tutorials/an-introduction-to-configuration-management) tool which allows you to systematically handle changes to a system in a way that maintains its integrity over time. Ansible's standard library of modules is extensive, and its architecture allows you to create your own plugins as well.
 
 Playbooks are YAML files which define the automation you want to manage with Ansible. Like Terraform, you can version control your playbooks. Unlike Terraform, a change in the configuration of a resource does not require the destruction and recreation of that resource.
 
-Ansible was created to push configuration changes outward which differs from other configuration management tools like Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple ssh connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
+Ansible was created to push configuration changes outward which differs from other configuration management tools like Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple SSH connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
 
 <!-- TODO: ansible modules overview, specific modules for DO; ansible isn't stateful like puppet, so don't make snowflakes; ansible + ansible-doc are user friendly. https://twitter.com/laserllama/status/976135074117808129 -->
+
+<!-- TODO: refine suggestions -->
+There are a few resources we recommend if you would like to learn more about Ansible. Red Hat owns the Ansible project and offers training options. This includes a great introduction video class for free: [DO007 Ansible Essentials](https://www.redhat.com/en/services/training/do007-ansible-essentials-simplicity-automation-technical-overview). There are more advanced classes as well which are very helpful [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i).
 
 #### `terraform-inventory`
 
@@ -34,7 +40,7 @@ Ansible was created to push configuration changes outward which differs from oth
 
 We'll use Git as our version control system. You don't need in-depth knowledge of Git in particular, but understanding [committing changes, tracking, and cloning](https://www.digitalocean.com/community/tutorial_series/introduction-to-git-installation-usage-and-branches). Because we can version control our Terraform and Ansible files, we can run tests on different versions of our infrastructure by specifying a version of a Terraform module or Ansible role.
 
-The repository for this book is hosted on [GitHub](https://github.com). When writing your own modules and roles, you can use other Git services like [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org), but the way you specify your module and role sources can vary depending on the service.
+The repository for this book is hosted on [GitHub](https://github.com). When writing your own Terraform Modules and  Ansible Roles you can use other Git services like [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org).
 
 #### Optional Tools
 
@@ -43,7 +49,7 @@ The DigitalOcean CLI utility, `doctl`, is often helpful in quickly accessing you
 
 ## Setting Up the Controller Droplet
 
-We're going to use a Ubuntu 16.04 x64 (Xenial Xerus) Droplet as our controller machine. This is the server from which we'll run our tools.
+We're going to use a Ubuntu 18.04 x64 (Bionic Beaver) Droplet as our controller machine. This is the server from which we'll run our tools.
 
 To start, you'll need:
 
@@ -54,7 +60,7 @@ To start, you'll need:
 
 Now it's time to [create the Droplet](https://cloud.digitalocean.com/droplets/new). You can use [How To Create Your First DigitalOcean Droplet](https://www.digitalocean.com/community/tutorials/how-to-create-your-first-digitalocean-droplet) for a detailed walkthrough. We'll be using the following options:
 
-* **Image:** Ubuntu 16.04 x64.
+* **Image:** Ubuntu 18.04 x64.
 * **Size:** 1GB Standard Droplet.
 * **Datacenter region**: Your choice.
 * **Additional options:** Enable private networking, backups, user data, and monitoring.
@@ -69,14 +75,6 @@ Copy and paste the following script into the user data text field. _If you are v
 #cloud-config
 # Source:  https://git.io/nav-guide-cloud-config
 
-users:
-  - name: your_desired_username_here # <-- Specify your username here.
-    groups: sudo
-    shell: /bin/bash
-    sudo: ['ALL=(ALL) NOPASSWD:ALL']
-    ssh-authorized-keys:
-      - your_public_key_here # <-- Specify your public SSH key here.
-
 package_upgrade: true
 
 packages:
@@ -87,7 +85,7 @@ packages:
   - jq
 
 runcmd:
-  - [curl, -o, /tmp/terraform.zip, "https://releases.hashicorp.com/terraform/0.11.3/terraform_0.11.3_linux_amd64.zip"]
+  - [curl, -o, /tmp/terraform.zip, "https://releases.hashicorp.com/terraform/0.11.7/terraform_0.11.7_linux_amd64.zip"]
   - [unzip, -d, /usr/local/bin/, /tmp/terraform.zip]
   - [curl, -L, -o, /tmp/terraform-inventory.zip, "https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip"]
   - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]

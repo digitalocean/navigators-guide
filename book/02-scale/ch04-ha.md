@@ -1,17 +1,22 @@
 # High Availability
-It doesn't matter if you're running a small blog, a large application, or API; you never want it to be offline. This happens quite often because of a design implementation which causes a single point of failure. Maybe you're running your web server and database on the same Droplet. Your reason could be anything from not knowing knowing the downsides of doing this, to wanting to save on cost by placing all services on one machine. But running your application on a cloud provider does not mean your single server will be highly available. You should design your infrastructure in a way that allows you to decouple services from one another and make each one highly available by introducing redundancy and automatic failover capabilities. In the next couple of exercises we're going to cover setting up a DigitalOcean Load Balancer and rolling out your own HAProxy load balancers.
+It doesn't matter if you're running a small blog, a large application, or API; you never want it to be offline. This happens quite often because of a design implementation which causes a single point of failure. Maybe you're running your web server and database on the same Droplet. Your reason could be anything from not knowing knowing the downsides of doing this, to wanting to save on cost by placing all services on one machine. But running your application on a cloud provider does not mean your single server will be highly available. You should design your infrastructure in a way that allows you to decouple services from one another and make each one highly available by introducing redundancy and automatic failover capabilities. You can think of "highly available" as meaning a piece of software or data needs to always be accessible on more than one Droplet. You'll need an optimal mechanism for directing users to specific servers, like a load balancer. A load balancer is a component of your infrastructure that directs traffic to multiple servers. It also checks to ensure a Droplet is operational before passing users to it.
 
-We're going to be taking a look at deploying a load balanced solution and few web back ends. Instead of running WordPress on one server, we'll run it on many. The Load Balancer will funnel your users to servers that are online. By the end of section 2 of this book, we'll have multiple Load Balancers in front of your web and database services to ensure we have no single points of failure.
+We're going to take a look at a few ways of deploying a load balanced solution and few web servers. By the end of section 2 of this book, we'll have multiple Load Balancers in front of your web and database services to ensure we have no single points of failure.
 
-Setting up a load balancer in front of your web application does allow you to introduce some fault tolerance because if one of your back ends goes down you will have additional nodes ready to handle the redirected traffic. However, a single load balancer alone does not mean that you will be highly available. In fact, it will become your single point of failure if the load balancer dies. To alleviate this type of problem we offer two options. The first is making use of our floating IP feature. These addresses can be assigned and reassigned within a data center using our API, allowing you to effectively reroute traffic to a standby in the event of a single Droplet failing. The second option is making use of the DigitalOcean Load Balancer.
+Setting up a load balancer in front of your web application adds some fault tolerance as your remaining servers can process traffic if one of them is taken offline. However, a single load balancer alone does not mean that you will be highly available. In fact, it will become your single point of failure if the load balancer dies. To alleviate this type of problem we offer two options. The first is making use of our floating IP address feature. These floating addresses can be assigned and reassigned within a region using our API. This will reroute traffic to a standby load balancer in the event of a your main load balancer Droplet failing. The second option is making use of the DigitalOcean Load Balancer which is automatically highly available.
 
-When we're discussing the DigitalOcean Load Balancer, keep in mind that we offer it as a service. That means that we handle the initial deployment which consists of configuring an active and passive server clustered together with an automatic failover mechanism in place. An additional feature of the DigitalOcean Load Balancer is the ability to add backends to its configuration based on Droplet tags. This makes it very simple to scale your site or application. So let's go ahead and get started with deploying a DigitalOcean Load Balancer and a few back ends with nginx installed using Terraform.
+Additional features of the DigitalOcean Load Balancer is the ability to direct traffic to Droplets based on tags. This makes it simple to scale your site or application. Any new Droplet with the same tag is automatically added to the Load Balancer configuration. Let's get started with deploying a DigitalOcean Load Balancer and a few Droplets with nginx installed using Terraform.
 
 ---
-<!-- TODO: Split this into Section 4.1? -->
 ### DigitalOcean Load Balancer
 
-Using your terminal, make your way into the repo for this chapter and enter into the **do-lb** directory. From there you'll just need to fill in the variables in *terraform.tfvars* file. The file should look something like this.
+On the Droplet you created for the lab environment, make your way into the repo for this chapter and enter into the **do-lb** directory.
+
+```sh
+cd /root/navigators-guide/example-code/02-scale/ch04/digitalocean_loadbalancer
+```
+
+From there you'll need to fill some variables in they *vars.tf* file. The file should look something like this.
 
 <!-- TODO we should run through the lab control server once the repo is public and adjust the documentation to be more clear "cd to /root/navigators-guide" and explain where everything is. -->
 
@@ -33,13 +38,36 @@ ssh_fingerprint = "25:b5:3d:7d:d3:d9:eb:cf:c7:ad:42:6a:f8:e9:da:34"
 public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDPHyLbMLQViUSIUTFugvgur56erfh38hbdg8ciihhi9hiobuvvmwmwicgcM0Pisni0NKjyGkfjvojio64dv5v2f2v653fifvjjGJHFooHvivKigKGggwodoy865ed629eiIinskuwdujboih4Bsiuhoj54sdYhkjcccn4uTZpXOxrWYL5jTtDBM5khstTDJDJBWIH+jjGgwpKCsUF6iC/hhfLZTeZtaNihIo+wAvKmrbcpMncY2KvAD5w1mVIa/UK0yz2OlrbyvgD2Mb6Ms5F+XZqCzeWLn1BOsxAWp+ihNoiUtw/LGK5tcwYD+v80ezVACTIp8CODqTQ7LLDwwsH simplekey"
 ```
 
-This will spin up a DigitalOcean Load Balancer with a few Droplet backends running nginx. Each one will display a simple welcome message with the individual Droplet's hostname. You're going to need a TLS cert for this one. You can simply create a self-signed cert using *bin/certifyme*. You'll just need to add a few details when prompted.
+This will spin up a DigitalOcean Load Balancer with a few Droplet backends running nginx. Each one will display a simple welcome message with the individual Droplet's hostname. The configuration requires TLS certificate. You can create a self-signed cert using *bin/certifyme* to be used in this Terraform plan. The DigitalOcean Load Balancer also works with Let's Encrypt which provides certificates at no cost, but a registered domain name is required for that functionality.
 
-<!-- TODO walk through the script a bit more -->
+```sh
+cd /root/navigators-guide/example-code/02-scale/ch04/digitalocean_loadbalancer/bin
+./certifyme
+```
 
-Once you're done with that you can run `terraform init` to initialize your Terraform deployment and download any required plugins. If you'd like, you can also run `terraform plan` to get a rundown of what is going to transpire when you run the actual script. You should be all set and ready to create the resources. This can be done by running the command `terraform apply`. You'll be notified when the apply is complete and at this point you can head over to your Load Balancer's public IP which can be pulled up by running `terraform show`. You'll find all the Droplets and resources created on your DigitalOcean control panel. Also, keep in mind that this is going to be using a self-signed cert, so don't worry about the invalid certificate notice since this is just a test.
+The `init` option will parse the plan files and modules to prepare your Terraform deployment:
 
-This isn't the most exciting use of a Load Balancer, but it should give you a good idea of how simple it is to spin up and down your resources on DigitalOcean while making your application highly-available within a data center. We can now test the availability of your backends by taking one offline while running a curl on your Load Balancer. I recommend setting up the domain name you used for the TLS certificate in your hosts file. You can shutdown any one of the backends using the UI or using the **doctl** cli tool.
+```sh
+cd /root/navigators-guide/example-code/02-scale/ch04/digitalocean_loadbalancer/
+terraform init
+```
+
+If you'd like, you can also run `terraform plan` to get a rundown of what is going to transpire when you run the actual script. The `apply` option will confirm your intention and require you to type `yes` and then will execute all the create requests via the DigitalOcean API:
+
+```sh
+terraform apply
+```
+You'll be notified when the apply is complete and at this point you can head over to your Load Balancer's public IP which can be pulled up by running `terraform show`. You'll find all the Droplets and resources created on your DigitalOcean control panel. Also, keep in mind that this is going to be using a self-signed cert, so don't worry about the invalid certificate notice since this is just a test.
+
+**Note:** Terraform can also remove your cluster automatically. You can use this workflow for rapid testing, but know that any data saved to the cluster will be removed. The `destroy` option will remove your cluster. This is the fastest way to clean up from the work we do in this chapter. You can re-run `apply` and re-run the Ansible playbook to generate a new cluster.
+
+```sh
+terraform destroy #Only run this to destroy your cluster - all data will be lost!
+```
+
+This quick example should give you a good idea of how simple it is to spin up and down your resources on DigitalOcean while making your application highly-available within a data center.
+
+We can now test the availability of your backends by taking one offline while running a curl on your Load Balancer. We recommend setting up the domain name you used for the TLS certificate in your hosts file. You can shutdown any one of the backends using the UI or using the **doctl** cli tool.
 
 **terminal 1**
 ```sh
@@ -72,7 +100,7 @@ Welcome to DOLB-backend-03!
 
 You can now power the Droplet back on and it will be added back into rotation once it passes the configured checks.
 
-Okay, let's try one more thing. I mentioned being able to add backends easily. To prove this we're going to head back into the Terraform files and adjust one simple variable, and apply the terraform configuration. Open up *vars.tf* and set the variable **node_count** to 5. Save the changes and run `terraform apply`. You'll see a couple of new Droplets shortly and see that you're getting responses from them when making requests as well.
+Okay, let's try one more thing. I mentioned being able to add backends easily. To prove this we're going to head back into the Terraform files and adjust one simple variable, and apply the terraform configuration. Open up *vars.tf* and change variable **node_count** to 5. Save the changes and run `terraform apply`. You'll see a couple of new Droplets shortly and see that you're getting responses from them when making requests as well.
 
 ```
 .....
@@ -92,17 +120,20 @@ Welcome to DOLB-backend-01!
 .....
 ```
 
-We can't really test the load balancer failover because it runs as a service, so you don't have direct access to the individual components. However, our Engineers are continuously testing our systems to make sure they don't fail you in any of your environments.
+We can't test the failover of the Load Balancer itself because it runs as a service. You do not have direct access to the individual components. However, our Engineers are continuously testing our systems to make sure they don't fail you in any of your environments.
 
 Future versions of the DigitalOcean Load Balancer will include some new features that will help with things like TLS certificate creation, proxy protocol support for TLS passthrough, and some of the internal changes will give you higher performance. If you require a highly customized configuration, then it may still be a better option to roll out your own load balancers using software such as haproxy or nginx, which we'll cover in the next exercise.
 
----
-<!-- TODO: Split this into Section 4.2? -->
-### Rolling out your own load balancing solution
+
+### Deploying a custom load balancing solution
 
 For this example we're going to be spinning up two haproxy v1.8 load balancers clustered together with a floating IP reassignment service for failover. Why would you do this if the DigitalOcean Load Balancer is so easy to deploy? Well, it may not offer all of the options your project requires like hosting multiple sites or applications as backends. You may need to set up multiple TLS certificates, require the use of the proxy protocol, or maybe you just need to tune some specific TCP parameters depending on what type of traffic you're dealing with.
 
-Alright, let's dive in and get the load balancers set up. You can use the code example supplied wsith this book's repo. Just head over to the appropriate directory for chapter 4 and head into *haproxy-tls-termination*. If you want to download the repository manually in your control server go ahead and clone it from https://github.com/cmndrsp0ck/haproxy-tls-termination.git. I normally setup a *~/workspace* directory and create project folders within.
+Alright, let's dive in and get the load balancers set up. You can use the code example supplied wsith this book's repo. Just head over to the appropriate directory for chapter 4 and head into *haproxy-tls-termination*.
+
+```sh
+cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination
+```
 
 Remove *.sample* from **terraform.tfvars** and begin setting the values requested. You're going to need the following information to complete this part:
 
@@ -220,3 +251,11 @@ With that record set you can now head on over to your domain and preview the pag
 Now if you need to scale the number of backends you'll just need to edit `node_count` in **terraform.tfvars** to a larger number and run `terraform apply` again. This is where Terraform really helps out. It will handle the logic when changing the number of Droplets you've set. So if you decrease the number of nodes which gets used for the resource count, it will destroy Droplets leaving you with only the number you have specified or adding Droplets until that resource count is reached.
 
 With each change in resource count you will need to run ansible against your Droplets again which is done with `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml` which will configure your backends and modify haproxy's configuration.
+
+Again, you can clean up the resources Terraform created by running the *destroy* command:
+
+```sh
+terraform destroy #Only run this to destroy your cluster - all data will be lost!
+```
+
+This is a big accomplishment. We've taken a simple web application and made it highly available by running it on multiple Droplets and directing traffic to operational Droplets with a load balancer. These are the foundational concepts for redundancy and preventing downtime. In the next chapter we will expand on these concepts and add redundancy throughout our application. We'll continue to use Terraform and Ansible to deploy a WordPress running on a cluster of eight Droplets.

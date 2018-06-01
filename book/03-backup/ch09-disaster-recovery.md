@@ -37,9 +37,9 @@ To have a completely redundant multi-region infrastructure, each function of you
 
 For example, you can keep hot-standby instances running and in sync with production in a second region. If a region-wide issue causes your production instances to go offline, your standby instances can take over. However, keeping active and passive clusters synchronized and switchable without missing data can be tricky.
 
-Once a multiple clusters can actively participate in production workloads, you can add additional logic to further improve your resiliency. Geo-DNS services can direct users to the closest active cluster, and you can remove a cluster from the DNS zone automatically based on alerts and health metrics. The impact to your users could be measured in a matter of minutes.
+Once multiple clusters can actively participate in production workloads, you can add additional logic to further improve your resiliency. Geo-DNS services can direct users to the closest active cluster, and you can remove a cluster from the DNS zone automatically based on alerts and health metrics. The impact to your users could be measured in a matter of minutes.
 
-One caveat to this approach is that all online clusters are vulnerable to outside forces like large scale DDoS attacks. Routing your traffic through a CDN and DDoS mitigation service like CloudFlare[^1] will be your best defense and prevent a malicious surge of traffic from taking down your infrastructure. 
+One caveat to this approach is that all online clusters are vulnerable to outside forces like large scale DDoS attacks. Routing your traffic through a CDN and DDoS mitigation service like CloudFlare[^1] will be your best defense and prevent a malicious surge of traffic from taking down your infrastructure.
 
 ## Incident Management
 
@@ -68,7 +68,7 @@ The first step in fixing something is getting it to break. Chaos engineering app
 
 Tammy Butow is an alum of DigitalOcean and DropBox and currently works as a Principal SRE at Gremlin. Gremlin offers chaos engineering as a service, and promotes the tools and methodologies that embody the chaos engineering movement. We asked Tammy to give an introduction to chaos engineering:
 
-> I have been able to gain a deep understanding of how failures impact reliability from a customer and cloud infrastructure provider perspective. According to Information Technology Intelligence Consulting Research[^2], 98% of organizations report that a single hour of downtime can cost upwards of $100,000. I urge all engineers to take charge of your infrastructure, don’t let failure bite you when you least expect it. 
+> I have been able to gain a deep understanding of how failures impact reliability from a customer and cloud infrastructure provider perspective. According to Information Technology Intelligence Consulting Research[^2], 98% of organizations report that a single hour of downtime can cost upwards of $100,000. I urge all engineers to take charge of your infrastructure, don’t let failure bite you when you least expect it.
 >
 > There are three ways to minimize the impact of SEVs that I recommend:  
 >
@@ -76,9 +76,9 @@ Tammy Butow is an alum of DigitalOcean and DropBox and currently works as a Prin
 > * Identify and assess the reliability of your top five most critical services
 > * Practice Chaos Engineering
 >
-> Chaos Engineering is a disciplined approach to identify failures before they become high severity incidents (SEVs). The practice of Chaos Engineering involves “breaking things on purpose” to build more resilient systems. Think of Chaos Engineering as a controlled flu vaccine. You need to inject something harmful, in order to build an immunity. Chaos engineering compares what you think will happen when failure strikes to what actually happens. 
+> Chaos Engineering is a disciplined approach to identify failures before they become high severity incidents (SEVs). The practice of Chaos Engineering involves “breaking things on purpose” to build more resilient systems. Think of Chaos Engineering as a controlled flu vaccine. You need to inject something harmful, in order to build an immunity. Chaos engineering compares what you think will happen when failure strikes to what actually happens.
 >
-> The Chaos Engineering Slack Community[^3] is a great place to learn more about Chaos Engineering. 
+> The Chaos Engineering Slack Community[^3] is a great place to learn more about Chaos Engineering.
 
 We opened this section by saying that the first step in fixing something is getting it to break. Let's rephrase that based on Tammy's advice: The first step in preventing downtime is measuring impact and taking actions towards reducing amount and length of incidents.
 
