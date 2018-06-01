@@ -1,34 +1,26 @@
 # Deployment Solution with Configuration Management
 
-In the previous chapter we spun up a load balancer solution with a few backend Droplets that were ready to serve the content of a very simple html file. It's purpose was to demonstrate how to reduce downtime with a redundancy at the layer of your web service. If your web service works with files and data, a central backend will be needed. As with the frontend web layer, your centralized backend services require the same level of redundancy or they will become a single point of failure.
+In the previous chapter we spun up a load balanced solution with a few backend Droplets that were ready to serve the content of a simple html file. The purpose was to demonstrate how to reduce downtime with a redundancy at the layer of your web service. If your web service works with files and data, a central backend will be needed. As with the frontend web layer, your centralized backend services require the same level of redundancy or they will become a single point of failure.
 
-The backend would utilize Load Balancers which handles health checks to make sure requests are not routed to Droplets that go offline. This structure has some additional benefits like allowing you to easily scale the number of nodes with changes in traffic, update your application code across those backends without incurring downtime for things like A/B testing, canary deployments, blue/green deployments, and hosting multiple services behind your load balancer.
+The backend would utilize load balancers which handles health checks to make sure requests are not routed to Droplets that go offline. This structure has some additional benefits like allowing you to easily scale the number of nodes with changes in traffic, update your application code across those backends without incurring downtime for things like A/B testing, canary deployments, blue/green deployments, and hosting multiple services behind your load balancer.
 
-This also adds a bit more complexity to your deployment and with that a set of new questions to take into account. That can include things like how you maintain your load balancer's configuration, handling user sessions, file storage, your database, and how you go about managing your application and the Droplets it resides on. Don't fret though, these problems do have solutions that you just need to choose from based on what works for you.
-
-## New Obstacles
-* load balancer introduces a little more complexity
-  * load balancer config
-* backends hosting an application may require changes for:
-  * sessions
-  * file storage
-  * database
+This also adds a bit more complexity to your deployment and with that a set of new questions to take into account. That can include things like how you maintain your load balancer's configuration, handling user sessions, file storage, your database, and how you go about managing your application and the Droplets it resides on. Don't fret though, these problems have multiple solutions and you can choose what works for you.
 
 ### Configuration
-With the addition of a load balancer, whether it's the DigitalOcean Load Balancer or your own, you're now responsible for another component's configuration. In regards to the *DOLB*, the configuration options are limited in comparison to rolling out your own load balancers, but you still need to make sure you have the correct settings for things like backends to route traffic to, forwarding rules, your balancing algorithm, sticky sessions (more about this later), health check settings, and SSL settings. As I mentioned before, if you use a Droplet tag as your load balancer's backend target, this makes things easier since you don't need to manually or programmatically add individual IP's. It also means your configuration is handled solely by Terraform and doesn't need to be followed up on by Ansible.
+With the addition of a load balancer, whether it's the DigitalOcean Load Balancer or your own, you're now responsible for another component's configuration. In regards to the *DOLB*, the configuration options are curated in comparison to rolling out your own load balancers, but you still need to make sure you have the correct settings for things like backends to route traffic to, forwarding rules, your balancing algorithm, sticky sessions (more about this later), health check settings, and SSL settings. If you use a Droplet tag as your load balancer's backend target, this makes things easier since you don't need to add individual IP's. It also means your configuration is handled solely by Terraform and doesn't need to be followed up on by Ansible.
 
 If you determined that your requirements are more complex and you need more control over the load balancer's configuration, then deploying your own set of load balancers is the way to go. Yes, we said "set" as in multiple. Multiple Load Balancer instances are needed along with a Floating IP address to ensure redundancy at the load balancing layer. The *DOLB* feature handles that aspect automatically. Managing the configuration file using a configuration management tool in this type of setup is a little more hands on and requires a little more work upfront, but it will help alleviate headaches later on.
 
 ### Sessions
-There are some additional changes that you need to consider as well when getting ready to deploy your site or application, which is most likely not going to be a simple static page. You now have requests hitting the load balancer which is then sent over to one of your backends. Maybe you're running a forum, or selling items online, and the user needs to log in to perform actions. When you're running your application on a single Droplet all request will hit the same server so there is no issue with your application being able to associate each request with an authenticated user. When you place a load balancer in front of multiple servers, by default a user isn't guaranteed to be sent back to the same backend which is currently storing their session, so if they were logged in, they may be asked to log back in. And I think we can all agree that would make for a terrible user experience, so let's avoid that. We'll go over some options to get around this which can be implemented at different points in your stack.
+There are some additional changes that you need to consider as well when getting ready to deploy your site or application, which is most likely not going to be a simple static page. You now have requests hitting the load balancer which is then sent over to one of your backends. Maybe you're running a forum, or selling items online, and the user needs to log in to perform actions. When you're running your application on a single Droplet all request will hit the same server so there is no issue with your application being able to associate each request with an authenticated user. A user visiting a server hosted through a load balancer, is not necessarily guaranteed that the next request will be handled by the same server. The user experience will be broken if the request is handled by a server without knowledge of the user's session. We'll go over some options to get around this which can be implemented at different points in your stack.
 
 ### File storage
-Similar to sessions, you need to make sure the files on your file system are the same across all nodes. If you allow users to upload images, or you as a content creator upload an image or video, you need to make sure your backends have access to the same set of resources. One of the options for sessions (replication of a file system path) can be applied here, but a better approach would be to decouple this functionality and use a separate service. The way you achieve this can be done in a few ways, however, the easiest way would be to use object storage for static assets. DigitalOcean's Spaces service is just that. It's a highly-available, secure service with built in redundancy which will allow you to to offload your file storage needs. This also means you won't need to worry about the amount space you have left on your file system as your requirements grow over time. We'll talk more about storage options, especially Spaces, in Chapter 7.
+Similar to user sessions, you need consistency with files needed for you application. All the servers need to have access to the same set of resources. One of the options for sessions (replication of a file system) can be applied here, but a better approach would be to decouple this functionality and use a separate service. The way you achieve this can be done in a few ways, however, the easiest way would be to use object storage for static assets. DigitalOcean's Spaces service is just that. Spaces is a highly-available and secure service with built in redundancy for your file storage needs. This also means you won't need to worry about the amount space you have left on your file system as your requirements grow over time. We'll talk more about storage options, especially Spaces, in Chapter 7.
 
 #### Database
-Another key part of your deployment that you'll need to think about is your database. Just like your sessions and files, the database needs to be accessible to all backend Droplets. It's more complex than that as how you replicate database inserts and updates across a cluster is essential to a clustered database solution.
+Another key part of your deployment that you'll need to think about is your database. Just like sessions and files, the database needs to be accessible to all backend Droplets. It's more complex than that, as how you replicate database inserts and updates across a cluster is essential to a functional clustered database solution.
 
-You'll also want to make sure it's highly available which means introducing some redundancy by setting up replication and a method to automatically failover. Just like with your other services, you can toss your database cluster behind a load balancer but you need to make sure that the system you use for replication does a good job of handling data consistency. If queries are run on different nodes that make changes which conflict with one another you'll end up with data inconsistency, breaking replication and possibly severe corruption. In our exercise we're going to be using a MariaDB Galera cluster to take care of these issues.
+You'll also want to make sure it's highly available which means introducing some redundancy by setting up replication and a method to automatically failover. Just like with your other services, you can toss your database cluster behind a load balancer but you need to make sure that the system you use for replication does a good job of handling data consistency. If conflicting updates are made to different nodes, you'll have data inconsistency, breaking replication and possibly severe corruption. In our exercise we're going to be using a MariaDB Galera cluster to take care of these issues.
 
 Galera handles synchronous replication to every database node, each of which acts as a full primary database server. This means you can read and write to each of the nodes in the cluster and everything is kept in sync. There are other ways to cluster databases which involve a primary + secondary form of replication where a specific node is elected as the primary write server. Each cluster solution has it's merits and for our exercise Galera gives us the most benefits.
 
@@ -36,13 +28,6 @@ Galera handles synchronous replication to every database node, each of which act
 The deeper discussions on configurations are not a prerequisite for deploying your WordPress cluster. You can skip down to  "Getting Ready to Deploy" to advance onto getting everything online.
 
 ### DigitalOcean Load Balancer
-* managing rules
-  * forwarding rules
-  * sticky sessions
-  * health checks
-  * SSL termination vs pass-through
-* upside is you can use Droplet tags to automatically add backends
-
 Managing your DigitalOcean Load Balancer's config is pretty straightforward using the UI or Terraform. However, with Terraform, you'll be creating your infrastructure as code which means if you make a breaking change you can roll back and apply the working config. Let's check out the following entry which is used to create a DigitalOcean Load Balancer and supplies the Droplet tag to target, the forwarding rules, the TLS certificate to use, and the health checks the Load Balancer will carry out against the backends. _When we go to deploy our WordPress cluster we will not include the SSL configuration. Chapter 13 will touch SSL settings and more security settings._
 
 ```terraform
@@ -88,16 +73,7 @@ resource "digitalocean_loadbalancer" "public" {
 This makes easy to modify your configuration and add in support for sticky sessions. Since the *DOLB* is used as a service rather than an immutable resource like a Droplet, a change to the configuration arguments won't cause the entire *digitalocean_loadbalancer* resource to be recreated. For more detail on the supported arguments and output attributes. check out https://www.terraform.io/docs/providers/do/r/loadbalancer.html.
 
 ### HAProxy cluster
-* managing rules
-  * simple because you just need to adjust your template file
-  * Able to customize (multiple backends and certs)
-  * jinja2 templating is powerful
-* updating your config
-  * semi-automatic
-  * jenkins
-  * consul-template
-
-Another option we went over when setting up a highly available web page was rolling out your own set of HAProxy load balancers. This method takes a bit more work to get up and running, but using this method will allow you to accomplish much more complex configurations and give you the access you need to tune lower level settings. If you're planning to run multiple sites or services and want to place them behind a single load balanced solution, this is a good option for you. Not only will you be able to set up multiple backend configurations but each one can be secured with a TLS certificate.
+Another option we went over in the last chapter was deploying your own set of HAProxy load balancers. This method takes a bit more work to get up and running, but using this method will allow you to accomplish much more complex configurations and give you the access you need to tune lower level settings. If you're planning to run multiple sites or services and want to place them behind a single load balanced solution, this is a good option for you. Not only will you be able to set up multiple backend configurations but each one can be secured with a TLS certificate.
 
 Updating your configuration file is easy using the Jinja templating system that Ansible makes use of. It offers a robust list of features and which include the use of variables and control structures that you would find in a programming language like if statements, loops, math operations, and large library of built in filters.
 
@@ -147,8 +123,7 @@ On your control Droplet navigate to this location within the example code:
 cd /root/navigators-guide/example-code/02-scale/ch05/ch05/ch05_init_deploy
 ```
 
-We've created an initialization script that will walk you through all the required settings. Run the following command and respond to each prompt for options.
-<!--- TODO: Write, Test, and Document init script --->
+We've created an initialization script that will walk you through all the required settings and variables. Run the following command and respond to each prompt for options.
 
 ```sh
 ./bin/init_config

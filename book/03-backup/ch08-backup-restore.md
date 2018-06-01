@@ -12,12 +12,12 @@ If your data is redundant, it's still subject to human errors. Users can delete 
 
 Using version control software can add a layer of restoration capabilities to your important data. It's common to store application code in something like a Git repository, but using version control software for things other than code is a great idea, too. It's particularly suited for text-based files that are updated collaboratively, like Ansible playbooks and customer documentation, so don't forget about this option for non-development teams too.
 
-Databases can be considerably more valuable than your application code. Your application code most likely lives in a few places: on your developer's computers, testing servers, etc. Your database with production data built by your users is everything to your business. 
+Databases can be considerably more valuable than your application code. Your application code most likely lives in a few places: on your developer's computers, testing servers, etc. Your database with production data built by your users is everything to your business.
 
 ## Protecting Databases
 ### Delayed Replication
 
-The purpose of having a replication node that has a delayed synchronization is for protection against mistakes made on the production database cluster. A mistaken DROP or UPDATE command without WHERE and LIMIT clauses can instantly destroy important data. The delayed replication node can be quickly isolated in that scenario to be used to restore data. 
+The purpose of having a replication node that has a delayed synchronization is for protection against mistakes made on the production database cluster. A mistaken DROP or UPDATE command without WHERE and LIMIT clauses can instantly destroy important data. The delayed replication node can be quickly isolated in that scenario to be used to restore data.
 
 An added benefit to this delayed replication node, is that you can give employees read-only access to it to run reports and queries on it without affecting application performance on the production database cluster.
 
@@ -40,9 +40,9 @@ Leveraging multiple storage options is always an option for diversifying backups
 
 
 ## DigitalOcean Backups and Snapshots
-DigitalOcean has features to help with backing up data. Droplet backups provide users with weekly automated live snapshots at a set price. The last four backups are kept and the backups can be converted to be stored as snapshots for long term storage. Droplet snapshots are ideal for taking a copy of a Droplet for restoration or duplication. Droplet snapshots are separate copies of the virtual disk stored on dedicated storage devices offloaded from the hypervisors. A Droplet snapshot can be copied to other regions making it easy to duplicate Droplets over multiple regions. A Droplet Snapshot can also be moved to a new user as well. In the future, exporting and importing snapshots is something we've experimented with as well. You can initial a snapshot event from an API call, so you can treat a snapshot like a daily automated backup, but as mentioned earlier, it may not be ideal for some workloads like databases.
+DigitalOcean has features to help with backing up data. Droplet backups provide users with weekly automated live snapshots at a set price. The last four backups are kept and the backups can be converted to be stored as snapshots for long term storage. Droplet snapshots are ideal for taking a copy of a Droplet for restoration or duplication. Droplet snapshots are separate copies of the virtual disk stored on dedicated storage devices offloaded from the hypervisors. A Droplet snapshot can be copied to other regions making it easy to duplicate Droplets over multiple regions. A Droplet Snapshot can also be moved to a new user as well. In the future, exporting and importing snapshots is something we've experimented with as well. You can initialize a snapshot event from an API call, so you can treat a snapshot like a daily automated backup, but as mentioned earlier, it may not be ideal for some workloads like databases.
 
-Volume snapshots are functionally different. A volume snapshot exists within the Ceph storage cluster and has characteristics closely associated with snapshots. Snapshots of Volumes are completely nearly in an instant. Volume snapshots can not be moved between users or regions and should be used sparingly for performance reasons. Creating many snapshots of a Volume can decrease performance.
+Volume snapshots are functionally different. A volume snapshot exists within the Ceph storage cluster and has characteristics closely associated with snapshots. Snapshots of Volumes are completed nearly in an instant. Volume snapshots can not be moved between users or regions and should be used sparingly for performance reasons. Creating many snapshots of a Volume can decrease performance.
 
 Droplet and Volume Snapshot storage is billed at $0.05 per gigabyte each month.
 
