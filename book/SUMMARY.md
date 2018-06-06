@@ -8,6 +8,8 @@
 * [Part 2 - Scaling and Preventing Downtime](02-scale/README.md)
   * [Chapter 4 - High Availability](02-scale/ch04-ha.md)
   * [Chapter 5 - Configuration Management](02-scale/ch05-config-mgmt.md)
+    * [Chapter 5.1 - Make it Modular](02-scale/ch05.1-make-it-modular.md)
+    * [Chapter 5.2 - Scale Faster](02-scale/ch05.2-scale-faster.md)
   * [Chapter 6 - Continuous Development](02-scale/ch06-continuous-dev.md)
 * [Part 3 - Keeping Your Data Safe](03-backup/README.md)
   * [Chapter 7 - Storage on DigitalOcean](03-backup/ch07-storage-on-digitalocean.md)

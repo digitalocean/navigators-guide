@@ -32,6 +32,6 @@ variable "node_size" {
 }
 
 variable "ansible_user" {
-	type = "string"
-	default = "ansible"
+  type    = "string"
+  default = "ansible"
 }
