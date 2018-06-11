@@ -10,15 +10,14 @@ Additional features of the DigitalOcean Load Balancer is the ability to direct t
 ---
 ### DigitalOcean Load Balancer
 
-On the Droplet you created for the lab environment, make your way into the repo for this chapter and enter into the **do-lb** directory.
+On the Droplet you created for the lab environment, make your way into the repo for this chapter and enter into the **digitalocean-loadbalancer** directory.
 
 ```sh
 cd /root/navigators-guide/example-code/02-scale/ch04/digitalocean_loadbalancer
 ```
 
-From there you'll need to fill some variables in they *vars.tf* file. The file should look something like this.
+From there you'll need to fill some variables in the **terraform.tfvars** file. The file should look something like this.
 
-<!-- TODO we should run through the lab control server once the repo is public and adjust the documentation to be more clear "cd to /root/navigators-guide" and explain where everything is. -->
 
 ```
 do_token = "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
@@ -100,7 +99,7 @@ Welcome to DOLB-backend-03!
 
 You can now power the Droplet back on and it will be added back into rotation once it passes the configured checks.
 
-Okay, let's try one more thing. I mentioned being able to add backends easily. To prove this we're going to head back into the Terraform files and adjust one simple variable, and apply the terraform configuration. Open up *vars.tf* and change variable **node_count** to 5. Save the changes and run `terraform apply`. You'll see a couple of new Droplets shortly and see that you're getting responses from them when making requests as well.
+Okay, let's try one more thing. I mentioned being able to add backends easily. To prove this we're going to head back into the Terraform files and adjust one simple variable, and apply the terraform configuration. Open up *variables.tf* and change variable **node_count** to 5. Save the changes and run `terraform apply`. You'll see a couple of new Droplets shortly and see that you're getting responses from them when making requests as well.
 
 ```
 .....
