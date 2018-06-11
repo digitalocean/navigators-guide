@@ -1,0 +1,8 @@
+---
+# packer build playbook
+- hosts: packerbox
+  gather_facts: yes
+  become: True
+  tasks:
+    - import_role:
+        name: ansible-welp

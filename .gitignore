@@ -6,8 +6,8 @@ site.retry
 *.tfvars
 *.pyc
 .terraform/
-/example-code/**/cert/cert.*
-/example-code/**/bin/automesos.sh
+/example-code/**/manifest.json
+/example-code/**/variables.json
 vault.yml
 packer
 nav-guide

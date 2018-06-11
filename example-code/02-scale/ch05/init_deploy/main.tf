@@ -19,6 +19,10 @@ resource "digitalocean_droplet" "wp_node" {
   user_data          = "${data.template_file.user_data.rendered}"
   tags               = ["${digitalocean_tag.backend_tag.id}", "${digitalocean_tag.project_tag.id}"]
 
+  lifecycle {
+    create_before_destroy = true
+  }
+
   connection {
     user        = "root"
     type        = "ssh"
