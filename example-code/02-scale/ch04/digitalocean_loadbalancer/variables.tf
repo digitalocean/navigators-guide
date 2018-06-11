@@ -5,6 +5,8 @@ variable "do_token" {
 
 variable "project" {
   description = "Project name used for resource naming."
+  type    = "string"
+  default = "navguide-demo"
 }
 
 variable "region" {
@@ -35,22 +37,16 @@ variable "public_key" {
 
 variable "algorithm" {
   description = "Selected load balancing algorithm."
-  default = "round_robin"
+  default     = "round_robin"
 }
 
 variable "node_count" {
   description = "Number of Droplets to provision."
-  default = 3
+  default = 5
 }
 
 variable "node_size" {
   description = "Selected size for your provisioned Droplets."
   type    = "string"
   default = "s-1vcpu-1gb"
-}
-
-variable "ansible_user" {
-  description = "User name to initiate connection for Ansible"
-  type    = "string"
-  default = "ansible"
 }
