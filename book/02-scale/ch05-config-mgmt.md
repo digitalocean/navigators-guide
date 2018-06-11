@@ -120,7 +120,7 @@ Let's get started with setting up a WordPress cluster. You can check out the exa
 On your control Droplet navigate to this location within the example code:
 
 ```sh
-cd /root/navigators-guide/example-code/02-scale/ch05/ch05/ch05_init_deploy
+cd /root/navigators-guide/example-code/02-scale/ch05/ch05/init_deploy
 ```
 
 We've created an initialization script that will walk you through all the required settings and variables. Run the following command and respond to each prompt for options.
