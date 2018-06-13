@@ -17,7 +17,7 @@ Terraform uses a declarative syntax ([HCL](https://github.com/hashicorp/hcl)) th
 We'll be using Terraform to *create* our infrastructure — that is, creating Droplets, Floating IPs, Firewalls, Block Storage Volumes, and DigitalOcean Load Balancers — but we won't be using it to *configure* those resources. That's where Ansible comes in.
 
 <!-- TODO: refine suggestions -->
-If you'd really like to dig more into the details and learn more about Terraform, we recommend the book [_Terraform up and running_](https://www.terraformupandrunning.com/).
+If you'd really like to dig more into the details and learn more about Terraform, we recommend the book [_Terraform: Up & Running _](https://www.terraformupandrunning.com/) by Yevgeniy Brikman.
 
 #### Ansible
 
@@ -25,22 +25,24 @@ If you'd really like to dig more into the details and learn more about Terraform
 
 Playbooks are YAML files which define the automation you want to manage with Ansible. Like Terraform, you can version control your playbooks. Unlike Terraform, a change in the configuration of a resource does not require the destruction and recreation of that resource.
 
-Ansible was created to push configuration changes outward which differs from other configuration management tools like Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple SSH connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
+Ansible pushes configuration changes out to your infrastructure. This is different from other configuration management tools like Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple SSH connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
 
 <!-- TODO: ansible modules overview, specific modules for DO; ansible isn't stateful like puppet, so don't make snowflakes; ansible + ansible-doc are user friendly. https://twitter.com/laserllama/status/976135074117808129 -->
 
 <!-- TODO: refine suggestions -->
-There are a few resources we recommend if you would like to learn more about Ansible. Red Hat owns the Ansible project and offers training options. This includes a great introduction video class for free: [DO007 Ansible Essentials](https://www.redhat.com/en/services/training/do007-ansible-essentials-simplicity-automation-technical-overview). There are more advanced classes as well which are very helpful [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i).
+There are a few resources we recommend if you would like to learn more about Ansible. Red Hat owns the Ansible project and offers training options. This includes a great introduction video class for free as well as more advanced classes:
+* [DO007 Ansible Essentials](https://www.redhat.com/en/services/training/do007-ansible-essentials-simplicity-automation-technical-overview)
+* [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i).
 
-#### `terraform-inventory`
+#### terraform-inventory
 
 `terraform-inventory` is a dynamic inventory script that pulls resource information from Terraform's state file and outputs it in a way that Ansible can use to target specific hosts when executing playbooks. It gets a little more complicated than that, but the key point is that `terraform-inventory` makes it easier for you to use Terraform and Ansible together.
 
 #### Git
 
-We'll use Git as our version control system. You don't need in-depth knowledge of Git in particular, but understanding [committing changes, tracking, and cloning](https://www.digitalocean.com/community/tutorial_series/introduction-to-git-installation-usage-and-branches). Because we can version control our Terraform and Ansible files, we can run tests on different versions of our infrastructure by specifying a version of a Terraform module or Ansible role.
+We'll use Git as our version control system. You don't need in-depth knowledge of Git in particular, but and understanding of [committing changes, tracking, and cloning](https://www.digitalocean.com/community/tutorial_series/introduction-to-git-installation-usage-and-branches) will be useful. Additionally, we can version control our Terraform and Ansible files. This gives us a reference of past configurations and we can run tests on development versions of our infrastructure by specifying a version of a Terraform module or Ansible role.
 
-The repository for this book is hosted on [GitHub](https://github.com). When writing your own Terraform Modules and  Ansible Roles you can use other Git services like [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org).
+The repository for this book is hosted on [GitHub](https://github.com). When writing your own Terraform Modules and Ansible Roles, you can use any Git hosting service, such as GitHub, [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org).
 
 #### Optional Tools
 
@@ -90,7 +92,7 @@ runcmd:
   - [curl, -L, -o, /tmp/terraform-inventory.zip, "https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip"]
   - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]
   - [pip, install, -U, pip, ansible]
-  - [git clone https://github.com/digitalocean/navigators-guide.git]
+  - [git, clone, "https://github.com/digtialocean/navigators-guide.git"]
 ```
 
 From here, click **Create**. The Droplet itself will be up and running quickly, but the commands in its user data will take a little time to finish running. You can [log into the Droplet](https://www.digitalocean.com/community/tutorials/how-to-create-your-first-digitalocean-droplet#step-10-%E2%80%94-logging-in-to-the-droplet) and look at `/var/log/cloud-init-output.log` to check its status.
