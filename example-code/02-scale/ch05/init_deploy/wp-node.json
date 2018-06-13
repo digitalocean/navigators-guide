@@ -1,0 +1,39 @@
+{
+    "variables": {
+           "home": "{{env `HOME`}}"
+    },
+    "builders": [
+        {
+            "type": "digitalocean",
+            "api_token": "{{user `do_api_token`}}",
+            "image": "{{user `app_node_image`}}",
+            "region": "sfo2",
+            "size": "s-1vcpu-1gb",
+            "private_networking": true,
+            "monitoring": true,
+            "user_data_file": "./config/cloud-config.yaml",
+            "snapshot_name": "{{user `project_name`}}_{{isotime \"06-01-02-03-04-05\"}}",
+            "communicator": "ssh",
+            "ssh_username": "root"
+        }
+    ],
+    "provisioners": [
+        {
+            "type": "ansible",
+            "playbook_file": "packer-build.yml",
+            "ansible_env_vars": [ "ANSIBLE_HOST_KEY_CHECKING=False", "ANSIBLE_SSH_ARGS='-o ForwardAgent=yes -o ControlMaster=auto -o ControlPersist=60s'"],
+            "extra_arguments": ["-vvv"],
+            "groups": ["all", "wp_node"],
+            "host_alias": "packerbox",
+            "inventory_directory": "{{template_dir}}/inventory",
+            "user": "root"
+        }
+    ],
+    "post-processors": [
+        {
+            "type": "manifest",
+            "output": "manifest.json",
+            "strip_path": true
+        }
+    ]
+}

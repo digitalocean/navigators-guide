@@ -14,7 +14,6 @@ Role Variables
 defaults/main.yml
 * sys_user -> *vault_sys_user*
 * domain
-* subdomain
 * doc_root
 * upload_max_filesize
 * post_max_size

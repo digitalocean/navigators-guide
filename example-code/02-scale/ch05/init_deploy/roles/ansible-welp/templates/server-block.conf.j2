@@ -1,5 +1,5 @@
 server {
-  listen {{ ansible_eth1.ipv4.address }}:80;
+  listen *:80;
   #listen [::]:80 default_server ipv6only=on;
 
   access_log /var/log/nginx/access.log;
@@ -8,7 +8,7 @@ server {
   root {{ doc_root }};
   index index.php index.html index.htm index.nginx-debian.html;
 
-  server_name {{ domain }} {{ subdomain }};
+  server_name {{ domain }};
 
   location / {
     try_files $uri $uri/ /index.php$is_args$args;
