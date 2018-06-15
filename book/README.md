@@ -38,8 +38,6 @@ Before we do that, we want to make sure that everyone start with the same founda
 
 This book is an open-source project and is available in its entirety in this repository: https://github.com/digitalocean/navigators-guide. The `book` directory contains the Markdown for the written chapters of the book, which we use with the Gitbook Toolchain[^2] to generate the book itself. The `example-code` directory includes all the code examples you'll use to follow along.
 
-<!-- TODO: Add OSS license to repo -->
-
 ## Let's Get Started!
 
 We wrote this book with a single narrative in mind, which means it flows naturally if you read it linearly from start to finish. However, we kept each section as modular as possible, so if you're already familiar with the concepts covered in a particular chapter, you can skim it or just skip to the next one.

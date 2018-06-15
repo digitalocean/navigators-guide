@@ -14,12 +14,12 @@ In the late 2000s, in response to these growing market demands, the virtual serv
 
 Cloud computing was less clearly defined in its earlier days, but the concept was marketed as an fault-tolerant, always online infrastructure solution with built-in data redundancy. While may not be the case by default, it's possible to build, and this book will show you how. We'll architect solutions to prevent common cloud infrastructure issues, and by the end, your infrastructure will stay online, scale as you need it, and be both secure and easy to troubleshoot.
 
-A single cloud instance is a single point of failure. Our solution distributions your application across many instances.
+A single cloud instance is a single point of failure. Our recommendations, plans, and solutions help to distribute your application across many instances.
 
 <!-- TODO: This last section before Our Solutions needs editing -->
-To help illustrate this concept, we are taking a familiar use-case and applying scaling and cloud methodologies. WordPress is a popular CMS and blog platform that is often ran on shared hosting providers. WordPress administrators that require more performance would switch to a dedicated server or VPS. However there are still the issues of scaling and redundancy.
+To help illustrate this concept, we are taking a familiar use-case and applying scaling and cloud methodologies. WordPress is a popular CMS and blog platform that is often hosted using shared hosting providers. WordPress sites that see a surge in traffic would require a switch to a dedicated server or VPS for more performance. These introductory and reactionary actions do not address future scalability or any redundancy needs. Let's say that you have a website using the WordPress CMS software and you have been tasked with ensuring a 99.999% uptime. There is a business case for the website to nearly be online and performing perfectly all the time. This complex problem can be solved easier with cloud computing when compared to working with the dedicated server paradigm.  
 
-In this book we'll take the concept of an individual Wordpress installation and scale it to handle enormous amounts of traffic and users while making sure that downtime and dataloss concerns are properly planned for.
+In this book we'll take the concept of an individual Wordpress installation and scale it to handle enormous amounts of traffic and users while making sure that downtime and data loss concerns are properly planned for.
 
 ## Our Solutions
 
