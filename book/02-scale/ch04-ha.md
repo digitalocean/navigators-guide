@@ -1,11 +1,13 @@
 # High Availability
 It doesn't matter if you're running a small blog, a large application, or API; you never want it to be offline. This happens quite often because of a design implementation which causes a single point of failure. Maybe you're running your web server and database on the same Droplet. Your reason could be anything from not knowing knowing the downsides of doing this, to wanting to save on cost by placing all services on one machine. But running your application on a cloud provider does not mean your single server will be highly available. You should design your infrastructure in a way that allows you to decouple services from one another and make each one highly available by introducing redundancy and automatic failover capabilities. You can think of "highly available" as meaning a piece of software or data needs to always be accessible on more than one Droplet. You'll need an optimal mechanism for directing users to specific servers, like a load balancer. A load balancer is a component of your infrastructure that directs traffic to multiple servers. It also checks to ensure a Droplet is operational before passing users to it.
 
-We're going to take a look at a few ways of deploying a load balanced solution and few web servers. By the end of section 2 of this book, we'll have multiple Load Balancers in front of your web and database services to ensure we have no single points of failure.
+We're going to take a look at two ways of deploying a load balanced solution and a few web servers. By the end of section 2 of this book, we'll have multiple Load Balancers in front of your web and database services to ensure we have no single points of failure.
 
-Setting up a load balancer in front of your web application adds some fault tolerance as your remaining servers can process traffic if one of them is taken offline. However, a single load balancer alone does not mean that you will be highly available. In fact, it will become your single point of failure if the load balancer dies. To alleviate this type of problem we offer two options. The first is making use of our floating IP address feature. These floating addresses can be assigned and reassigned within a region using our API. This will reroute traffic to a standby load balancer in the event of a your main load balancer Droplet failing. The second option is making use of the DigitalOcean Load Balancer which is automatically highly available.
+Setting up a load balancer in front of your web application adds some fault tolerance as your remaining servers can process traffic if one of them is taken offline. However, a single load balancer alone does not mean that you will be highly available. In fact, it will become your single point of failure if the load balancer dies. To alleviate this type of problem we offer two options. The first option is making use of the DigitalOcean Load Balancer which is has highly availability built in and handles fail over recovery automatically. The section option uses the DigitalOcean Floating IP Address feature. These floating addresses can be assigned and reassigned within a region automatically using our API, or manually using the control panel. Reassigning a destination for a Floating IP will reroute traffic to a standby load balancer in the event of a your main load balancer fails.
 
-Additional features of the DigitalOcean Load Balancer is the ability to direct traffic to Droplets based on tags. This makes it simple to scale your site or application. Any new Droplet with the same tag is automatically added to the Load Balancer configuration. Let's get started with deploying a DigitalOcean Load Balancer and a few Droplets with nginx installed using Terraform.
+Additional features of the DigitalOcean Load Balancer include the ability to direct traffic to Droplets based on tags. This makes it simple to scale your site or application. Any new Droplet with the same tag is automatically added to the Load Balancer configuration.
+
+Let's get started with deploying a DigitalOcean Load Balancer and a few Droplets with nginx installed using Terraform. We are starting with simple examples using Terraform and Ansible in this chapter. As we move forward to more complex configurations in the next chapter, we'll automate most of the configuration aspects. We want you to have some understanding of how everything functions and what it is like to create your own projects by hand.
 
 ---
 ### DigitalOcean Load Balancer
@@ -16,8 +18,9 @@ On the Droplet you created for the lab environment, make your way into the repo 
 cd /root/navigators-guide/example-code/02-scale/ch04/digitalocean_loadbalancer
 ```
 
-From there you'll need to fill some variables in the **terraform.tfvars** file. The file should look something like this.
+You'll find a terraform.tfvars.sample file.  You'll need to fill some variables and rename it to **terraform.tfvars**. The file should look similar to  this. The sample file includes comments and notes on how to find things like the ssh_fingerprint information.
 
+<!--- TODO: The second example (below starting on line 143) of the tfvars file is a bit more complete but uses doctl.  I wonder if we need to split it up and add a pre-step with a script that handles the key, fingerprint, etc steps --->
 
 ```
 do_token = "nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn"
@@ -56,15 +59,18 @@ If you'd like, you can also run `terraform plan` to get a rundown of what is goi
 ```sh
 terraform apply
 ```
+
 You'll be notified when the apply is complete and at this point you can head over to your Load Balancer's public IP which can be pulled up by running `terraform show`. You'll find all the Droplets and resources created on your DigitalOcean control panel. Also, keep in mind that this is going to be using a self-signed cert, so don't worry about the invalid certificate notice since this is just a test.
 
-**Note:** Terraform can also remove your cluster automatically. You can use this workflow for rapid testing, but know that any data saved to the cluster will be removed. The `destroy` option will remove your cluster. This is the fastest way to clean up from the work we do in this chapter. You can re-run `apply` and re-run the Ansible playbook to generate a new cluster.
+**Note:** Terraform can also remove your cluster automatically. You can use this workflow for rapid testing, but know that any data saved to the cluster will be removed. The `destroy` option will remove your cluster. This is the fastest way to clean up from the work we do in this chapter. You can re-run `apply` to generate a new cluster.
 
 ```sh
 terraform destroy #Only run this to destroy your cluster - all data will be lost!
 ```
 
 This quick example should give you a good idea of how simple it is to spin up and down your resources on DigitalOcean while making your application highly-available within a data center.
+
+#### Test  
 
 We can now test the availability of your backends by taking one offline while running a curl on your Load Balancer. We recommend setting up the domain name you used for the TLS certificate in your hosts file. You can shutdown any one of the backends using the UI or using the **doctl** cli tool.
 
@@ -174,11 +180,17 @@ So the groups will be *load_balancer*, *web_node*, and *fip*. There will be some
 
 ### Configuring with Ansible
 
-Now that the Droplets are all up and running let's get them configured. We need to begin by installing the Ansible roles listed in the *requirements.yml* file. You don't need to install them one-by-one. You can simple run `ansible-galaxy install -r requirements.yml` and that will set them up in the *roles/* directory in the repository root as configured to do so by the setting `roles_path = ./roles` in *ansible.cfg*.
+Now that the Droplets are all up and running let's get them configured. We need to begin by installing the Ansible roles listed in the *requirements.yml* file. You don't need to install them one-by-one. The following command will download the required roles from the Ansible Galaxy service and place them in the *roles/* directory.
+
+```sh
+ansible-galaxy install -r requirements.yml
+```
 
 ### roles
 
 **ansible-haproxy-tls-termination**
+
+<!--- TODO: The cert steps are not clear and I wonder if we could use the certifyme script in the digitalocean_loadbalancer folder for this? --->
 
 This repo was written to install a TLS certificate so if you don't already have a TLS certificate you can create one with Let's Encrypt or create a self-signed certificate for testing. Here's a quick guide on creating a self-signed TLS certificate:
 https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-16-04#step-1-create-the-ssl-certificate
@@ -193,14 +205,23 @@ workspace
 
 Head into *certs/* and you should see your cert and key file. Cat them both into a file called **cert.pem**. Let's go ahead and encrypt it now using **ansible-vault**. You'll be prompted for a password so please make sure you use something secure, and remember this password since we're going to set it later so you don't get prompted everytime you want to run your playbooks.
 
+<!--- TODO: explain a bit why we're encrypting it and how ansible-vault works --->
+
 ```sh
 cat cert.{crt,key} > cert.pem;
 ansible-vault encrypt cert.pem;
 ```
 
-You can now move the **cert.pem** file into *haproxy-tls-termation/roles/ansible-haproxy-tls-termination/files/*. The role already has `files/cert.pem` listed in its **.gitignore** file so it won't be tracked. There are couple more variables we need to set for this role. We're going to head back to the *~/workspace/haproxy443-term/group_vars/load_balancer/* directory. If you cat the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a file called **vault.yml** and initialize the `vault_` variables.
+You can now move the **cert.pem** file into */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-haproxy-tls-termination/files/*. The role already has `files/cert.pem` listed in its **.gitignore** file so it won't be tracked. There are couple more variables we need to set for this role. We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/group_vars/load_balancer/* directory. If you cat the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a file called **vault.yml** and initialize the `vault_` variables.
 
-You'll need two things before setting the variables. A DigitalOcean API token (yes, another one) which will be used to handle floating IP assignment for failover scenarios, and a SHA-1 hash which will be used to authenticate cluster members. There is actually a file named **gen_auth_key** inside of the haproxy443-term repo that you can execute to produce your ha_auth_key. Once that's done, go ahead and use your favorite editor (VIM \*cough\* \*cough\*) to edit the file. The file should end up looking something like this:
+You'll need two things before setting the variables. A DigitalOcean API token which will be used to handle floating IP assignment for failover scenarios, and a SHA-1 hash which will be used to authenticate cluster members. We gave a tool to help create this for you.
+
+```sh
+cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/
+./gen_auth_key
+```
+
+Once that's done, go ahead and use your favorite editor to edit the **vault.yml** file. The file should end up looking something like this:
 
 ```yaml
 ---
@@ -210,13 +231,15 @@ vault_ha_auth_key: "c4b25a9f95548177a07d425d6bc9e00c36ec4ff8"
 
 And just like the **cert.pem** file, we're encrypting this file using `ansible-vault encrypt vault.yml`. Be sure to use the same password you used before.
 
-Before moving on to the next role, open up **~/workspace/haproxy-tls-termination/ansible.cfg** and uncomment `vault_password_file`. This will stop Ansible from asking you for your vault password each time you run the playbooks. You can also alter the path to the file and the filename you want to use to store your password, but please make sure to keep it out of your repo. Now create the file and set your password inside. You can execute `echo 'password' > ~/.vaultpass.txt` or just create and edit the file with your text editor.
+Before moving on to the next role, open up **/root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/ansible.cfg** and uncomment `vault_password_file`. This will stop Ansible from asking you for your vault password each time you run the playbooks. You can also alter the path to the file and the filename you want to use to store your password, but please make sure to keep it out of your repo. You do not want to accidentally commit and push any passwords or secret tokens. Now create the file and set your password inside. You can execute `echo 'password' > ~/.vaultpass.txt` or just create and edit the file with your text editor.
 
 **ansible-nginx-backend**
 
-This role won't require any tokens but you will want configure a few items. Both can be done in the role's **defaults/main.yml** file.
+This role won't require any tokens but you will want configure a few items. Both can be done in the the following file:
+<!--- ouch these long paths :(  --->
+**/root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-nginx-backend/defaults/main.yml**
 
-Just uncomment the dictionary *sites*, its key-value pairs, and adjust the names as you see fit. You may want to set another variable at the top and re-use it within the subsequent
+Uncomment all the lines for the the dictionary *sites*, its key-value pairs, and adjust the names as you see fit. You may want to set another variable at the top and re-use it within the subsequent lines as displayed in this example:
 
 ```yaml
 ---
@@ -231,7 +254,9 @@ sites:
 nginx_sync_files: "{{ domain }}"
 ```
 
-For this example, I'm going to be setting up a simple index.html file in *files/navigators-guide.com/*, but this can be modified or remove altogether depending on your use-case.
+<!--- TODO: Need to explain how to create a simple text/HTML file in this folder --->
+
+ */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-nginx-backend/files/navigators-guide.com/index.html*
 
 Now we're ready to execute the playbook. Head back on over to the root of the repository and execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml`. Again, you'll start seeing a stream of text on screen displaying what role is currently running, what task the role is currently on, and whether or not a change or error has been detected. At the very end of the play you'll see a play recap with all of your totals per host that looks like this:
 

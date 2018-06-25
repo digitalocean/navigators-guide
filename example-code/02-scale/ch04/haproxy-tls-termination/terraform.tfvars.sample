@@ -1,0 +1,27 @@
+/* https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token */
+do_token = ""
+
+/* project name which will be used for the Droplet names */
+project = "DO-LB"
+
+/* region choices include: nyc1, nyc2, nyc3, ams2, ams3, sfo1, sgp1, lon1, fra1, tor1 */
+region = "sfo2"
+
+/* some image slugs include: ubuntu-16-04-x64, debian-9-x64.
+Keep in mind the associated Ansible playbook was written to be executed on Ubuntu. */
+image_slug = "debian-9-x64"
+
+/* SSH key IDs. Single id -> "nnnnnnn" or multiple keys -> "nnnnnnn,nnnnnn" */
+keys = ""
+
+/* Path to private key file on your local system. eg: /home/user/.ssh/id_rsa) */
+private_key_path = ""
+
+/* You can execute the following to grab your SSH key fingerprint:  ssh-keygen -lf ~/.ssh/id_rsa -E md5 */
+ssh_fingerprint = ""
+
+/* cat your id_ras.pub file */
+public_key = ""
+
+/* how many nodes are deployed behind the load balancer */
+node_count = "2"
