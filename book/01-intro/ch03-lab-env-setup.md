@@ -1,66 +1,64 @@
 # Initial Environment Setup
 
-This is the first hands-on portion of the book. First, we'll go over the tools we'll be using, how they fit together, and how they can be beneficial to you as you begin to create and manage your infrastructure on DigitalOcean.
+This is the first hands-on portion of the book.
 
-Then, we'll set up a single Droplet which we'll use as as a controller to run and use the rest of our tool belt.
+First, we'll go over the tools we'll be using, how they fit together, and how they can be beneficial to you as you begin to create and manage your infrastructure on DigitalOcean. After that, we'll set up a single Droplet which we'll use as as a controller to run and use the rest of our tools.
 
-## Our Tool Belt
+## Our Tools
 
 We'll primarily be using [Terraform](https://www.terraform.io), [Ansible](https://www.ansible.com), [`terraform-inventory`](https://github.com/adammck/terraform-inventory), and [Git](https://git-scm.com).
 
-#### Terraform
+### Terraform
 
-[Terraform](https://www.digitalocean.com/community/tutorials/how-to-use-terraform-with-digitalocean) is a open-source tool that allows you to easily describe your infrastructure as code. This means you can version control your resources in the same way you would if you were writing a program, which allows you to roll back to a working state if you hit an error.
+[Terraform](https://www.digitalocean.com/community/tutorials/how-to-use-terraform-with-digitalocean) is a open-source tool that allows you to describe your infrastructure as code. This means you can version control your resources in the same way you would if you were writing a program, which allows you to roll back to a working state if you hit an error.
 
 Terraform uses a declarative syntax ([HCL](https://github.com/hashicorp/hcl)) that is designed to be easy for humans and computers alike to understand. HCL lets you plan your changes for review and automatically handles infrastructure dependencies for you.
 
-We'll be using Terraform to *create* our infrastructure — that is, creating Droplets, Floating IPs, Firewalls, Block Storage Volumes, and DigitalOcean Load Balancers — but we won't be using it to *configure* those resources. That's where Ansible comes in.
+We'll be using Terraform to *create* our infrastructure — that is, creating Droplets, Floating IPs, Firewalls, Block Storage volumes, and DigitalOcean Load Balancers — but we won't be using it to *configure* those resources. That's where Ansible comes in.
 
-<!-- TODO: refine suggestions -->
-If you'd really like to dig more into the details and learn more about Terraform, we recommend the book [_Terraform: Up & Running _](https://www.terraformupandrunning.com/) by Yevgeniy Brikman.
+If you want a very in-depth understanding of Terraform, we recommend the book [_Terraform: Up & Running _](https://www.terraformupandrunning.com/) by Yevgeniy Brikman.
 
-#### Ansible
+### Ansible
 
 [Ansible](https://www.digitalocean.com/community/tutorials/configuration-management-101-writing-ansible-playbooks) is a [configuration management](https://www.digitalocean.com/community/tutorials/an-introduction-to-configuration-management) tool which allows you to systematically handle changes to a system in a way that maintains its integrity over time. Ansible's standard library of modules is extensive, and its architecture allows you to create your own plugins as well.
 
-Playbooks are YAML files which define the automation you want to manage with Ansible. Like Terraform, you can version control your playbooks. Unlike Terraform, a change in the configuration of a resource does not require the destruction and recreation of that resource.
+Ansible playbooks are YAML files which define the automation you want to manage. Like Terraform, you can version control your playbooks. Unlike Terraform, a change in the configuration of a resource does not require the destruction and recreation of that resource; Ansible pushes configurations to your infrastructure.
 
-Ansible pushes configuration changes out to your infrastructure. This is different from other configuration management tools like Puppet and Chef. It also doesn't require that an agent be installed on the target nodes beforehand since Ansible leverages simple SSH connections to configure your infrastructure. Ansible does however require knowledge of what endpoints it needs to reach out to. That's normally taken care of with a simple inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll be using terraform-inventory to dynamically feed Ansible its list of target machines.
+Ansible uses SSH connections, so you don't need to install an agent on the target nodes to use it. However, that does mean Ansible needs to know which endpoints to connect to, which is typically defined with an inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll use terraform-inventory to dynamically feed Ansible its list of target machines.
 
-<!-- TODO: ansible modules overview, specific modules for DO; ansible isn't stateful like puppet, so don't make snowflakes; ansible + ansible-doc are user friendly. https://twitter.com/laserllama/status/976135074117808129 -->
-
-<!-- TODO: refine suggestions -->
 There are a few resources we recommend if you would like to learn more about Ansible. Red Hat owns the Ansible project and offers training options. This includes a great introduction video class for free as well as more advanced classes:
 * [DO007 Ansible Essentials](https://www.redhat.com/en/services/training/do007-ansible-essentials-simplicity-automation-technical-overview)
 * [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i).
 
-#### terraform-inventory
+### terraform-inventory
 
 `terraform-inventory` is a dynamic inventory script that pulls resource information from Terraform's state file and outputs it in a way that Ansible can use to target specific hosts when executing playbooks. It gets a little more complicated than that, but the key point is that `terraform-inventory` makes it easier for you to use Terraform and Ansible together.
 
-#### Git
+### Git
 
-We'll use Git as our version control system. You don't need in-depth knowledge of Git in particular, but and understanding of [committing changes, tracking, and cloning](https://www.digitalocean.com/community/tutorial_series/introduction-to-git-installation-usage-and-branches) will be useful. Additionally, we can version control our Terraform and Ansible files. This gives us a reference of past configurations and we can run tests on development versions of our infrastructure by specifying a version of a Terraform module or Ansible role.
+We'll use Git as our version control system. You don't need in-depth knowledge of Git in particular, but an understanding of [committing changes, tracking, and cloning](https://www.digitalocean.com/community/tutorial_series/introduction-to-git-installation-usage-and-branches) will be useful. As we mentioned, we can also version control our Terraform and Ansible files. This gives us a reference of past configurations and we can run tests on development versions of our infrastructure by specifying a version of a Terraform module or Ansible role.
 
-The repository for this book is hosted on [GitHub](https://github.com). When writing your own Terraform Modules and Ansible Roles, you can use any Git hosting service, such as GitHub, [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org).
+The repository for this book is hosted on [GitHub](https://github.com), but you can use any Git hosting service, such as GitHub, [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org).
 
-#### Optional Tools
+### Optional Tools
 
-The DigitalOcean CLI utility, `doctl`, is often helpful in quickly accessing your account through the API to create or retrieve resource information. You can find instructions to set up `doctl` in [the project README](https://github.com/digitalocean/doctl) and full usage information in its [official documentation](https://www.digitalocean.com/community/tutorials/how-to-use-doctl-the-official-digitalocean-command-line-client). It makes grabbing image and SSH key IDs much easier and faster than typing out and running a `curl` command.
-
+The DigitalOcean CLI utility, `doctl`, is often helpful in quickly accessing your account through the API to create or retrieve resource information, like image and SSH key IDs. You can find instructions to set up `doctl` in [the project README](https://github.com/digitalocean/doctl) and full usage information in its [official documentation](https://www.digitalocean.com/community/tutorials/how-to-use-doctl-the-official-digitalocean-command-line-client).
 
 ## Setting Up the Controller Droplet
 
-We're going to use a Ubuntu 18.04 x64 (Bionic Beaver) Droplet as our controller machine. This is the server from which we'll run our tools.
+Our controller machine is the server we'll use to run our tools. We'll use a Ubuntu 18.04 x64 (Bionic Beaver) Droplet, which we'll configure to install all the tools we need as the Droplet is being created.
+
+> **Note**: If you're more comfortable using another operating system (like macOS on your local computer), you can do that instead as long as it meets [Ansible's system requirements](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#control-machine-requirements).
 
 To start, you'll need:
 
 * A DigitalOcean account. You can create one at https://www.digitalocean.com/.
-* An SSH key added to your DigitalOcean account. You can add an existing one in [the Security account settings page](https://cloud.digitalocean.com/settings/security). For more help, [How To Use SSH Keys with DigitalOcean Droplets](https://www.digitalocean.com/community/tutorials/how-to-use-ssh-keys-with-digitalocean-droplets) has step by step instructions.
-* A [DigitalOcean API token](https://cloud.digitalocean.com/settings/api/tokens) with read/write permissions.  The [How To Generate a Personal Access Token](https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2#how-to-generate-a-personal-access-token) section of the [API usage documentation](https://www.digitalocean.com/community/tutorials/how-to-use-the-digitalocean-api-v2) has step by step instructions.
 
+* An [SSH key added to your DigitalOcean account](https://www.digitalocean.com/docs/droplets/how-to/add-ssh-keys/).
 
-Now it's time to [create the Droplet](https://cloud.digitalocean.com/droplets/new). You can use [How To Create Your First DigitalOcean Droplet](https://www.digitalocean.com/community/tutorials/how-to-create-your-first-digitalocean-droplet) for a detailed walkthrough. We'll be using the following options:
+* A [DigitalOcean API token](https://www.digitalocean.com/docs/api/create-personal-access-token/) with read/write permissions.
+
+Now it's time to [create the Droplet](https://www.digitalocean.com/docs/droplets/how-to/create/). We'll be using the following options:
 
 * **Image:** Ubuntu 18.04 x64.
 * **Size:** 1GB Standard Droplet.
@@ -69,9 +67,13 @@ Now it's time to [create the Droplet](https://cloud.digitalocean.com/droplets/ne
 * **SSH keys**: Select yours.
 * **Hostname**: We recommend choosing a recognizable name. 'Lab-Control' for example.
 
-When you select the user data option, a text field will open up. [User data](https://www.digitalocean.com/community/tutorials/an-introduction-to-droplet-metadata) is arbitrary data that a user can supply to a Droplet at creation time. User data is consumed by CloudInit, typically during the first boot of a cloud server, to perform tasks or run scripts as the root user.
+When you select the user data option, a text field will open up. [User data](https://www.digitalocean.com/docs/droplets/resources/metadata/) is arbitrary data that a user can supply to a Droplet at creation time. User data is consumed by CloudInit, typically during the first boot of a cloud server, to perform tasks or run scripts as the root user.
 
-Copy and paste the following script into the user data text field. _If you are viewing this book in a PDF viewer, you may want to copy the cloud-config script directly from the Github repository._ The cloud-config script installs Python 2.7, `pip` (a Python package manager), Git, `zip`, Terraform, `terraform-inventory`, and Ansible. The only modification you need to make to this file is setting your desired username and your public SSH key. Your public key is the same one that was pasted into the DigitalOcean control panel when creating an SSH key.
+We'll use a cloud-config script to install Python 2.7, `pip` (a Python package manager), Git, `zip`, Terraform, `terraform-inventory`, and Ansible.
+
+> **Note**: You can also install this software manually if you prefer. Terraform and `terraform-inventory` are Go binaries that need to be placed within your `$PATH`. We recommend installing Ansible with Pip instead of a system package manager like APT because it stays up to date and allows you to install it within a `virtualenv`.
+
+Copy and paste the following script into the user data text field. That will be easiest [directly from the GitHub repository](https://github.com/digitalocean/navigators-guide/blob/master/example-code/01-intro/ch03/cloud-config.yaml).
 
 ```yaml
 #cloud-config
@@ -95,18 +97,18 @@ runcmd:
   - [git, clone, "https://github.com/digtialocean/navigators-guide.git"]
 ```
 
-From here, click **Create**. The Droplet itself will be up and running quickly, but the commands in its user data will take a little time to finish running. You can [log into the Droplet](https://www.digitalocean.com/community/tutorials/how-to-create-your-first-digitalocean-droplet#step-10-%E2%80%94-logging-in-to-the-droplet) and look at `/var/log/cloud-init-output.log` to check its status.
+From here, click **Create**. The Droplet itself will be up and running quickly, but the commands in its user data will take a little time to finish running. You can [log into the Droplet with SSH](https://www.digitalocean.com/docs/droplets/how-to/connect-with-ssh/) and look at `/var/log/cloud-init-output.log` to check its status.
 
-> **Note**: If you're more comfortable with another operating system, like a Linux/BSD distribution or macOS on your local computer, you can use that instead as long as it meets [Ansible's system requirements](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#control-machine-requirements).
->
-> You can also install this software manually if you prefer. Terraform and `terraform-inventory` are Go binaries that need to be placed within your `$PATH`. We recommend installing Ansible with Pip instead of a system package manager like APT because it stays up to date and allows you to install it within a `virtualenv`.
+The last step is to create a second SSH key to let the controller Droplet connect to the infrastructure Droplets. When we create those infrastructure Droplets later, we'll add this SSH key to each of them automatically through Terraform.
 
-The last step is to create a second SSH key. This one is used for the controller Droplet to manage the infrastructure Droplets. We'll later place this on each of the nodes in our infrastructure automatically through terraform. You can run this one-liner when logged into your server to create a key and comment it with your Droplet's hostname:
+On the controller Droplet, use this command to create a key:
 
 ```
 ssh-keygen -t rsa -C $(hostname -f)
 ```
 
-You'll be able to see the public and private key pair in `/home/your_username/.ssh/`. Later on, we'll use these to configure our Terraform variables.
+You'll be able to see the public and private key pair in the `/home/your_username/.ssh/` directory.
 
-Now we can start using the tools and controller Droplet we just set up to start creating some usable infrastructure. By the end of the next chapter, you'll start seeing the differences between Ansible and Terraform and have a better idea of how they'll both fit into your deployments.
+## What's Next?
+
+Your controller Droplet is set up, which means you can start using the tools. In the next chapter, we'll show you how to use those tools to start creating a highly available infrastructure. In doing so, you'll start seeing the difference between Ansible and Terraform.
