@@ -42,7 +42,7 @@ variable "algorithm" {
 
 variable "node_count" {
   description = "Number of Droplets to provision."
-  default = 5
+  default = 3
 }
 
 variable "node_size" {

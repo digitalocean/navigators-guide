@@ -2,21 +2,21 @@
 
 It doesn't matter if you're running a small blog, a large application, or an API; you never want it to be offline.
 
-Infrastructure downtime is often caused by single points of failure in the design of infrastructure itself. A single point of failure is any one piece of your infrastructure that will cause downtime if it fails, like using one server to host both your web server and your database.
+A single point of failure is any part of your infrastructure that will cause downtime if it fails. An example would be to use one server to host both your web server and your database. Outages are often caused by these single points of failure and we want to design our infrastructure to avoid these situations.
 
-A highly available infrastructure has no single points of failure, which usually means that each service is replicated across multiple servers. That way, if one server fails, another one can seamlessly take its place.
+A highly available infrastructure has no single point of failure. Commonly, this means that your infrastructure is divided by service and running each service on more than one server. If one server fails, there are other servers available to process requests. A highly available configuration is not only important for redundancy, it will be faster and more cost effective to scale your infrastructure as well.
 
-It may be tempting to save on costs by putting all of your services on a single cloud server, but just running your application on a cloud provider won't make it highly available. You should design your infrastructure in a way that allows you to decouple services from one another, and then make each service highly available by introducing redundancy and automatic failover capabilities.
+Picture a web service hosting your files. Now picture it running on three independent servers. We have a few immediate problems. How will users have access to these servers? We could add DNS records for each of the independent servers. Users would unfortunately be routed to servers randomly and could be sent to a server that is offline.
 
-Once your software and data are replicated across multiple servers, you'll need a load balancer. Load balancers directs traffic to multiple servers after making sure those servers are operational. Setting up a load balancer adds some fault tolerance because your remaining servers can still process traffic even if one or more of them are taken offline.
+We can avoid these pitfalls by adding a load balancer to our infrastructure. The load balancer will perform health checks on each of the servers it has in its configuration. If a server is offline, the load balancer will not send any user requests to it. A load balancer increases performance by more effectively routing users to the best server available.
 
-However, if your load balancer fails, you can't route traffic to your backend servers. To prevent your load balancer from being a single point of failure, you should similarly replicate it or use a highly available load balancing service.
+The one additional concern we would have when performing this addition is to ensure that the load balancer itself is not a single point of failure. We have thought of that and have two complete solutions that are highly available at the load balancer layer and the backend servers.
 
 ## Our Setup
 
-In this chapter, we'll look at two ways to deploy a load balanced solution with a few web servers. By the end of this section (chapters 4 - 6), we'll have multiple DigitalOcean Load Balancers set up in front of web and database services, ensuring we have no single points of failure.
+In this chapter, we'll look at two ways to deploy a load balanced solution with a few web servers. By the end of this section (chapters 4 - 6), we'll have multiple load balancers set up in front of web and database services, ensuring we have no single points of failure.
 
-There are a number of different ways to set up load balancing. We'll go through two example setups, both serving Nginx on the backend.
+There are a number of different ways to set up load balancing. We'll go through two example setups, both serving an Nginx web service on the backend.
 
 The first solution uses [DigitalOcean Load Balancers](https://www.digitalocean.com/docs/networking/load-balancers/), which are a highly available service that handles failover recovery automatically. They also include the ability to direct traffic to Droplets based on [tags](https://www.digitalocean.com/docs/droplets/how-to/tag/) instead of a manual list, simplifying your scaling.
 
@@ -54,7 +54,7 @@ ssh_fingerprint = ""
 public_key = ""
 ```
 
-What this will do is create a DigitalOcean Load Balancer with a few Droplets running Nginx. Each web server will display a simple welcome message with the individual Droplet's hostname.
+What this will do is create a DigitalOcean Load Balancer along with a few Droplets running Nginx. Each web server will display a simple welcome message with the individual Droplet's hostname.
 
 Fill in the variables according to the instructions in the comments, then rename the file to `terraform.tfvars`.
 
@@ -62,7 +62,7 @@ Fill in the variables according to the instructions in the comments, then rename
 mv terraform.tfvars.sample terraform.tfvars
 ```
 
-This configuration does not require a TLS certificate. The DigitalOcean Load Balancer feature has an integration with Let's Encrypt, which provides certificates at no cost. That requires a domain name registered and added to your DigitalOcean account.
+This configuration does not require a TLS certificate, but one can be added to the DigitalOcean Load Balancer. The DigitalOcean Load Balancer feature also has an integration with Let's Encrypt, which provides certificates at no cost. The Lets Encrypt requires a domain name registered and added to your DigitalOcean account.
 
 Next, prepare and execute the Terraform deployment. First, parse the plan files and modules using `terraform init`. Optionally, you can run `terraform plan` to see what will happen when you run the actual script. When you're ready, run `terraform apply` to execute the create requests via the DigitalOcean API.
 
@@ -73,15 +73,15 @@ terraform apply
 
 You'll need to confirm the execution by entering `yes`, and you'll be notified when the apply is complete.
 
-At this point, you can visit your Load Balancer's public IP address (which you can get with `terraform show`) in your browser to see the example content from your web servers. If you used a self-signed cert for this test, you can expect to see an invalid certificate notice.
+At this point, you can visit your Load Balancer's public IP address (which you can get with `terraform show`) in your browser to see the example content from your web servers.
 
-Terraform can also remove your cluster automatically with the `destroy` option. You can use this workflow for rapid testing, but know that any data saved to the cluster will be removed. The `destroy` option will remove your cluster. This is the fastest way to clean up from the work we do in this chapter. You can re-run `apply` to generate a new cluster.
+Terraform can also remove your cluster automatically with the `destroy` option. You can use this workflow for rapid testing, but know that any data saved to the cluster will be removed. **The `destroy` option will remove your cluster.** This is the fastest way to clean up from the work we do in this chapter. You can re-run `apply` to generate a new cluster.
 
 Before you tear down this example cluster, let's test that it's actually highly available like we expect.
 
 ### Testing the Cluster Availability
 
-To test the availability of the backend web servers, we can take one offline while continuously requesting connections from the Load Balancer. If the connections keep making it through, we'll know the service stayed online despite a server failure. (We can't test the failover of the Load Balancer itself because it runs as a service, meaning you don't have (or need) direct access to its individual components.)
+To test the availability of the backend web servers, we can take one server offline while continuously requesting connections from the Load Balancer. If the connections keep making it through, we'll know the service stayed online despite a server failure. (We can't test the failover of the Load Balancer itself because it runs as a service, meaning you don't have or need direct access to its individual components.)
 
 Run the following command in a terminal, which will connect to the Load Balancer once per second.
 
@@ -100,12 +100,14 @@ Welcome to DOLB-backend-02!
 Welcome to DOLB-backend-03!
 ```
 
-Try powering off one of the backend Droplets. With the Droplet offline, you should still see curl returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation once it passes the Load Balancer's configured checks.
+Try powering off one of the backend Droplets. With the Droplet offline, you should still see test returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation autoamtically once it passes the Load Balancer's configured checks.
+
+_(If you need help stopping the running test, you can exit the loop with a `CTRL-C` keyboard command)_
 
 
 ### Scaling the Cluster
 
-The initial cluster setup uses 3 backend Droplets. The setting for the number of backend Droplets is in the default variable declaration in the variables.tf file. We can override by adding a line to the `terraform.tfvars` with the variable `node_count` set to 5.
+The initial cluster setup uses 3 backend Droplets. The setting for the number of backend Droplets is in the default variable declaration in the variables.tf file. We can override by adding a line to the `terraform.tfvars` with the variable `node_count` set to 5. Once the line is added, you will need to re-apply the Terraform plan.
 
 
 ```sh
@@ -130,6 +132,12 @@ Welcome to DOLB-backend-03!
 Welcome to DOLB-backend-04!
 Welcome to DOLB-backend-05!
 Welcome to DOLB-backend-01!
+```
+
+Before moving on, you'll want to destroy this test project. Terraform keeps the current state of the plan in the current working directory. When you destroy the resources through Terraform, it will automatically clear the state.
+
+```sh
+terraform destroy
 ```
 
 ## Using HAProxy and DigitalOcean Floating IPs
