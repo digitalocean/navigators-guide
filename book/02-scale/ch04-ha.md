@@ -62,11 +62,7 @@ Fill in the variables according to the instructions in the comments, then rename
 mv terraform.tfvars.sample terraform.tfvars
 ```
 
-This configuration requires a TLS certificate. Load Balancers work with Let's Encrypt, which provides certificates at no cost, but you need a registered domain name to use it. Alternatively, you can create a self-signed cert using the [`bin/certifyme` script](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/digitalocean_loadbalancer/bin/certifyme) included in our repository.
-
-```sh
-./bin/certifyme
-```
+This configuration does not require a TLS certificate. The DigitalOcean Load Balancer feature has an integration with Let's Encrypt, which provides certificates at no cost. That requires a domain name registered and added to your DigitalOcean account.
 
 Next, prepare and execute the Terraform deployment. First, parse the plan files and modules using `terraform init`. Optionally, you can run `terraform plan` to see what will happen when you run the actual script. When you're ready, run `terraform apply` to execute the create requests via the DigitalOcean API.
 
@@ -90,7 +86,7 @@ To test the availability of the backend web servers, we can take one offline whi
 Run the following command in a terminal, which will connect to the Load Balancer once per second.
 
 ```sh
-while true; do curl -k your_domain_or_load_balancer_ip; sleep 1; done
+while true; do curl -k load_balancer_ip; sleep 1; done
 ```
 
 You'll see continuous output like this:
@@ -104,17 +100,13 @@ Welcome to DOLB-backend-02!
 Welcome to DOLB-backend-03!
 ```
 
-In a second terminal, try shutting down one of the backend Droplets. You can use the Control Panel or `doctl`, like this:
+Try powering off one of the backend Droplets. With the Droplet offline, you should still see curl returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation once it passes the Load Balancer's configured checks.
 
-```sh
-doctl compute droplet-action shutdown your_droplet_id
-```
-
-Even with the Droplet offline, you should still see curl returning valid responses from your Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation once it passes the Load Balancer's configured checks.
 
 ### Scaling the Cluster
 
-The initial cluster setup uses 3 backend Droplets. <!-- TODO: confirm; the current variables.tf default is set to 5? see #29 --> To add more Droplets, open `terraform.tfvars` again and increase the `node_count` variable to 5, then re-run Terraform.
+The initial cluster setup uses 3 backend Droplets. The setting for the number of backend Droplets is in the default variable declaration in the variables.tf file. We can override by adding a line to the `terraform.tfvars` with the variable `node_count` set to 5.
+
 
 ```sh
 terraform apply
@@ -122,7 +114,7 @@ terraform apply
 
 Terraform really shines here. It handles the logic to change the number of Droplets based on this variable, so it automatically creates or destroys Droplets as the `node_count` variable increases or decreases.
 
-In the terminal running `curl` to your Load Balancer, take a look at the output. Once the new Dropltes are provisioned, you'll see them automatically start responding.
+In the terminal running `curl` to your Load Balancer, take a look at the output. Once the new Droplets are provisioned, you'll see them automatically start responding.
 
 ```
 Welcome to DOLB-backend-02!
@@ -205,7 +197,7 @@ ansible-galaxy install -r requirements.yml
 
 This places the roles in the `roles` directory.
 
-This configuration requires a TLS certificate. Load Balancers work with Let's Encrypt, which provides certificates at no cost, but you need a registered domain name to use it.
+<!--The previous configuration using the DigitalOcean Load Balancer feature has an integration with Let's Encrypt, which provides certificates at no cost. That requires a domain name registered and added to your DigitalOcean account. This configuration requires a TLS certificate.
 
 <!-- Alternatively, you can create a self-signed cert using the [`bin/certifyme` script](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/digitalocean_loadbalancer/bin/certifyme) included in our repository.
 
@@ -213,21 +205,23 @@ This configuration requires a TLS certificate. Load Balancers work with Let's En
 ./bin/certifyme
 ```
 -->
-
+<!--
 You can use [our guide on creating a self-signed SSL certificate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-16-04#step-1-create-the-ssl-certificate) and place the certificate outside of the repository for now.
-
+-->
 <!-- TODO: see #27 -->
-
+<!--
 Head into *certs/* and you should see your cert and key file. Cat them both into a file called **cert.pem**. Let's go ahead and encrypt it now using **ansible-vault**. You'll be prompted for a password so please make sure you use something secure, and remember this password since we're going to set it later so you don't get prompted everytime you want to run your playbooks.
 
-<!--- TODO: explain a bit why we're encrypting it and how ansible-vault works --->
+
 
 ```sh
 cat cert.{crt,key} > cert.pem;
 ansible-vault encrypt cert.pem;
 ```
 
-You can now move the **cert.pem** file into */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-haproxy-tls-termination/files/*. The role already has `files/cert.pem` listed in its **.gitignore** file so it won't be tracked. There are couple more variables we need to set for this role. We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/group_vars/load_balancer/* directory. If you cat the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a file called **vault.yml** and initialize the `vault_` variables.
+You can now move the **cert.pem** file into */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-haproxy-tls-termination/files/*. The role already has `files/cert.pem` listed in its **.gitignore** file so it won't be tracked. -->
+
+There are couple more variables we need to set for this role.We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/group_vars/load_balancer/* directory. If you cat the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a file called **vault.yml** and initialize the `vault_` variables.
 
 You'll need two things before setting the variables. A DigitalOcean API token which will be used to handle floating IP assignment for failover scenarios, and a SHA-1 hash which will be used to authenticate cluster members. We gave a tool to help create this for you.
 
@@ -236,13 +230,14 @@ cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/
 ./gen_auth_key
 ```
 
-Once that's done, go ahead and use your favorite editor to edit the **vault.yml** file. The file should end up looking something like this:
+Once that's done, go ahead and edit the **vault.yml** file. The file should end up looking something like this:
 
 ```yaml
 ---
 vault_do_token: "79da2e7b8795a24c790a367e4929afd22bb833f59bca00a008e2d91cb5e4285e"
 vault_ha_auth_key: "c4b25a9f95548177a07d425d6bc9e00c36ec4ff8"
 ```
+<!--- TODO: explain a bit why we're encrypting it and how ansible-vault works --->
 
 And just like the **cert.pem** file, we're encrypting this file using `ansible-vault encrypt vault.yml`. Be sure to use the same password you used before.
 
@@ -277,15 +272,8 @@ Now we're ready to execute the playbook. Head back on over to the root of the re
 
 ![play recap](https://i.imgur.com/1m4LsWl.png)
 
-Now you can head over to your site, in our case a simple html page, by visiting your floating IP address or you can create a zone file record for your domain and visit it that way. If you'd like to use the UI, here's a thorough guide on how to carry that out: https://www.digitalocean.com/community/tutorials/how-to-set-up-a-host-name-with-digitalocean. I'm going to set up a quick DNS record for the domain **navigators-guide.com** using the **doctl** utility.
+Now you can head over to your site, in our case a simple html page, by visiting your floating IP address or you can [add a domain](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) that points to the floating IP address.
 
-```sh
-doctl compute domain records create navigators-guide.com \
---record-name @ --record-data 138.197.235.246 \
---record-type A --record-ttl 300
-```
-
-With that record set you can now head on over to your domain and preview the page.
 
 ### Testing the Cluster Availability
 
@@ -294,7 +282,7 @@ To test the availability of the backend web servers, we can take one offline whi
 Run the following command in a terminal, which will connect to the Load Balancer once per second.
 
 ```sh
-while true; do curl -k your_domain_or_load_balancer_ip; sleep 1; done
+while true; do curl -k floating_ip; sleep 1; done
 ```
 
 You'll see continuous output like this:
@@ -308,19 +296,13 @@ Welcome to DOLB-backend-02!
 Welcome to DOLB-backend-03!
 ```
 
-In a second terminal, try shutting down one of the backend Droplets. You can use the Control Panel or `doctl`, like this:
+Try powering off one of the backend Droplets. With the Droplet offline, you should still see curl returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation once it passes the Load Balancer's configured checks.
 
-```sh
-doctl compute droplet-action shutdown your_droplet_id
-```
-
-Even with the Droplet offline, you should still see curl returning valid responses from your Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation once it passes the Load Balancer's configured checks.
-
-<!-- TODO: add HAProxy test; see #30 -->
+With the test still running, power off the main HA Proxy Droplet and you'll see that the floating IP address redirects to the secondary HA Proxy Droplet.
 
 ### Scaling the Cluster
 
-The initial cluster setup uses 3 backend Droplets. <!-- TODO: confirm; the current variables.tf default is set to 5? see #29 --> To add more Droplets, open `terraform.tfvars` again and increase the `node_count` variable to 5, then re-run Terraform.
+The initial cluster setup uses 3 backend Droplets. The setting for the number of backend Droplets is in the default variable declaration in the variables.tf file. We can override by adding a line to the `terraform.tfvars` with the variable `node_count` set to 5.
 
 ```sh
 terraform apply
