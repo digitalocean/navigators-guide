@@ -15,11 +15,13 @@ image_slug = "debian-9-x64"
 keys = ""
 
 /* Path to private key file on your local system. */
-/* For example: /home/your_username/.ssh/id_rsa 8?
+/* For example: /home/your_username/.ssh/id_rsa */
 private_key_path = ""
 
 /* The fingerprint of your SSH key. You can use this command to get it: */
 /* ssh-keygen -lf ~/.ssh/id_rsa -E md5 */
+/* The doctl command line utility can also output fingerprints and list key ID info */
+/* https://github.com/digitalocean/doctl */
 ssh_fingerprint = ""
 
 /* Your SSH public key. You can print the contents of your key with: */
