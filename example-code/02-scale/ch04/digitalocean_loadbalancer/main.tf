@@ -34,13 +34,6 @@ data "template_file" "user_data" {
   }
 }
 
-# Create a new TLS certificate
-resource "digitalocean_certificate" "DOLB_cert" {
-  name              = "${var.project}-cert"
-  private_key       = "${file("./cert/cert.key")}"
-  leaf_certificate  = "${file("./cert/cert.crt")}"
-}
-
 # DigitalOcean Load Balancer
 resource "digitalocean_loadbalancer" "public" {
   name                   = "${var.project}-lb"
@@ -50,13 +43,11 @@ resource "digitalocean_loadbalancer" "public" {
   depends_on             = ["digitalocean_tag.backend_tag"]
 
   forwarding_rule {
-    entry_port     = 443
-    entry_protocol = "https"
+    entry_port     = 80
+    entry_protocol = "http"
 
     target_port     = 80
     target_protocol = "http"
-
-    certificate_id = "${digitalocean_certificate.DOLB_cert.id}"
   }
 
   healthcheck {
