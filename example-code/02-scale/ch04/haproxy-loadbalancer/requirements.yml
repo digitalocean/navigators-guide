@@ -1,0 +1,2 @@
+# install roles
+- src: https://github.com/DO-Solutions/ansible-haproxy.git

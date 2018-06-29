@@ -1,0 +1,6 @@
+# Defaults file for nginx_backend
+domain: "default_server"
+sites:
+  default_server:
+    doc_root: "/var/www/html/{{ domain }}"
+    server_name: "{{ domain }}"

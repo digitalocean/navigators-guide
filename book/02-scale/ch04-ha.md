@@ -92,12 +92,12 @@ while true; do curl -k load_balancer_ip; sleep 1; done
 You'll see continuous output like this:
 
 ```
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
+Welcome to DO-LB-backend-01!
+Welcome to DO-LB-backend-02!
+Welcome to DO-LB-backend-03!
+Welcome to DO-LB-backend-01!
+Welcome to DO-LB-backend-02!
+Welcome to DO-LB-backend-03!
 ```
 
 Try powering off one of the backend Droplets. With the Droplet offline, you should still see test returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation autoamtically once it passes the Load Balancer's configured checks.
@@ -119,19 +119,19 @@ Terraform really shines here. It handles the logic to change the number of Dropl
 In the terminal running `curl` to your Load Balancer, take a look at the output. Once the new Droplets are provisioned, you'll see them automatically start responding.
 
 ```
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-04!
-Welcome to DOLB-backend-05!
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-04!
-Welcome to DOLB-backend-05!
-Welcome to DOLB-backend-01!
+Welcome to DO-LB-backend-02!
+Welcome to DO-LB-backend-03!
+Welcome to DO-LB-backend-01!
+Welcome to DO-LB-backend-02!
+Welcome to DO-LB-backend-03!
+Welcome to DO-LB-backend-04!
+Welcome to DO-LB-backend-05!
+Welcome to DO-LB-backend-01!
+Welcome to DO-LB-backend-02!
+Welcome to DO-LB-backend-03!
+Welcome to DO-LB-backend-04!
+Welcome to DO-LB-backend-05!
+Welcome to DO-LB-backend-01!
 ```
 
 Before moving on, you'll want to destroy this test project. Terraform keeps the current state of the plan in the current working directory. When you destroy the resources through Terraform, it will automatically clear the state.
@@ -142,24 +142,24 @@ terraform destroy
 
 ## Using HAProxy and DigitalOcean Floating IPs
 
-Deploying a custom load balancing solution might be the right choice if you need support for something that DigitalOcean Load Balancers don't yet have, like hosting multiple sites or applications as backends, multiple TLS certificates, proxy protocol support, or specific TCP parameter tuning.
+Deploying a custom load balancing solution might be the right choice. There are some options that the DigitalOcean Load Balancer does not support at this time. Examples of this would be hosting multiple sites or applications as backends, multiple TLS certificates, proxy protocol support, or specific TCP parameter tuning.
 
 This example uses HAProxy v1.8 load balancers clustered together using a DigitalOcean Floating IP for failover.
 
 ### Setting Up HAProxy
 
-On the controller Droplet, move to [the directory for this chapter in our repository](https://github.com/digitalocean/navigators-guide/tree/master/example-code/02-scale/ch04/haproxy-tls-termination).
+On the controller Droplet, move to [the directory for this chapter in our repository](https://github.com/digitalocean/navigators-guide/tree/master/example-code/02-scale/ch04/haproxy-loadbalancer).
 
 ```sh
-cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination
+cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer
 ```
 
-In this directory, there is [a `terraform.tfvars.sample` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-tls-termination/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
+In this directory, there is [a `terraform.tfvars.sample` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-loadbalancer/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
 
 ```
 do_token = ""
 
-project = "DO-LB"
+project = "HAPROXY-LB"
 
 region = "sfo2"
 
@@ -184,12 +184,12 @@ Next, prepare and execute the Terraform deployment. First, parse the plan files 
 
 ```sh
 terraform init
-terraform apply -auto-approve
+terraform apply
 ```
 
 You'll need to confirm the execution by entering `yes`, and you'll be notified when the apply is complete.
 
-If you run `terraform show` now, you can see the resources you've deployed. Each set of resources (i.e. Droplets) is placed in a group name according to the resource name in the Terraform configuration file. In this example, [the `haproxy.tf` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-tls-termination/haproxy.tf)'s resource declaration determines these groups.
+If you run `terraform show` now, you can see the resources you've deployed. Each set of resources (i.e. Droplets) is placed in a group name according to the resource name in the Terraform configuration file. In this example, [the `haproxy.tf` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-loadbalancer/haproxy.tf)'s resource declaration determines these groups.
 
 The three groups are `load_balancer` for HAProxy, `web_node` for Nginx, and `fip` for the Floating IP. You can take a look with `terraform-inventory -inventory` to get an Ansible invintory in INI format, or output JSON with the `-list` option.
 
@@ -197,86 +197,48 @@ At this point, the Droplets you need are created and running, but they still nee
 
 ### Configuring the Droplets with Ansible
 
-First, you need to install the Ansible roles listed in [the `requirements.yml` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-tls-termination/requirements.yml). You don't need to install them one by one; you can download the required roles with Ansible Galaxy.
+We are going to automate the configuration of the Droplets using Ansible. We have a base Ansible playbook that has is preconfigured to download a few Ansible roles. You will find these Ansible roles listed in [the `requirements.yml` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-loadbalancer/requirements.yml). You don't need to install them one by one; you can download the required roles with Ansible Galaxy.
+
+This command places the roles in the `roles` directory.
 
 ```sh
 ansible-galaxy install -r requirements.yml
 ```
 
-This places the roles in the `roles` directory.
+There are a few more variables we need to set for this role.We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer/group_vars/load_balancer/* directory. If you view the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a secondary file called **vault.yml** and initialize the `vault_` variables.
 
-<!--The previous configuration using the DigitalOcean Load Balancer feature has an integration with Let's Encrypt, which provides certificates at no cost. That requires a domain name registered and added to your DigitalOcean account. This configuration requires a TLS certificate.
-
-<!-- Alternatively, you can create a self-signed cert using the [`bin/certifyme` script](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/digitalocean_loadbalancer/bin/certifyme) included in our repository.
+You'll need two things before setting the variables. A DigitalOcean API token which will be used to handle floating IP assignment for failover scenarios, and a SHA-1 hash which will be used to authenticate cluster members. We have a tool to help create this for you.
 
 ```sh
-./bin/certifyme
-```
--->
-<!--
-You can use [our guide on creating a self-signed SSL certificate](https://www.digitalocean.com/community/tutorials/how-to-create-a-self-signed-ssl-certificate-for-nginx-in-ubuntu-16-04#step-1-create-the-ssl-certificate) and place the certificate outside of the repository for now.
--->
-<!-- TODO: see #27 -->
-<!--
-Head into *certs/* and you should see your cert and key file. Cat them both into a file called **cert.pem**. Let's go ahead and encrypt it now using **ansible-vault**. You'll be prompted for a password so please make sure you use something secure, and remember this password since we're going to set it later so you don't get prompted everytime you want to run your playbooks.
-
-
-
-```sh
-cat cert.{crt,key} > cert.pem;
-ansible-vault encrypt cert.pem;
-```
-
-You can now move the **cert.pem** file into */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-haproxy-tls-termination/files/*. The role already has `files/cert.pem` listed in its **.gitignore** file so it won't be tracked. -->
-
-There are couple more variables we need to set for this role.We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/group_vars/load_balancer/* directory. If you cat the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a file called **vault.yml** and initialize the `vault_` variables.
-
-You'll need two things before setting the variables. A DigitalOcean API token which will be used to handle floating IP assignment for failover scenarios, and a SHA-1 hash which will be used to authenticate cluster members. We gave a tool to help create this for you.
-
-```sh
-cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/
+cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer/
 ./gen_auth_key
 ```
 
-Once that's done, go ahead and edit the **vault.yml** file. The file should end up looking something like this:
+Once that auth_key is created, go ahead and create the **vault.yml** file. The file should end up looking something like this:
 
 ```yaml
 ---
 vault_do_token: "79da2e7b8795a24c790a367e4929afd22bb833f59bca00a008e2d91cb5e4285e"
 vault_ha_auth_key: "c4b25a9f95548177a07d425d6bc9e00c36ec4ff8"
 ```
-<!--- TODO: explain a bit why we're encrypting it and how ansible-vault works --->
 
-And just like the **cert.pem** file, we're encrypting this file using `ansible-vault encrypt vault.yml`. Be sure to use the same password you used before.
+The security and secrecy of these keys are vital for our infrastructure. We want to restrict who can view or edit this **vault.yml** file. Ansible has a built in encryption system named `ansible-vault`.
 
-Before moving on to the next role, open up **/root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/ansible.cfg** and uncomment `vault_password_file`. This will stop Ansible from asking you for your vault password each time you run the playbooks. You can also alter the path to the file and the filename you want to use to store your password, but please make sure to keep it out of your repo. You do not want to accidentally commit and push any passwords or secret tokens. Now create the file and set your password inside. You can execute `echo 'password' > ~/.vaultpass.txt` or just create and edit the file with your text editor.
+Use this command to encrypt the file:
 
-**ansible-nginx-backend**
-
-This role won't require any tokens but you will want configure a few items. Both can be done in the the following file:
-<!--- ouch these long paths :(  --->
-**/root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-nginx-backend/defaults/main.yml**
-
-Uncomment all the lines for the the dictionary *sites*, its key-value pairs, and adjust the names as you see fit. You may want to set another variable at the top and re-use it within the subsequent lines as displayed in this example:
-
-```yaml
----
-# defaults file for nginx_backend
-domain: "navigators-guide.com"
-sites:
-  navigators-guide:
-    doc_root: "/var/www/html/{{ domain }}"
-    server_name: "{{ domain }}"
-
-# Set a name for the directory holding site content e.g. files/example.com/
-nginx_sync_files: "{{ domain }}"
+```sh
+ansible-vault encrypt vault.yml
 ```
 
-<!--- TODO: Need to explain how to create a simple text/HTML file in this folder --->
+This process will prompt for a password. Any time we run the Ansible playbook, we will also be prompted for this password. If you need to edit the encrypted file, you will need to do so through `ansible-vault`. The [documentation](https://docs.ansible.com/ansible/2.4/vault.html) for Ansible Vault has a complete listing of all the capabilities of the feature.
 
- */root/navigators-guide/example-code/02-scale/ch04/haproxy-tls-termination/roles/ansible-nginx-backend/files/navigators-guide.com/index.html*
+```sh
+ansible-vault edit vault.yml
+```
 
-Now we're ready to execute the playbook. Head back on over to the root of the repository and execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml`. Again, you'll start seeing a stream of text on screen displaying what role is currently running, what task the role is currently on, and whether or not a change or error has been detected. At the very end of the play you'll see a play recap with all of your totals per host that looks like this:
+Ansible will require the decryption password each time it runs our playbook, which is less than ideal for automation. We can store the password somewhere else on our system that allows us to secure it by adding permission controls. To create a file to store the password, you can execute `echo 'password' > ~/.vaultpass.txt` or use a text editor to manually create the file. You want to confirm that non-privileged users do not have any access to this file. Uncomment `vault_password_file` line in the  **/root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer/ansible.cfg** configuration file. This will stop Ansible from asking you for your vault password each time you run the playbooks. You can also alter the path to the file and the filename you want to use to store your password, but please make sure to keep it out of your git repository. You do not want to accidentally commit and push any passwords or secret tokens.
+
+Now we're ready to execute the main Ansible playbook. Head back on over to the root of the repository and execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml`. Again, you'll start seeing a stream of text on screen displaying what role is currently running, what task the role is currently on, and whether or not a change or error has been detected. At the very end of the play you'll see a play recap with all of your totals per host that looks like this:
 
 ![play recap](https://i.imgur.com/1m4LsWl.png)
 
@@ -296,12 +258,12 @@ while true; do curl -k floating_ip; sleep 1; done
 You'll see continuous output like this:
 
 ```
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
+Welcome to HAPROXY-LB-backend-01!
+Welcome to HAPROXY-LB-backend-02!
+Welcome to HAPROXY-LB-backend-03!
+Welcome to HAPROXY-LB-backend-01!
+Welcome to HAPROXY-LB-backend-02!
+Welcome to HAPROXY-LB-backend-03!
 ```
 
 Try powering off one of the backend Droplets. With the Droplet offline, you should still see curl returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation once it passes the Load Balancer's configured checks.
@@ -327,19 +289,19 @@ ansible-playbook -i /usr/local/bin/terraform-inventory site.yml
 In the terminal running `curl` to your Load Balancer, take a look at the output. Once the new Droplets are provisioned, you'll see them automatically start responding.
 
 ```
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-04!
-Welcome to DOLB-backend-05!
-Welcome to DOLB-backend-01!
-Welcome to DOLB-backend-02!
-Welcome to DOLB-backend-03!
-Welcome to DOLB-backend-04!
-Welcome to DOLB-backend-05!
-Welcome to DOLB-backend-01!
+Welcome to HAPROXY-LB-backend-02!
+Welcome to HAPROXY-LB-backend-03!
+Welcome to HAPROXY-LB-backend-01!
+Welcome to HAPROXY-LB-backend-02!
+Welcome to HAPROXY-LB-backend-03!
+Welcome to HAPROXY-LB-backend-04!
+Welcome to HAPROXY-LB-backend-05!
+Welcome to HAPROXY-LB-backend-01!
+Welcome to HAPROXY-LB-backend-02!
+Welcome to HAPROXY-LB-backend-03!
+Welcome to HAPROXY-LB-backend-04!
+Welcome to HAPROXY-LB-backend-05!
+Welcome to HAPROXY-LB-backend-01!
 ```
 
 ## What's Next?

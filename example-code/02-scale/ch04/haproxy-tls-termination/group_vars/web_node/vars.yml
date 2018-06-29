@@ -1,4 +1,0 @@
-#sites:
-#  example1:
-#    doc_root: /var/www/html/example.com
-#    server_name: example.com
