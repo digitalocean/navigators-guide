@@ -22,11 +22,6 @@ until [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization:
   read -p $'\e[34mPlease enter in your DigitalOcean API token\e[0m\n> ' do_token;
 done
 
-# TODO: decide if we want to use python or jq for parsing json
-# while [[ $(curl -s -X GET -H "Content-Type: application/json" -H "Authorization: Bearer ${do_token}" "https://api.digitalocean.com/v2/account" | python -c 'import sys, json; print(json.load(sys.stdin)["id"])' 2>/dev/null) ]]; do
-#   read -p "Please enter in your DigitalOcean API token: " do_token;
-# done
-
 function listGen() {
   # Generic list creation: pass reference to array ( arrayname ) not value ( $arrayname )
   local -n ref=$1;

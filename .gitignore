@@ -1,11 +1,11 @@
 .DS_Store
-site.retry
 *.retry
 *.tfstate.*
 *.tfstate
 *.tfvars
 *.pyc
 .terraform/
+*_bak
 /example-code/**/manifest.json
 /example-code/**/variables.json
 vault.yml

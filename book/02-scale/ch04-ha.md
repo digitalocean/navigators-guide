@@ -104,11 +104,9 @@ Try powering off one of the backend Droplets. With the Droplet offline, you shou
 
 _(If you need help stopping the running test, you can exit the loop with a `CTRL-C` keyboard command)_
 
-
 ### Scaling the Cluster
 
 The initial cluster setup uses 3 backend Droplets. The setting for the number of backend Droplets is in the default variable declaration in the variables.tf file. We can override by adding a line to the `terraform.tfvars` with the variable `node_count` set to 5. Once the line is added, you will need to re-apply the Terraform plan.
-
 
 ```sh
 terraform apply
@@ -252,7 +250,6 @@ PLAY RECAP *********************************************************************
 ```
 
 Now you can head over to your site, in our case a simple html page, by visiting your floating IP address or you can [add a domain](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) that points to the floating IP address.
-
 
 ### Testing the Cluster Availability
 
