@@ -140,7 +140,7 @@ Before moving on, you'll want to destroy this test project. Terraform keeps the 
 terraform destroy
 ```
 
-## Using HAProxy and DigitalOcean Floating IPs
+## Using HAProxy and a DigitalOcean Floating IP Address
 
 Deploying a custom load balancing solution might be the right choice. There are some options that the DigitalOcean Load Balancer does not support at this time. Examples of this would be hosting multiple sites or applications as backends, multiple TLS certificates, proxy protocol support, or specific TCP parameter tuning.
 
@@ -315,13 +315,13 @@ Welcome to HAPROXY-LB-backend-05!
 Welcome to HAPROXY-LB-backend-01!
 ```
 
-## What's Next?
-
 When you're done, you can clean up the resources Terraform created with `destroy`. You will lose all of your data when you destroy your cluster this way.
 
 ```sh
 terraform destroy
 ```
+
+## What's Next?
 
 We took a simple web application and made it highly available by running it on multiple Droplets and directing traffic to operational Droplets with two different kinds of load balancers. These are the foundational concepts for redundancy and preventing downtime.
 
