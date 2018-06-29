@@ -1,4 +1,4 @@
-# DigitalOcean Load Balancer
+# DigitalOcean Load Balancer Example Project
 
 This repository will create a sample project including a DigitalOcean Load Balancer and Nginx web servers using Terraform.
 

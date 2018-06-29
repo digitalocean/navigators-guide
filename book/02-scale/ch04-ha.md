@@ -148,13 +148,13 @@ This example uses HAProxy v1.8 load balancers clustered together using a Digital
 
 ### Setting Up HAProxy
 
-On the controller Droplet, move to [the directory for this chapter in our repository](https://github.com/digitalocean/navigators-guide/tree/master/example-code/02-scale/ch04/haproxy-loadbalancer).
+On the controller Droplet, move to [the directory for this chapter in our repository](https://github.com/digitalocean/navigators-guide/tree/master/example-code/02-scale/ch04/haproxy_loadbalancer).
 
 ```sh
-cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer
+cd /root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer
 ```
 
-In this directory, there is [a `terraform.tfvars.sample` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-loadbalancer/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
+In this directory, there is [a `terraform.tfvars.sample` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
 
 ```
 do_token = ""
@@ -189,7 +189,7 @@ terraform apply
 
 You'll need to confirm the execution by entering `yes`, and you'll be notified when the apply is complete.
 
-If you run `terraform show` now, you can see the resources you've deployed. Each set of resources (i.e. Droplets) is placed in a group name according to the resource name in the Terraform configuration file. In this example, [the `haproxy.tf` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-loadbalancer/haproxy.tf)'s resource declaration determines these groups.
+If you run `terraform show` now, you can see the resources you've deployed. Each set of resources (i.e. Droplets) is placed in a group name according to the resource name in the Terraform configuration file. In this example, [the `haproxy.tf` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/haproxy.tf)'s resource declaration determines these groups.
 
 The three groups are `load_balancer` for HAProxy, `web_node` for Nginx, and `fip` for the Floating IP. You can take a look with `terraform-inventory -inventory` to get an Ansible invintory in INI format, or output JSON with the `-list` option.
 
@@ -197,7 +197,7 @@ At this point, the Droplets you need are created and running, but they still nee
 
 ### Configuring the Droplets with Ansible
 
-We are going to automate the configuration of the Droplets using Ansible. We have a base Ansible playbook that has is preconfigured to download a few Ansible roles. You will find these Ansible roles listed in [the `requirements.yml` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy-loadbalancer/requirements.yml). You don't need to install them one by one; you can download the required roles with Ansible Galaxy.
+We are going to automate the configuration of the Droplets using Ansible. We have a base Ansible playbook that has is preconfigured to download a few Ansible roles. You will find these Ansible roles listed in [the `requirements.yml` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/requirements.yml). You don't need to install them one by one; you can download the required roles with Ansible Galaxy.
 
 This command places the roles in the `roles` directory.
 
@@ -205,16 +205,16 @@ This command places the roles in the `roles` directory.
 ansible-galaxy install -r requirements.yml
 ```
 
-There are a few more variables we need to set for this role.We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer/group_vars/load_balancer/* directory. If you view the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a secondary file called **vault.yml** and initialize the `vault_` variables.
+There are a few more variables we need to set for this role.We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer/group_vars/load_balancer/* directory. If you view the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a secondary file called **vault.yml** and initialize the `vault_` variables.
 
 You'll need two things before setting the variables. A DigitalOcean API token which will be used to handle floating IP assignment for failover scenarios, and a SHA-1 hash which will be used to authenticate cluster members. We have a tool to help create this for you.
 
 ```sh
-cd /root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer/
+cd /root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer/
 ./gen_auth_key
 ```
 
-Once that auth_key is created, go ahead and create the **vault.yml** file. The file should end up looking something like this:
+Once that auth_key is created, go ahead and create the **group_vars/load_balancer/vault.yml** file. The file should end up looking something like this:
 
 ```yaml
 ---
@@ -236,11 +236,20 @@ This process will prompt for a password. Any time we run the Ansible playbook, w
 ansible-vault edit vault.yml
 ```
 
-Ansible will require the decryption password each time it runs our playbook, which is less than ideal for automation. We can store the password somewhere else on our system that allows us to secure it by adding permission controls. To create a file to store the password, you can execute `echo 'password' > ~/.vaultpass.txt` or use a text editor to manually create the file. You want to confirm that non-privileged users do not have any access to this file. Uncomment `vault_password_file` line in the  **/root/navigators-guide/example-code/02-scale/ch04/haproxy-loadbalancer/ansible.cfg** configuration file. This will stop Ansible from asking you for your vault password each time you run the playbooks. You can also alter the path to the file and the filename you want to use to store your password, but please make sure to keep it out of your git repository. You do not want to accidentally commit and push any passwords or secret tokens.
+Ansible will require the decryption password each time it runs our playbook, which is less than ideal for automation. We can store the password somewhere else on our system that allows us to secure it by adding permission controls. To create a file to store the password, you can execute `echo 'password' > ~/.vaultpass.txt` or use a text editor to manually create the file. You want to confirm that non-privileged users do not have any access to this file. Uncomment `vault_password_file` line in the  **/root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer/ansible.cfg** configuration file. This will stop Ansible from asking you for your vault password each time you run the playbooks. You can also alter the path to the file and the filename you want to use to store your password, but please make sure to keep it out of your git repository. You do not want to accidentally commit and push any passwords or secret tokens.
 
 Now we're ready to execute the main Ansible playbook. Head back on over to the root of the repository and execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml`. Again, you'll start seeing a stream of text on screen displaying what role is currently running, what task the role is currently on, and whether or not a change or error has been detected. At the very end of the play you'll see a play recap with all of your totals per host that looks like this:
 
-![play recap](https://i.imgur.com/1m4LsWl.png)
+```
+PLAY RECAP *********************************************************************
+138.68.50.232              : ok=1    changed=0    unreachable=0    failed=0   
+159.65.78.225              : ok=1    changed=0    unreachable=0    failed=0   
+165.227.9.176              : ok=40   changed=38   unreachable=0    failed=0   
+178.128.128.168            : ok=1    changed=0    unreachable=0    failed=0   
+178.128.3.35               : ok=40   changed=38   unreachable=0    failed=0   
+206.189.174.220            : ok=1    changed=0    unreachable=0    failed=0   
+
+```
 
 Now you can head over to your site, in our case a simple html page, by visiting your floating IP address or you can [add a domain](https://www.digitalocean.com/docs/networking/dns/how-to/add-domains/) that points to the floating IP address.
 
@@ -268,7 +277,9 @@ Welcome to HAPROXY-LB-backend-03!
 
 Try powering off one of the backend Droplets. With the Droplet offline, you should still see curl returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation once it passes the Load Balancer's configured checks.
 
-With the test still running, power off the main HA Proxy Droplet and you'll see that the floating IP address redirects to the secondary HA Proxy Droplet.
+With the test still running, power off the main HAProxy Droplet and you'll see that the floating IP address redirects to the secondary HAProxy Droplet after a few dropped requests. The secondary HAProxy Droplet picks up automatically and the test continues to run.
+
+_(If you need help stopping the running test, you can exit the loop with a `CTRL-C` keyboard command)_
 
 ### Scaling the Cluster
 

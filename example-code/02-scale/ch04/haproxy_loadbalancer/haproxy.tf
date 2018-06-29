@@ -8,7 +8,7 @@ resource "digitalocean_droplet" "load_balancer" {
   private_networking = true
   monitoring         = true
   ssh_keys           = ["${split(",",var.keys)}"]
-  user_data          = "${data.template_haproxy.user_data.rendered}"
+  user_data          = "${data.template_file.user_data_haproxy.rendered}"
 
   connection {
     user     = "root"
@@ -27,7 +27,7 @@ resource "digitalocean_droplet" "web_node" {
   size               = "${var.node_size}"
   private_networking = true
   ssh_keys           = ["${split(",",var.keys)}"]
-  user_data          = "${data.template_nginx.user_data.rendered}"
+  user_data          = "${data.template_file.user_data_nginx.rendered}"
 
   lifecycle {
     create_before_destroy = true
@@ -42,7 +42,7 @@ resource "digitalocean_droplet" "web_node" {
 }
 
 # Pre-configure Droplets using cloud-init user data
-data "template_haproxy" "user_data" {
+data "template_file" "user_data_haproxy" {
   template = "${file("${path.module}/config/haproxy-config.yaml")}"
 
   vars {
@@ -50,7 +50,7 @@ data "template_haproxy" "user_data" {
   }
 }
 
-data "template_nginx" "user_data" {
+data "template_file" "user_data_nginx" {
   template = "${file("${path.module}/config/nginx-config.yaml")}"
 
   vars {
