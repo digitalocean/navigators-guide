@@ -1,37 +1,61 @@
 # Deployment Solution with Configuration Management
 
-In the previous chapter we spun up a load balanced solution with a few backend Droplets that were ready to serve the content of a simple html file. The purpose was to demonstrate how to reduce downtime with a redundancy at the layer of your web service. If your web service works with files and data, a central backend will be needed. As with the frontend web layer, your centralized backend services require the same level of redundancy or they will become a single point of failure.
+The previous chapter demonstrated how to reduce downtime by adding redundancy at the web frontend layer of your infrastructure. If your service works with files and data, you'll also need a centralized backend — which should be similarly redundant to avoid being a single point of failure.
 
-The backend would utilize load balancers which handles health checks to make sure requests are not routed to Droplets that go offline. This structure has some additional benefits like allowing you to easily scale the number of nodes with changes in traffic, update your application code across those backends without incurring downtime for things like A/B testing, canary deployments, blue/green deployments, and hosting multiple services behind your load balancer.
+Both the frontend and the backend can use a load balanced solution to distribute traffic to multiple servers. This structure provides some unique benefits on the backend, like the ability to update your application code without incurring downtime, supporting things like A/B testing, canary deployments, and blue/green deployments. However, this does add some complexity to your infrastructure as well. You'll need to consider things like how to maintain the configuration of your load balancers, how to manage your application and the servers it runs on, and how to handle consistency for things like user sessions, file storage, and databases.
 
-This also adds a bit more complexity to your deployment and with that a set of new questions to take into account. That can include things like how you maintain your load balancer's configuration, handling user sessions, file storage, your database, and how you go about managing your application and the Droplets it resides on. Don't fret though, these problems have multiple solutions and you can choose what works for you.
+Regardless of whether you use DigitalOcean Load Balancers or a self-managed set of load balancers, you need to maintain the consistency of its configuration. Managing the configuration file using a configuration management tool in a self-managed load balancer setup is more hands-on and requires some extra work up front, whereas DigitalOcean Load Balancers are a managed service that handles load balancer redundancy automatically.
 
-### Configuration
-With the addition of a load balancer, whether it's the DigitalOcean Load Balancer or your own, you're now responsible for another component's configuration. In regards to the *DOLB*, the configuration options are curated in comparison to rolling out your own load balancers, but you still need to make sure you have the correct settings for things like backends to route traffic to, forwarding rules, your balancing algorithm, sticky sessions (more about this later), health check settings, and SSL settings. If you use a Droplet tag as your load balancer's backend target, this makes things easier since you don't need to add individual IP's. It also means your configuration is handled solely by Terraform and doesn't need to be followed up on by Ansible.
+For DigitalOcean Load Balancers, the configuration options are curated, but you still need to make sure the settings are correct and consistent. Using a Droplet tag to determine the Load Balancer's backend is the most direct path to success because it allows you to add and remove Droplets automatically (instead of by individual IP) and means that your configuration can be handled solely by Terraform without Ansible.
 
-If you determined that your requirements are more complex and you need more control over the load balancer's configuration, then deploying your own set of load balancers is the way to go. Yes, we said "set" as in multiple. Multiple Load Balancer instances are needed along with a Floating IP address to ensure redundancy at the load balancing layer. The *DOLB* feature handles that aspect automatically. Managing the configuration file using a configuration management tool in this type of setup is a little more hands on and requires a little more work upfront, but it will help alleviate headaches later on.
+If your load balancing requirements were more complex, you may have chosen to use your own load balancer (with HAProxy, as in the previous chapter, or other load balancing software). In this case, you'll need to deploy a set of multiple load balancer Droplets along with with a DigitalOcean Floating IP address to ensure redundancy at the load balancing layer.
+
+## Our Setup
+
+<!-- TODO(@hazel-nut) we don't mention wordpress at all until the configuration section, and it's written as if the reader already knows that's what they're deploying. we should open this section with a description of the example we're using in this chapter. -->
+
+Data consistency is the main complication you'll address with your load balancer configuration. When your backend can be served from any one of multiple servers, you need to make sure that each server has access to the same consistent dataset or that a particular session will continue to connect to a particular server. The three related components we'll review here are user sessions, file storage, and databases.
 
 ### Sessions
-There are some additional changes that you need to consider as well when getting ready to deploy your site or application, which is most likely not going to be a simple static page. You now have requests hitting the load balancer which is then sent over to one of your backends. Maybe you're running a forum, or selling items online, and the user needs to log in to perform actions. When you're running your application on a single Droplet all request will hit the same server so there is no issue with your application being able to associate each request with an authenticated user. A user visiting a server hosted through a load balancer, is not necessarily guaranteed that the next request will be handled by the same server. The user experience will be broken if the request is handled by a server without knowledge of the user's session. We'll go over some options to get around this which can be implemented at different points in your stack.
 
-### File storage
-Similar to user sessions, you need consistency with files needed for you application. All the servers need to have access to the same set of resources. One of the options for sessions (replication of a file system) can be applied here, but a better approach would be to decouple this functionality and use a separate service. The way you achieve this can be done in a few ways, however, the easiest way would be to use object storage for static assets. DigitalOcean's Spaces service is just that. Spaces is a highly-available and secure service with built in redundancy for your file storage needs. This also means you won't need to worry about the amount space you have left on your file system as your requirements grow over time. We'll talk more about storage options, especially Spaces, in Chapter 7.
+When a user visits a site hosted through a load balancer, there's no guarantee that their next request will be handled by the same backend server. For simple static pages, this won't be an issue, but if the service needs knowledge of the user's session (like if they've logged in), you'll need to handle that. There are a few options to address this which can be implemented at different points in your stack.
 
-### Database
-Another key part of your deployment that you'll need to think about is your database. Just like sessions and files, the database needs to be accessible to all backend Droplets. It's more complex than that, as how you replicate database inserts and updates across a cluster is essential to a functional clustered database solution.
+<!-- TODO(@hazel-nut): what are the options? which do we use? -->
 
-You'll also want to make sure it's highly available which means introducing some redundancy by setting up replication and a method to automatically failover. Just like with your other services, you can toss your database cluster behind a load balancer but you need to make sure that the system you use for replication does a good job of handling data consistency. If conflicting updates are made to different nodes, you'll have data inconsistency, breaking replication and possibly severe corruption. In our exercise we're going to be using a MariaDB Galera cluster to take care of these issues.
+### File Storage
 
-Galera handles synchronous replication to every database node, each of which acts as a full primary database server. This means you can read and write to each of the nodes in the cluster and everything is kept in sync. There are other ways to cluster databases which involve a primary + secondary form of replication where a specific node is elected as the primary write server. Each cluster solution has it's merits and for our exercise Galera gives us the most benefits.
+The files that your application uses will need to be consistent; all servers will need to have access to the same set of resources. One good approach to this problem is to decouple the storage functionality from your backend app servers and instead use a separate service for file storage. For static assets, you can use an object storage solution. DigitalOcean Spaces is a highly-available object storage service with built-in redundancy.
 
-## Looking at Configurations
-The deeper discussions on configurations are not a prerequisite for deploying your WordPress cluster. You can skip down to  "Getting Ready to Deploy" to advance onto getting everything online.
+<!-- TODO(@hazel-nut) what solution are we choosing here? -->
 
-### DigitalOcean Load Balancer
-Managing your DigitalOcean Load Balancer's config is pretty straightforward using the UI or Terraform. However, with Terraform, you'll be creating your infrastructure as code which means if you make a breaking change you can roll back and apply the working config. Let's check out the following entry which is used to create a DigitalOcean Load Balancer and supplies the Droplet tag to target, the forwarding rules, the TLS certificate to use, and the health checks the Load Balancer will carry out against the backends. _When we go to deploy our WordPress cluster we will not include the SSL configuration. Chapter 13 will touch SSL settings and more security settings._
+We talk more about storage options, especially Spaces, in Chapter 7.
+
+### Databases
+
+Much like file storage, your database needs to be accessible to all backend Droplets. How you replicate database inserts and updates across a cluster is essential to a functional clustered database solution.
+
+Additionally, your database should be highly available — that is, it has redundancy and automatic failover. This can be more complicated than just putting it behind a load balancer because the system will need to handle data consistency, like what happens if conflicting updates are made to different nodes.
+
+In our example, we use a MariaDB Galera cluster to handle these issues. Galera handles synchronous replication to every database node, each of which acts as a full primary database server. This means you can read and write to each of the nodes in the cluster and everything is kept in sync.
+
+There are other ways to cluster databases involving primary and secondary forms of replication where a specific node is elected as the primary write server. Each cluster solution has its merits and for our exercise Galera gives us the most benefits.
+
+<!-- TODO(@hazel-nut): what are those benefits? why is galera the best choice (or even just a better choice than the other style of database cluster mentioned)? -->
+
+## Understanding the configuration
+
+Actually setting up the cluster once the configuration is done is a relatively short process, but understanding the configuration and the decisions therein is key to being able to apply these patterns to your own infrastructure. Let's break it down piece by piece.
+
+### Load Balancer Configuration
+
+#### DigitalOcean Load Balancer
+
+As in previous chapters, we'll use Terraform to manage the Load Balancer configuration. The following entry creates a Load Balancer and supplies the backend Droplet tag, the forwarding rules, the TLS certificate to use, and the health checks that the Load Balancer will use. SSL and other security settings are out of scope for this chapter, but they're covered in depth in Chapter 13.
+
+<!-- TODO(@hazel-nut) where is this file? -->
 
 ```terraform
-....
+...
 
 resource "digitalocean_loadbalancer" "public" {
   name                   = "${var.project}-lb"
@@ -70,20 +94,24 @@ resource "digitalocean_loadbalancer" "public" {
 }
 ```
 
-This makes easy to modify your configuration and add in support for sticky sessions. Since the *DOLB* is used as a service rather than an immutable resource like a Droplet, a change to the configuration arguments won't cause the entire *digitalocean_loadbalancer* resource to be recreated. For more detail on the supported arguments and output attributes. check out https://www.terraform.io/docs/providers/do/r/loadbalancer.html.
+Because Load Balancers are a service rather than an immutable resource (like a Droplet), a change to the configuration arguments won't recreate the entire Load Balancer; it will update in place.  For more detail on the supported arguments and output attributes, take a look at https://www.terraform.io/docs/providers/do/r/loadbalancer.html.
 
-### HAProxy cluster
-Another option we went over in the last chapter was deploying your own set of HAProxy load balancers. This method takes a bit more work to get up and running, but using this method will allow you to accomplish much more complex configurations and give you the access you need to tune lower level settings. If you're planning to run multiple sites or services and want to place them behind a single load balanced solution, this is a good option for you. Not only will you be able to set up multiple backend configurations but each one can be secured with a TLS certificate.
+#### HAProxy Cluster
 
-Updating your configuration file is easy using the Jinja templating system that Ansible makes use of. It offers a robust list of features and which include the use of variables and control structures that you would find in a programming language like if statements, loops, math operations, and large library of built in filters.
+If you need a more complex configuration, like access to lower-level load balancing settings or support for multiple backend services, you can set up your own load balancer cluster. We'll continue with the HAProxy example from the previous chapter.
 
-Now the Jinja2 templating system is the mechanism through which you create your configuration files, but you still need to trigger it to update. If the demand on your site doesn't fluctuate much, or you know when it will ahead of time, you might not need or want to set up fully automated scaling. This means it would just require you to run the playbook manually or run when a change in your Terraform deployment scripts is detected by pushing to your git repo. Another possibility could be to use **consul** for service discovery and configuring **consul-template** on your load balancer to automatically refresh your configuration file. This does add more Droplets to your overall deployment, but it can also be used by many of your other services.
+Ansible uses the Jinja2 templating system, which simplifies the process of creating and updating your configuration files. Jinja2 supports the use of variables and control structures that you would find in a programming language, like if statements, loops, math operations, and large library of built-in filters.
+
+There are a few ways to trigger an update when your configuration changes. If the demand on your site doesn't fluctuate much, or you know when changes will happen ahead of time, you might not need or want to set up fully automated scaling. Instead, you can run your Ansible playbook manually or set it to run when you push a change to your Terraform deployment scripts to your git repository.
+
+Another option is to use Consul for service discovery, and configure `consul-template` on your load balancer to automatically refresh the configuration file. This adds additional Droplets to your overall infrastructure, but you can use Consul for other services as well.
+
+<!-- TODO(@hazel-nut) what does this chapter set up? -->
 
 ## User Sessions
 
-We mentioned the changes to user sessions you'd need to take into account when placing a load balancer in front of your application. The method you choose to handle it is up to you but it's going to be influenced by your use-case and what you're comfortable with setting up. Here are some of the ways you can handle the changes and at what level of your stack they would be implemented.
+The method you choose to handle user sessions will depend on your use case. Here are some options:
 
-<!--- TODO: Switch to a HTML table for PDF generation --->
 | type | load balancer | backends | database/cache |
 | ---- | :----: | :----: | :---: |
 | IP source affinity | :heavy_check_mark: | :x: | :x: |
@@ -93,15 +121,17 @@ We mentioned the changes to user sessions you'd need to take into account when p
 | database | :x: | :heavy_check_mark: | :heavy_check_mark: |
 | in-memory data store | :x: | :heavy_check_mark: | :heavy_check_mark: |
 
-Again, whichever method you think will work best for your application is up to you. IP source affinity looks at the originating requests IP address and then any subsequent request will continue to hit the same backend. This may not work for you though because if you have visitors coming from behind a router using NAT then they will all have the same IP as far as the load balancer is concerned and all requests from any users on that originating network will go to the same backend. If that backend does happen to go down and the sessions are not shared among all backends, then the users will need to log back in.
+**IP source affinity** directs all requests from the same IP address to the same backend. This isn't the best choice in situations where your users may connect from behind a router using NAT, because they will all have the same IP address.
 
-The load balancer and application session are similar in their function since it really just configured the load balancer to look at the IP header information to determine which backend to send requests to and that can be adjusted even further by implementing a stick-table.
+The **load balancer session** and **application session** options are similar. They both configure the load balancer to look at the IP header information to determine which backend to send requests to. You can adjust that further by implementing a stick-table. <!-- TODO(@hazel-nut) this doesn't explain the difference between IP source affinity and these session options well, and it assumes the reader knows what a stick-table is -->
 
-Another option is to replicate the path of your file system on which your sessions are stored so that no matter what backend a request is sent to, they will all have access to all user sessions. This is a perfectly valid way of doing things but you will need to determine what method of replication works best for you. One key aspect to consider is the speed at which the replication takes place. On a very busy site, even a moderate amount of lag between the backend nodes with a large number of sessions to replicate can cause some issues for the end user.
+**File system replication** replicates the path in your file system where the sessions are stored, giving all of the backends access to all sessions. One key aspect to consider is the speed at which the replication takes place. Depending on the method, even a moderate amount of lag betwee the backend node with a large number of sessions to replicate can cause issues for end users.
 
-The next two methods are also similar to one another and that is to create your application in a way that stores user sessions in either a database or in-memory cache like Redis. Using your database makes things easy because your application is already setup to connect to it for all other processes when requesting data. However, for a highly active site this does put a little more overhead on the database, but for most use-cases it's negligible. The last option I'm mentioning is using an in-memory cache like Redis or Memcached. It obviously means you'll be creating a few more Droplets but it is lightning fast, extremely versatile, and you can use it to cache database query responses which can speed things up for you.
+Using a **database** or **in-memory data store** are similar. Both require you to create your application in a way that stores user sessions either in a database or an in-memory cache like Redis. Using a database can be convenient because your application will already be set up to connect to it for other data requests. For a highly active site, this can put more overhead on the database itself, but it most uses cases, the additional load is negligible. Using an in-memory cache like Redis or Memcached means you'll need to create a few more Droplets, but they're very fast and versatile solutions which you can also use to cache database query responses for performance improvements.
 
-For the sake of making things easy, we're going to be launching a WordPress blog which makes use of your database for sessions. It's already configured to do this so you won't have to make any adjustments to the code.
+Because WordPress is already configured to use a database for sessions, that's the solution we'll use.
+
+<!-- TODO(@hazel-nut): left off editing here -->
 
 ### File Storage
 
@@ -113,7 +143,7 @@ Using this option means you won't have to worry about replication, availability,
 
 We're going to be building out a highly available WordPress blog, but it wouldn't really be HA if we run a single external database server that could go down. WordPress relies on it's database for just about everything so we need to make sure that it's able to respond to queries. There are multiple options for setting up database cluster since parts can be mixed together depending on what you find works best for you, but we're going to build a Galera cluster running on MariaDB (fork of MySQL) all placed behind a couple of HAProxy nodes with an attached floating IP. If you want to out the source repo go ahead and navigate to https://github.com/cmndrsp0ck/galera-cluster. This is going to set up some very simple TCP routing to your 3 node cluster allowing your application to stay online in the event a single node fails. You can increase the number of cluster members or add an arbitrator to allow for a higher number of allowed failures, but we're going to keep it simple with 3.
 
-## Getting Ready and Deploying
+## Setting Up the WordPress Cluster
 
 Let's get started with setting up a WordPress cluster. You can check out the example code included in this book's repo. We're going to start off by creating the configuration files for Terraform and Ansible. Each one is going to need a DigitalOcean API token, so be sure to have that ready. If you were to configure everything manually you would need the variables entered for Terraform in the **terraform.tvfars** file. Ansible has required variables within multiple folders inside the **group_vars** folder.
 
@@ -193,3 +223,5 @@ These are known issues that you'll want to watch for if you configure your varia
   * vault_galera_root_password
   * vault_galera_sys_maint_password
   * vault_galera_clustercheck_password
+
+## What's Next?
