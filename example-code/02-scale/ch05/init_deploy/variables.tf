@@ -13,8 +13,8 @@ variable "region" {
 
 variable "image_slug" {
   description = "Image slug or image ID to provision."
-  type    = "string"
-  default = "debian-9-x64"
+  type        = "string"
+  default     = "debian-9-x64"
 }
 
 variable "keys" {
@@ -35,22 +35,22 @@ variable "public_key" {
 
 variable "algorithm" {
   description = "Selected load balancing algorithm."
-  default = "round_robin"
+  default     = "round_robin"
 }
 
 variable "node_count" {
   description = "Number of Droplets to provision."
-  default = 3
+  default     = 3
 }
 
 variable "node_size" {
   description = "Selected size for your provisioned Droplets."
-  type    = "string"
-  default = "s-1vcpu-1gb"
+  type        = "string"
+  default     = "s-1vcpu-1gb"
 }
 
 variable "ansible_user" {
   description = "User name to initiate connection for Ansible"
-  type    = "string"
-  default = "ansible"
+  type        = "string"
+  default     = "ansible"
 }

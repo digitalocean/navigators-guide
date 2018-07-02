@@ -1,0 +1,9 @@
+---
+- hosts: all
+  gather_facts: yes
+  become: True
+
+- hosts: load_balancer
+  roles:
+    - ansible-haproxy
+  become: True

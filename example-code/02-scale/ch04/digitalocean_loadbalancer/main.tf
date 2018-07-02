@@ -1,11 +1,11 @@
-# Use modules to build stack
+# Use modules to build DigitalOcean Load Balancer Project
 
-#set up a tag
+# Create a tag resource
 resource "digitalocean_tag" "backend_tag" {
   name = "${var.project}-backend"
 }
 
-# backend nodes
+# Create Droplet resources to behave as web servers
 resource "digitalocean_droplet" "backend_node" {
   count              = "${var.node_count}"
   image              = "${var.image_slug}"
@@ -25,7 +25,7 @@ resource "digitalocean_droplet" "backend_node" {
   }
 }
 
-# Passing in user-data to set up Ansible user for configuration
+# Pre-configure Droplets as web servers using cloud-init user data
 data "template_file" "user_data" {
   template = "${file("config/cloud-config.yaml")}"
 
@@ -34,29 +34,20 @@ data "template_file" "user_data" {
   }
 }
 
-# Create a new TLS certificate
-resource "digitalocean_certificate" "DOLB_cert" {
-  name              = "${var.project}-cert"
-  private_key       = "${file("./cert/cert.key")}"
-  leaf_certificate  = "${file("./cert/cert.crt")}"
-}
-
-# DigitalOcean Load Balancer
+# Create a DigitalOcean Load Balancer resource
 resource "digitalocean_loadbalancer" "public" {
   name                   = "${var.project}-lb"
   region                 = "${var.region}"
   droplet_tag            = "${digitalocean_tag.backend_tag.id}"
-  redirect_http_to_https = true
+  redirect_http_to_https = false
   depends_on             = ["digitalocean_tag.backend_tag"]
 
   forwarding_rule {
-    entry_port     = 443
-    entry_protocol = "https"
+    entry_port     = 80
+    entry_protocol = "http"
 
     target_port     = 80
     target_protocol = "http"
-
-    certificate_id = "${digitalocean_certificate.DOLB_cert.id}"
   }
 
   healthcheck {

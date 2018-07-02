@@ -2,7 +2,7 @@
 do_token = ""
 
 /* The project name, which will be used for the Droplet names. */
-project = "DO-LB"
+project = "HAPROXY-LB"
 
 /* Region choices include: nyc1, nyc2, nyc3, ams2, ams3, sfo1, sgp1, lon1, fra1, tor1 */
 region = "sfo2"
