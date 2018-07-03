@@ -131,17 +131,19 @@ Using a **database** or **in-memory data store** are similar. Both require you t
 
 Because WordPress is already configured to use a database for sessions, that's the solution we'll use.
 
-<!-- TODO(@hazel-nut): left off editing here -->
-
 ### File Storage
 
-If you're splitting request across multiple application nodes, you'll need to think about how you want to handle file storage. Just like sessions, this can be done on the local file system and replicated among your application nodes. However, this does mean you have another service to worry about on the Droplets and some additional configuration changes to make. I recommend making use an object storage solution since it's simple, cheap, reliable, and given that we're using WordPress all you need to do is install a plugin and configure it. We'll be making use of the DigitalOcean Spaces Sync plugin. https://wordpress.org/plugins/do-spaces-sync/
+Like sessions, you can handle file storage using local file system replication among your application nodes. However, this does add another service to your infrastructure, as well as additional configuration changes.
 
-Using this option means you won't have to worry about replication, availability, or management of the underlying storage space. This should free up some more of your time to worry about other things, like what movie you're going to watch this weekend.
+A simpler solution is to use object storage, like DigitalOcean Spaces, especially because WordPress already has a [DigitalOcean Spaces Sync](https://wordpress.org/plugins/do-spaces-sync/) plugin. Because the setup is reduced to installing and configuing a single plugin, that's the solution we'll use in this chapter.
 
 ### Database
 
-We're going to be building out a highly available WordPress blog, but it wouldn't really be HA if we run a single external database server that could go down. WordPress relies on it's database for just about everything so we need to make sure that it's able to respond to queries. There are multiple options for setting up database cluster since parts can be mixed together depending on what you find works best for you, but we're going to build a Galera cluster running on MariaDB (fork of MySQL) all placed behind a couple of HAProxy nodes with an attached floating IP. If you want to out the source repo go ahead and navigate to https://github.com/cmndrsp0ck/galera-cluster. This is going to set up some very simple TCP routing to your 3 node cluster allowing your application to stay online in the event a single node fails. You can increase the number of cluster members or add an arbitrator to allow for a higher number of allowed failures, but we're going to keep it simple with 3.
+WordPress relies on its database for almost everything, and a single external database server is a single point of failure. There are a few options for database clusters, and different parts can be mixed and matched based on what works best in your case.
+
+In this chapter, we'll biuld a Galera cluster running on MariaDB, which is a fork of MySQL. This will run behind a few HAProxy nodes with an attached DigitalOcean Floating IP.
+
+You can visit the source repository for this here: https://github.com/cmndrsp0ck/galera-cluster. It sets up TCP routing to the cluster, which has three nodes by default, though you can choose to increase the number of cluster members or add an arbitrator to tolerate a higher number of failures. <!-- TODO(@hazel-nut): this assumes a reader knows where to change the number of cluster members, or what an arbitrator is and how to create one -->
 
 ## Setting Up the WordPress Cluster
 
