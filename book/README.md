@@ -14,7 +14,7 @@ This book is intended for anyone thinking about or facing issues with scaling an
 
 The main skill set you'll need to follow along is some familiarity with [the Linux command line](https://www.digitalocean.com/community/tutorial_series/getting-started-with-linux), but each chapter includes code examples, and many of the key takeaways will be framed at a high level and easy to apply conceptually as well.
 
-The accompanying repository[^1] deploys this book's sample infrastructure to give you a hands-on starting point as you follow along, and the corresponding chapters have comprehensive technical explanations so you'll understand what you're doing and why you're doing it each step of the way.
+The accompanying [repository](https://github.com/digitalocean/navigators-guide) deploys this book's sample infrastructure to give you a hands-on starting point as you follow along, and the corresponding chapters have comprehensive technical explanations so you'll understand what you're doing and why you're doing it each step of the way.
 
 ## What Will You Learn From This Book?
 
@@ -36,11 +36,8 @@ Parts 2 through 5 are the meat of the book. That's where we'll teach you how to 
 
 Before we do that, we want to make sure that everyone start with the same foundation. That's what Part 1, Background and Setup, is for. It consists of the first three chapters of the book. Chapter 1 gives some background on DigitalOcean and us, the authors. Chapter 2 covers the problems we see businesses encounter with cloud computing and our solutions to them (i.e. a more detailed overview of Parts 2 through 5). Chapter 3 walks you through the tools we'll use to build the infrastructure described in this book, and how to get your environment set up to follow along.
 
-This book is an open-source project and is available in its entirety in this repository: https://github.com/digitalocean/navigators-guide. The `book` directory contains the Markdown for the written chapters of the book, which we use with the Gitbook Toolchain[^2] to generate the book itself. The `example-code` directory includes all the code examples you'll use to follow along.
+This book is an open-source project and is available in its entirety in this repository: https://github.com/digitalocean/navigators-guide. The `book` directory contains the Markdown for the written chapters of the book, which we use with the [Gitbook Toolchain](https://toolchain.gitbook.com/) to generate the book itself. The `example-code` directory includes all the code examples you'll use to follow along.
 
 ## Let's Get Started!
 
 We wrote this book with a single narrative in mind, which means it flows naturally if you read it linearly from start to finish. However, we kept each section as modular as possible, so if you're already familiar with the concepts covered in a particular chapter, you can skim it or just skip to the next one.
-
-[^1]: Navigators Guide Repo: https://github.com/digitalocean/navigators-guide
-[^2]: Gitbook Toolchain: https://toolchain.gitbook.com/
