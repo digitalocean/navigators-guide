@@ -10,13 +10,14 @@ We'll primarily be using [Terraform](https://www.terraform.io), [Ansible](https:
 
 ### Terraform
 
-[Terraform](https://www.digitalocean.com/community/tutorials/how-to-use-terraform-with-digitalocean) is a open-source tool that allows you to describe your infrastructure as code. This means you can version control your resources in the same way you would if you were writing a program, which allows you to roll back to a working state if you hit an error.
+[Terraform](https://www.digitalocean.com/community/tutorials/how-to-use-terraform-with-digitalocean) is an open-source tool that allows you to describe your infrastructure as code. This means you can version control your resources in the same way you would if you were writing a program, which allows you to roll back to a working state if you hit an error.
 
 Terraform uses a declarative syntax ([HCL](https://github.com/hashicorp/hcl)) that is designed to be easy for humans and computers alike to understand. HCL lets you plan your changes for review and automatically handles infrastructure dependencies for you.
 
 We'll be using Terraform to *create* our infrastructure — that is, creating Droplets, Floating IPs, Firewalls, Block Storage volumes, and DigitalOcean Load Balancers — but we won't be using it to *configure* those resources. That's where Ansible comes in.
 
-If you want a very in-depth understanding of Terraform, we recommend the book [_Terraform: Up & Running _](https://www.terraformupandrunning.com/) by Yevgeniy Brikman.
+There are a few resources we recommend if you would like to learn more about Terraform.
+* [_Terraform: Up & Running _ by Yevgeniy Brikman](https://www.terraformupandrunning.com/)
 
 ### Ansible
 
@@ -26,9 +27,14 @@ Ansible playbooks are YAML files which define the automation you want to manage.
 
 Ansible uses SSH connections, so you don't need to install an agent on the target nodes to use it. However, that does mean Ansible needs to know which endpoints to connect to, which is typically defined with an inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll use terraform-inventory to dynamically feed Ansible its list of target machines.
 
+Ansible playbooks call modules to make configuration changes or execute commands. There are many built in modules for Ansible to control popular software or cloud vendors, including DigitalOcean. When working in the command line, the `ansible-doc` command is an easy way to review the options and details for modules. An example would be `ansible-doc -l` to list the modules or calling a specific module to see the documentation, `ansible-doc digital_ocean`. Playbooks can be packages as roles for easy sharing. The main public repository for roles is [Ansible Galaxy](https://galaxy.ansible.com/home). The code examples in this book utilize multiple roles for applying configurations.
+
+It is worth noting that Ansible is not enforcing state. Executing a playbook will only run the commands in the playbook. Making changes directly to the servers being managed by Ansible may result in unintended consequences.
+
 There are a few resources we recommend if you would like to learn more about Ansible. Red Hat owns the Ansible project and offers training options. This includes a great introduction video class for free as well as more advanced classes:
 * [DO007 Ansible Essentials](https://www.redhat.com/en/services/training/do007-ansible-essentials-simplicity-automation-technical-overview)
 * [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i).
+* [Linux Academy: Ansible Quick Start](https://linuxacademy.com/devops/training/course/name/ansible-quick-start)
 
 ### terraform-inventory
 
