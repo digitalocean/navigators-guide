@@ -206,7 +206,7 @@ The last step is to activate and configure the DigitalOcean Spaces Sync plugin, 
 
 By going to your Load Balancer IP address in your browser, you can see the default WordPress site, similar to this:
 
-![](https://i.imgur.com/jBPbu1n.png)
+![WordPress default installation screenshot](https://github.com/digitalocean/navigators-guide/book/02-scale/ch05-wordpress-screenshot.png)
 
 <!-- TODO(@hazel-nut): what else can the reader do? how do they know their setup is load balacing correctly? how can they test that the new components are actually highly available? -->
 
