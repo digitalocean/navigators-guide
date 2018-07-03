@@ -145,83 +145,77 @@ We're going to be building out a highly available WordPress blog, but it wouldn'
 
 ## Setting Up the WordPress Cluster
 
-Let's get started with setting up a WordPress cluster. You can check out the example code included in this book's repo. We're going to start off by creating the configuration files for Terraform and Ansible. Each one is going to need a DigitalOcean API token, so be sure to have that ready. If you were to configure everything manually you would need the variables entered for Terraform in the **terraform.tvfars** file. Ansible has required variables within multiple folders inside the **group_vars** folder.
+Actually setting up the WordPress cluster only takes a few commands. We'll be working out of `/root/navigators-guide/example-code/02-scale/ch05/init_deploy` on the control Droplet, which contains the example code for this chapter.
 
-On your control Droplet navigate to this location within the example code:
-
-```sh
-cd /root/navigators-guide/example-code/02-scale/ch05/ch05/init_deploy
-```
-
-We've created an initialization script that will walk you through all the required settings and variables. Run the following command and respond to each prompt for options.
+From that directory, run the initialization script we've provided. It will walk you through all the settings and variables you need to set.
 
 ```sh
 ./bin/init_config
 ```
 
-Once the initialization script has completed, you can run execute the terraform plan which will create the following items on your DigitalOcean account:
-1. (1) DigitalOcean Load Balancer _< Main access to your WordPress site_
-2. (3) WordPress web nodes
-3. (3) Database nodes
-4. (2) HAProxy Load Balancer nodes for your database cluster
-5. (1) Floating IP address for your database load balancer
+<!-- TODO(@hazel-nut): can we be more clear about what this script does? what kind of things can the reader expect to get prompted for? what's the state of their infrastructure and control droplet after they run it? -->
 
-The `init` option will parse the plan files and modules to prepare your Terraform deployment:
+Let's get started with setting up a WordPress cluster. You can check out the example code included in this book's repo. We're going to start off by creating the configuration files for Terraform and Ansible. Each one is going to need a DigitalOcean API token, so be sure to have that ready. If you were to configure everything manually you would need the variables entered for Terraform in the **terraform.tvfars** file. Ansible has required variables within multiple folders inside the **group_vars** folder.
+
+The initialization script will print instructions on how to continue with Terraform before exiting, but we'll walk through it here as well.
+
+First, running `terraform plan` will create the following items in your DigitalOcean account:
+
+1. One Load Balancer, which will provide access to your WordPress site.
+2. Three Droplets to be used as WordPress web nodes.
+3. Three Droplets to be used as database nodes.
+4. Two HAProxy Load Balancer nodes for the database cluster.
+5. One Floating IP address for the database load balancer.
+
+```sh
+terraform plan
+```
+
+Next, parse the plan files and modules to prepare the Terraform deployment using `init`.
 
 ```sh
 terraform init
 ```
 
-The `apply` option will confirm your intention and require you to type `yes` and then will execute all the create requests via the DigitalOcean API:
+Finally, execute the create requests via the DigitalOcean API using `apply`.
 
 ```sh
 terraform apply
 ```
 
-**Note:** Terraform can also remove your cluster automatically. You can use this workflow for rapid testing, but know that any data saved to the cluster will be removed. The `destroy` option will remove your cluster. This is the fastest way to clean up from the work we do in this chapter. You can re-run `apply` and re-run the Ansible playbook to generate a new cluster.
+Once Terraform finishes creating all of the infrastructure components, use Ansible to configure them. There are three Ansible roles to execute: one to configure the database servers, one to configure the database load balancers, and one to set up WordPress on all of the web nodes.
 
-```sh
-terraform destroy #Only run this to destroy your cluster - all data will be lost!
-```
-
-
-Once your Terraform is completed with creating all of your infrastructure components, we'll use Ansible to configure everything. We're going to execute three Ansible roles to configure the database servers, the database load balancers and WordPress on the the web nodes.
-
-We can execute all three roles with the following command:
+You can run all three roles with one command:
 
 ```sh
 ansible-playbook -i /usr/local/bin/terraform-inventory site.yml
 ```
 
-All progress, including any errors, will be output in your terminal so you can review it later. Once the playbook finishes up you should be able to head over to the IP address of the DigitalOcean Load Balancer. If you intend to use a domain name and protect your WordPress installation with HTTPS, you should skip to Chapter 13 before performing initial WordPress setup.
+Once the playbook finishes, you'll need to finish the WordPress setup.
 
-The last item you'll need to take care of is activating and configuring the `DigitalOcean Spaces Sync` plugin that's installed by default as well. Be sure to create a Space through the UI and set up your keys for access. The process is really quick and straightforward, but if you're looking for some more information, we actually have that process fully documented in our community articles. Here are a couple links that will walk you through setting up a Space and access keys, and the second actually explains how to use Spaces to store WordPress assets.
+Visit the IP address of your Load Balancer in your browser and follow the on-screen instructions to complete your WordPress configuration. Note that Chapter 13 covers how to protect your WordPress installation with HTTPS.
 
-https://www.digitalocean.com/community/tutorials/how-to-create-a-digitalocean-space-and-api-key
+The last step is to activate and configure the DigitalOcean Spaces Sync plugin, which is installed by default. You'll need to [create a Space using the Control Panel](https://www.digitalocean.com/docs/spaces/how-to/create-and-delete/) and then [create a Spaces access key](https://www.digitalocean.com/docs/spaces/how-to/administrative-access/#access-keys). Then, follow our community article on [storing WordPress assets on Spaces](https://www.digitalocean.com/community/tutorials/how-to-store-wordpress-assets-on-digitalocean-spaces
+).
 
-https://www.digitalocean.com/community/tutorials/how-to-store-wordpress-assets-on-digitalocean-spaces
+<!-- TODO(@hazel-nut): this part of the setup doesn't feel very smooth or automatic. it requires the reader to go to three different sites to finish manually setting up their infrastructure. can this space be created automatically? can you give the highlights of how to configure the plugin instead of linking to a community article, which has its own specific and conflicting prerequisites? -->
 
-**Congrats!** At this point you should now be able to go to your domain and see a default WordPress site similar to this one.
+## Verifying the Setup
+
+By going to your Load Balancer IP address in your browser, you can see the default WordPress site, similar to this:
+
 ![](https://i.imgur.com/jBPbu1n.png)
 
-There are still some additional changes we need to make to help secure your Droplets and data, but we're going to cover those in a later chapter along with how you can speed up your deployment process. For now you should be able to see how simple it is to get started.
+<!-- TODO(@hazel-nut): what else can the reader do? how do they know their setup is load balacing correctly? how can they test that the new components are actually highly available? -->
 
-<!--- TODO: It may be best to split the known issues off to a different file? -->
+Once you're done testing, you can remove all of these infrastructure components from your DigitalOcean account with one command. This will remove the entire cluster to clean up the work from this chapter.
 
-### Known Issues
-These are known issues that you'll want to watch for if you configure your variables manually:
+```sh
+terraform destroy
+```
 
-* A couple additional items to look out for when setting up these passwords, including your auth salts, these passwords are being run through the jinja templating system and there a few character combinations that can cause errors since they are jinja delimeters. So watch out for the following character combos:
-{% raw %}
-  * {%
-  * {{
-  * {#
-{% endraw %}
-
-* Using a dollar sign `$` in your Galera passwords could cause the script that assists with the health check feature of HAProxy may not see the database as online:
-
-  * vault_galera_root_password
-  * vault_galera_sys_maint_password
-  * vault_galera_clustercheck_password
+You can re-run `apply` and then re-run the Ansible playbook to regenerate the cluster.
 
 ## What's Next?
+
+<!-- TODO(@hazel-nut): This section needs a recap of what the user learned and set up in this chapter, followed by a lead in about what _isn't_ covered in this chapter / what's coming in the next chapter (like security and performance improvements). -->
