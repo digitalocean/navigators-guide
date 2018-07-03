@@ -16,8 +16,9 @@ Terraform uses a declarative syntax ([HCL](https://github.com/hashicorp/hcl)) th
 
 We'll be using Terraform to *create* our infrastructure — that is, creating Droplets, Floating IPs, Firewalls, Block Storage volumes, and DigitalOcean Load Balancers — but we won't be using it to *configure* those resources. That's where Ansible comes in.
 
-There are a few resources we recommend if you would like to learn more about Terraform.
-* [_Terraform: Up & Running _ by Yevgeniy Brikman](https://www.terraformupandrunning.com/)
+There are a few resources we recommend if you would like to learn more about Terraform:
+* [_Terraform: Up & Running_ by Yevgeniy Brikman](https://www.terraformupandrunning.com/)
+* [_The Terraform Book_ by James Turnbull](https://terraformbook.com/)
 
 ### Ansible
 
@@ -35,6 +36,7 @@ There are a few resources we recommend if you would like to learn more about Ans
 * [DO007 Ansible Essentials](https://www.redhat.com/en/services/training/do007-ansible-essentials-simplicity-automation-technical-overview)
 * [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i).
 * [Linux Academy: Ansible Quick Start](https://linuxacademy.com/devops/training/course/name/ansible-quick-start)
+* [_Ansible: Up and Running_ by Lorin Hochstein](http://shop.oreilly.com/product/0636920065500.do)
 
 ### terraform-inventory
 
