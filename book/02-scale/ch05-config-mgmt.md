@@ -12,9 +12,11 @@ If your load balancing requirements were more complex, you may have chosen to us
 
 ## Our Setup
 
-<!-- TODO(@hazel-nut) we don't mention wordpress at all until the configuration section, and it's written as if the reader already knows that's what they're deploying. we should open this section with a description of the example we're using in this chapter. -->
+Data consistency is the main complication you'll address with your load balancer configuration. When your backend can be served from any one of multiple servers, you need to make sure that each server has access to the same consistent dataset or that a particular session will continue to connect to a particular server.
 
-Data consistency is the main complication you'll address with your load balancer configuration. When your backend can be served from any one of multiple servers, you need to make sure that each server has access to the same consistent dataset or that a particular session will continue to connect to a particular server. The three related components we'll review here are user sessions, file storage, and databases.
+We will be using this as an opportunity to demonstrate a more powerful use of Configuration Management software. In our example of hosting a website running WordPress, we'll have to make decisions on how to ensure that every node in our cluster has the proper data. The end users need to have a cohesive experience regardless of which of the nodes are handling the request. An end user may see sporadic results if one node knows of a post or image in our WordPress site, but the other nodes do not.
+
+There are three related components that we'll review to ensure consistency: user sessions, file storage, and databases.
 
 ### Sessions
 
@@ -36,11 +38,9 @@ Much like file storage, your database needs to be accessible to all backend Drop
 
 Additionally, your database should be highly available — that is, it has redundancy and automatic failover. This can be more complicated than just putting it behind a load balancer because the system will need to handle data consistency, like what happens if conflicting updates are made to different nodes.
 
-In our example, we use a MariaDB Galera cluster to handle these issues. Galera handles synchronous replication to every database node, each of which acts as a full primary database server. This means you can read and write to each of the nodes in the cluster and everything is kept in sync.
+In our example, we use a MariaDB Galera cluster to handle these issues. Galera handles synchronous replication to every database node, each of which acts as a full primary database server. This means you can read and write to each of the nodes in the cluster and everything is kept in sync. There are other ways to cluster databases involving primary and secondary forms of replication where a specific node is elected as the primary write server.
 
-There are other ways to cluster databases involving primary and secondary forms of replication where a specific node is elected as the primary write server. Each cluster solution has its merits and for our exercise Galera gives us the most benefits.
-
-<!-- TODO(@hazel-nut): what are those benefits? why is galera the best choice (or even just a better choice than the other style of database cluster mentioned)? -->
+Each cluster solution has its merits. For our exercise Galera gives us the most benefits because the data consistency is handled automatically and every node in the cluster can serve as a primary server. There is no failover or failback steps necessary.
 
 ## Understanding the configuration
 
@@ -52,7 +52,7 @@ Actually setting up the cluster once the configuration is done is a relatively s
 
 As in previous chapters, we'll use Terraform to manage the Load Balancer configuration. The following entry creates a Load Balancer and supplies the backend Droplet tag, the forwarding rules, the TLS certificate to use, and the health checks that the Load Balancer will use. SSL and other security settings are out of scope for this chapter, but they're covered in depth in Chapter 13.
 
-<!-- TODO(@hazel-nut) where is this file? -->
+Here is the resource block located in the `example-code/02-scale/ch05/init_deploy/main.tf` file:
 
 ```terraform
 ...
@@ -63,16 +63,6 @@ resource "digitalocean_loadbalancer" "public" {
   droplet_tag            = "${digitalocean_tag.backend_tag.id}"
   redirect_http_to_https = true
   depends_on             = ["digitalocean_tag.backend_tag"]
-
-  forwarding_rule {
-    entry_port     = 443
-    entry_protocol = "https"
-
-    target_port     = 80
-    target_protocol = "http"
-
-    certificate_id = "${digitalocean_certificate.DOLB_cert.id}"
-  }
 
   forwarding_rule {
     entry_port     = 80
