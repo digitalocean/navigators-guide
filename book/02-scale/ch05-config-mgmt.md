@@ -112,14 +112,42 @@ Another option is to use Consul for service discovery, and configure `consul-tem
 
 The method you choose to handle user sessions will depend on your use case. Here are some options:
 
-| type | load balancer | backends | database/cache |
-| ---- | :----: | :----: | :---: |
-| IP source affinity | :heavy_check_mark: | :x: | :x: |
-| load balancer session | :heavy_check_mark: | :x: | :x: |
-| application session | :heavy_check_mark: | :heavy_check_mark: | :x: |
-| file system replication | :x: | :heavy_check_mark: | :x: |
-| database | :x: | :heavy_check_mark: | :heavy_check_mark: |
-| in-memory data store | :x: | :heavy_check_mark: | :heavy_check_mark: |
+<table>
+<thead>
+<tr>
+<th>type</th>
+<th align="center">load balancer</th>
+<th align="center">backends</th>
+<th align="center">database/cache</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IP source affinity</td>
+<td align="center">✔️</td>
+<td align="center">❌</td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td>load balancer session</td>
+<td align="center">✔️</td>
+<td align="center">❌</td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td>application session</td>
+<td align="center">✔️</td>
+<td align="center">✔️</td>
+<td align="center">❌</td>
+</tr>
+<tr>
+<td>file system replication</td>
+<td align="center">❌</td>
+<td align="center">✔️</td>
+<td align="center">❌</td>
+</tr>
+<tr>
+</table>
 
 **IP source affinity** directs all requests from the same IP address to the same backend. This isn't the best choice in situations where your users may connect from behind a router using NAT, because they will all have the same IP address.
 
