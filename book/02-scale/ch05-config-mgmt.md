@@ -159,9 +159,9 @@ A simpler solution is to use object storage, like DigitalOcean Spaces, especiall
 
 WordPress relies on its database for almost everything, and a single external database server is a single point of failure. There are a few options for database clusters, and different parts can be mixed and matched based on what works best in your case.
 
-In this chapter, we'll biuld a Galera cluster running on MariaDB, which is a fork of MySQL. This will run behind a few HAProxy nodes with an attached DigitalOcean Floating IP.
+In this chapter, we'll build a Galera cluster running on MariaDB, which is a fork of MySQL. This will run behind a few HAProxy nodes with an attached DigitalOcean Floating IP.
 
-You can visit the source repository for this here: https://github.com/cmndrsp0ck/galera-cluster. It sets up TCP routing to the cluster, which has three nodes by default, though you can choose to increase the number of cluster members or add an arbitrator to tolerate a higher number of failures. <!-- TODO(@hazel-nut): this assumes a reader knows where to change the number of cluster members, or what an arbitrator is and how to create one -->
+You can visit the source repository for this here: https://github.com/DO-Solutions/galera-tf-mod. It sets up TCP routing to the cluster, which has three nodes by default, though you can choose to increase the number of cluster members or add an arbitrator to tolerate a higher number of failures. <!-- TODO(@hazel-nut): this assumes a reader knows where to change the number of cluster members, or what an arbitrator is and how to create one -->
 
 ## Setting Up the WordPress Cluster
 
