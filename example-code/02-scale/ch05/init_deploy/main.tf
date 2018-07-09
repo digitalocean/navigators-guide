@@ -70,7 +70,7 @@ resource "digitalocean_loadbalancer" "public" {
 
 # Create the Highly Available Database Cluster using Galera and HAProxy
 module "sippin_db" {
-  source           = "github.com/cmndrsp0ck/galera-tf-mod.git?ref=v1.0.2"
+  source           = "github.com/DO-Solutions/galera-tf-mod.git?ref=v1.0.2"
   project          = "${var.project}"
   region           = "${var.region}"
   keys             = "${var.keys}"
