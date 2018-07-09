@@ -16,11 +16,11 @@ This repository contains the book: _The Navigator's Guide to DigitalOcean_ along
 * We follow the [gitbook toolchain](https://toolchain.gitbook.com/) currently
 * The table of contents and file list can be found in [book/SUMMARY.md](book/SUMMARY.md)
 * All code examples are in the [example-code](example-code) folder
-* PDF and EPUB versions are available for easier reading posted under [releases](releases)
+* PDF and EPUB versions are available for easier reading posted under [releases](https://github.com/digitalocean/navigators-guide/releases)
 
 ## Contributing
-* You can report problems or bugs with book content or example code by creating a new [issue](issues)
-* We welcome improvements! Create a [Branch](https://guides.github.com/introduction/flow/) with your improvement and submit a Pull Request for review
+* You can report problems or bugs with book content or example code by creating a new [issue](https://github.com/digitalocean/navigators-guide/issues)
+* We welcome improvements! Create a [Fork](https://guides.github.com/activities/forking/) with your improvement and submit a Pull Request for review
 
 ## Credits
 * [@jonschwenn](https://github.com/jonschwenn) (Co-author)
