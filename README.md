@@ -1,6 +1,11 @@
 # Navigator's Guide
 This repository contains the book: _The Navigator's Guide to DigitalOcean_ along with the code examples used throughout the book.
 
+## Project State 2018-07-09
+* Chapters 1 through 5 are in a final state
+* Existing issues will be prioritized during development
+* PDF and EPUB versions will be available once remaining chapters are finalized
+
 ## Goals
 * You will travel the path of planning out all of your infrastructure needs
 * You will gain some technical nuance and understand _why_ some decisions are better than others
