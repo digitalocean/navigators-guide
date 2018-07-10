@@ -227,6 +227,8 @@ By going to your Load Balancer IP address in your browser, you can see the defau
 
 The end result is a fully functional WordPress site. You can test by configuring a blog or creating posts. You could power off two of the web servers, one of the HAProxy servers, and one of the database nodes and the website should still be fully functional.  
 
+Since we are not syncing the filesystem, plugins and upgrades are not managed through WordPress, but instead through Ansible. You can change which plugins (including versions) are installed by editing the variables in the `example-code/02-scale/ch05/init_deploy/roles/ansible-welp/defaults/main.yml` file, and running the ansible playbook. We'll cover more on this in a later chapter.
+
 Once you're done testing, you can remove all of these infrastructure components from your DigitalOcean account with one command. This will remove the entire cluster to clean up the work from this chapter.
 
 ```sh
