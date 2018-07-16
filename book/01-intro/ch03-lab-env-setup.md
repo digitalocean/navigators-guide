@@ -2,7 +2,7 @@
 
 This is the first hands-on portion of the book.
 
-First, we'll go over the tools we'll be using, how they fit together, and how they can be beneficial to you as you begin to create and manage your infrastructure on DigitalOcean. After that, we'll set up a single Droplet which we'll use as as a controller to run and use the rest of our tools.
+First, we'll go over the tools we'll be using, how they fit together, and how they can be beneficial to you as you begin to create and manage your infrastructure on DigitalOcean. After that, we'll set up a single Droplet which we'll use as a controller to run and use the rest of our tools.
 
 ## Our Tools
 
@@ -28,13 +28,13 @@ Ansible playbooks are YAML files which define the automation you want to manage.
 
 Ansible uses SSH connections, so you don't need to install an agent on the target nodes to use it. However, that does mean Ansible needs to know which endpoints to connect to, which is typically defined with an inventory file. Because we're using Terraform to deploy, and it maintains your infrastructure state in a file, we'll use terraform-inventory to dynamically feed Ansible its list of target machines.
 
-Ansible playbooks call modules to make configuration changes or execute commands. There are many built in modules for Ansible to control popular software or cloud vendors, including DigitalOcean. When working in the command line, the `ansible-doc` command is an easy way to review the options and details for modules. An example would be `ansible-doc -l` to list the modules or calling a specific module to see the documentation, `ansible-doc digital_ocean`. Playbooks can be packages as roles for easy sharing. The main public repository for roles is [Ansible Galaxy](https://galaxy.ansible.com/home). The code examples in this book utilize multiple roles for applying configurations.
+Ansible playbooks call modules to make configuration changes or execute commands. There are many built-in modules for Ansible to control popular software or cloud vendors, including DigitalOcean. When working in the command line, the `ansible-doc` command is an easy way to review the options and details for modules. An example would be `ansible-doc -l` to list the modules or calling a specific module to see the documentation, `ansible-doc digital_ocean`. Playbooks can be packages as roles for easy sharing. The main public repository for roles is [Ansible Galaxy](https://galaxy.ansible.com/home). The code examples in this book utilize multiple roles for applying configurations.
 
 It is worth noting that Ansible is not enforcing state. Executing a playbook will only run the commands in the playbook. Making changes directly to the servers being managed by Ansible may result in unintended consequences.
 
 There are a few resources we recommend if you would like to learn more about Ansible. Red Hat owns the Ansible project and offers training options. This includes a great introduction video class for free as well as more advanced classes:
 * [DO007 Ansible Essentials](https://www.redhat.com/en/services/training/do007-ansible-essentials-simplicity-automation-technical-overview)
-* [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i).
+* [DO407 Automation with Ansible](https://www.redhat.com/en/services/training/do407-automation-ansible-i)
 * [Linux Academy: Ansible Quick Start](https://linuxacademy.com/devops/training/course/name/ansible-quick-start)
 * [_Ansible: Up and Running_ by Lorin Hochstein](http://shop.oreilly.com/product/0636920065500.do)
 
@@ -46,7 +46,7 @@ There are a few resources we recommend if you would like to learn more about Ans
 
 We'll use Git as our version control system. You don't need in-depth knowledge of Git in particular, but an understanding of [committing changes, tracking, and cloning](https://www.digitalocean.com/community/tutorial_series/introduction-to-git-installation-usage-and-branches) will be useful. As we mentioned, we can also version control our Terraform and Ansible files. This gives us a reference of past configurations and we can run tests on development versions of our infrastructure by specifying a version of a Terraform module or Ansible role.
 
-The repository for this book is hosted on [GitHub](https://github.com), but you can use any Git hosting service, such as GitHub, [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org).
+The repository for this book is hosted on [GitHub](https://github.com), but you can use any Git hosting service for your own deployments, such as GitHub, [GitLab](https://gitlab.com) or [Bitbucket](https://bitbucket.org).
 
 ### Optional Tools
 
@@ -54,7 +54,7 @@ The DigitalOcean CLI utility, `doctl`, is often helpful in quickly accessing you
 
 ## Setting Up the Controller Droplet
 
-Our controller machine is the server we'll use to run our tools. We'll use a Ubuntu 18.04 x64 (Bionic Beaver) Droplet, which we'll configure to install all the tools we need as the Droplet is being created.
+Our controller machine is the server we'll use to run our tools. We'll use an Ubuntu 18.04 x64 (Bionic Beaver) Droplet, which we'll configure to install all the tools we need as the Droplet is being created.
 
 > **Note**: If you're more comfortable using another operating system (like macOS on your local computer), you can do that instead as long as it meets [Ansible's system requirements](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#control-machine-requirements).
 
@@ -70,7 +70,7 @@ Now it's time to [create the Droplet](https://www.digitalocean.com/docs/droplets
 
 * **Image:** Ubuntu 18.04 x64.
 * **Size:** 1GB Standard Droplet.
-* **Datacenter region**: Your choice.
+* **Datacenter region:** Your choice.
 * **Additional options:** Enable private networking, backups, user data, and monitoring.
 * **SSH keys**: Select yours.
 * **Hostname**: We recommend choosing a recognizable name. 'Lab-Control' for example.
