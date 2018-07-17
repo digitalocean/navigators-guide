@@ -225,15 +225,15 @@ The DigitalOcean Spaces Sync plugin was pre-installed as part of the Ansible pla
 
 Once the Space has been created, [create a Spaces access key](https://www.digitalocean.com/docs/spaces/how-to/administrative-access/#access-keys) on the "API" page in the control panel. Upon generating the key, you will see the main key along with the secret. Make note of these, since you will need them to set up the WordPress plugin.
 
-Now, returning to WordPress, visit the Plugins page, and you should see the DigitalOcean Spaces Sync already installed thanks to our Ansible playbook. Activate this plugin, and visit the new "DigitalOcean Spaces Sync" page in your settings. 
+Now, returning to WordPress, visit the Plugins page, and you should see the DigitalOcean Spaces Sync already installed thanks to our Ansible playbook. Click the Activate link to enable this plugin. Once enabled, a new link will appear in your settings named "DigitalOcean Spaces Sync".
 
 On this settings page, enter your Spaces key, Spaces secret, the Space name (labeled on this settings page as "DO Spaces Container"), and the endpoint. Keep in mind the endpoint will depend on which datacenter you've chosen for your Space: for example, NYC3 would be "https://`nyc3`.digitaloceanspaces.com".
 
-After checking the connection, add the full URL for your Space under "Full URL-path to files:". For a Space in NYC3, this would be "https://`space-name`.nyc3.digitaloceanspaces.com" (where `space-name` is the name of your Space). Once this is entered, it's time to save your settings, and test the plugin by uploading a file. 
+After checking the connection, add the full URL for your Space under "Full URL-path to files:". For a Space in NYC3, this would be "https://`space-name`.nyc3.digitaloceanspaces.com" (where `space-name` is the name of your Space). Once this is entered, it's time to save your settings, and test the plugin by uploading a file.
 
-When you upload a file in the "Media" tab, you should see this automatically sync to your Space. You can check this by viewing the Space's file listing in your DigitalOcean control panel. 
+When you upload a file in the "Media" tab, you should see this automatically sync to your Space. You can check this by viewing the Space's file listing in your DigitalOcean control panel.
 
-Now, by default this setup does not use a CDN. In a production environment, we absolutely recommend using a CDN, since this will allow you to serve these media files quickly and reliably for all visitors. 
+Now, by default, this setup does not use a CDN. In a production environment, we absolutely recommend using a CDN, since this will allow you to serve these media files quickly and reliably for all visitors.
 
 If you add a CDN later, keep in mind that you will need to point the "Full URL path to files" to this new CDN's address. We are also working on a CDN that integrates with Spaces. This is currently in beta, but please feel free to ask your account manager for access if you are interested.
 
