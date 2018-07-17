@@ -217,7 +217,25 @@ Once the playbook finishes, you'll need to finish the WordPress setup.
 
 Visit the IP address of your Load Balancer in your browser and follow the on-screen instructions to complete your WordPress configuration. Note that Chapter 13 covers how to protect your WordPress installation with HTTPS.
 
-The last step is to activate and configure the DigitalOcean Spaces Sync plugin, which is installed by default. You'll need to [create a Space using the Control Panel](https://www.digitalocean.com/docs/spaces/how-to/create-and-delete/) and then [create a Spaces access key](https://www.digitalocean.com/docs/spaces/how-to/administrative-access/#access-keys). Then, follow our community article on [storing WordPress assets on Spaces](https://www.digitalocean.com/community/tutorials/how-to-store-wordpress-assets-on-digitalocean-spaces).
+## Configuring Spaces
+
+We will be using the [DigitalOcean Spaces Sync](https://wordpress.org/plugins/do-spaces-sync/) plugin in order to synchronize media files from the WordPress app servers to object storage. The Space acts as a central location to store any media you choose to upload.  
+
+The DigitalOcean Spaces Sync plugin was pre-installed as part of the Ansible playbook. In order to use this plugin, you'll first need to [create a Space using the Control Panel](https://www.digitalocean.com/docs/spaces/how-to/create-and-delete/).
+
+Once the Space has been created, [create a Spaces access key](https://www.digitalocean.com/docs/spaces/how-to/administrative-access/#access-keys) on the "API" page in the control panel. Upon generating the key, you will see the main key along with the secret. Make note of these, since you will need them to set up the WordPress plugin.
+
+Now, returning to WordPress, visit the Plugins page, and you should see the DigitalOcean Spaces Sync already installed thanks to our Ansible playbook. Click the Activate link to enable this plugin. Once enabled, a new link will appear in your settings named "DigitalOcean Spaces Sync".
+
+On this settings page, enter your Spaces key, Spaces secret, the Space name (labeled on this settings page as "DO Spaces Container"), and the endpoint. Keep in mind the endpoint will depend on which datacenter you've chosen for your Space: for example, NYC3 would be "https://`nyc3`.digitaloceanspaces.com".
+
+After checking the connection, add the full URL for your Space under "Full URL-path to files:". For a Space in NYC3, this would be "https://`space-name`.nyc3.digitaloceanspaces.com" (where `space-name` is the name of your Space). Once this is entered, it's time to save your settings, and test the plugin by uploading a file.
+
+When you upload a file in the "Media" tab, you should see this automatically sync to your Space. You can check this by viewing the Space's file listing in your DigitalOcean control panel.
+
+Now, by default, this setup does not use a CDN. In a production environment, we absolutely recommend using a CDN, since this will allow you to serve these media files quickly and reliably for all visitors.
+
+If you add a CDN later, keep in mind that you will need to point the "Full URL path to files" to this new CDN's address. We are also working on a CDN that integrates with Spaces. This is currently in beta, but please feel free to ask your account manager for access if you are interested.
 
 ## Verifying the Setup
 
@@ -226,6 +244,10 @@ By going to your Load Balancer IP address in your browser, you can see the defau
 ![WordPress default installation screenshot](https://github.com/digitalocean/navigators-guide/book/02-scale/ch05-wordpress-screenshot.png)
 
 The end result is a fully functional WordPress site. You can test by configuring a blog or creating posts. You could power off two of the web servers, one of the HAProxy servers, and one of the database nodes and the website should still be fully functional.  
+
+Since we are only syncing media files (using the DigitalOcean Spaces Sync plugin), plugins, themes, and upgrades shouldn't be installed through WordPress's normal mechanisms. If you attempt to install a plugin or theme manually, you will find that the relevant files are only on one app node. While it is possible to manually upload this to all of your nodes, this isn't a scalable solution, and it defeats the purpose of our architecture.
+
+You can change which plugins (including versions) are installed by editing the variables in the `example-code/02-scale/ch05/init_deploy/roles/ansible-welp/defaults/main.yml` file, and running the ansible playbook. A similar solution can be implemented for themes. However, we will cover other means of making changes and upgrades in the next chapter, where we talk about CI/CD.
 
 Once you're done testing, you can remove all of these infrastructure components from your DigitalOcean account with one command. This will remove the entire cluster to clean up the work from this chapter.
 
