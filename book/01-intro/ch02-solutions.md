@@ -45,6 +45,6 @@ At this point, our infrastructure will scale and we won't lose any data, but the
 No matter how well-designed our infrastructure is, we'll need to be able to troubleshoot and diagnose issues effectively. This section covers identifying bottlenecks and errors, defining performance, and testing.
 
 ### Part 5 — Securing Your Infrastructure
-For as disruptive as downtime can be, having a bad security related incident can make you wish you had a simple scaling issue instead.
+As disruptive as downtime can be, having a bad security-related incident can make you wish you had a simple scaling issue instead.
 
 This entire book is about proactive measures you can take to prevent catastrophic issues. This final portion keeps security top of mind and reviews best practices to keep infrastructure safe from mainstream security threats.

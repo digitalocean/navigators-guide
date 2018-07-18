@@ -241,7 +241,7 @@ If you add a CDN later, keep in mind that you will need to point the "Full URL p
 
 By going to your Load Balancer IP address in your browser, you can see the default WordPress site, similar to this:
 
-![WordPress default installation screenshot](https://github.com/digitalocean/navigators-guide/book/02-scale/ch05-wordpress-screenshot.png)
+![WordPress default installation screenshot](https://raw.githubusercontent.com/digitalocean/navigators-guide/master/book/02-scale/ch05-wordpress-screenshot.png)
 
 The end result is a fully functional WordPress site. You can test by configuring a blog or creating posts. You could power off two of the web servers, one of the HAProxy servers, and one of the database nodes and the website should still be fully functional.  
 
