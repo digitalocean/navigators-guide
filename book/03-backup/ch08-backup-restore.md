@@ -31,7 +31,7 @@ A simple script calling `mysqldump` will work for MySQL databases up to a few gi
 
 Hot-copy utilities like Percona XtraBackup will help with seamless backups on larger production environments. This works differently – your application can remain fully available during the backup process, as long as you're using InnoDB. Instead of dumping your data directly from the tables in sql format, it instead backs up your InnoDB data files. With that complete, since your database is still running during the backup, it uses InnoDB's crash recovery features to complete or undo any transactions that were in progress during the backup. If you want to read more about how this actually works, Percona has a [great article](https://www.percona.com/doc/percona-xtrabackup/LATEST/how_xtrabackup_works.html) covering more details.  
 
-On our community site, we have a great tutorial explaining how to [back up your database to Object Storage](https://www.digitalocean.com/community/tutorials/how-to-back-up-mysql-databases-to-object-storage-with-percona-on-ubuntu-16-04)  using Percona XtraBackup. 
+On our community site, we have a great tutorial explaining how to [back up your database to Object Storage](https://www.digitalocean.com/community/tutorials/how-to-back-up-mysql-databases-to-object-storage-with-percona-on-ubuntu-16-04) using Percona XtraBackup. 
 
 <!-- TODO: bash script example for mysqldump -->
 
