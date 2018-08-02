@@ -27,7 +27,11 @@ An added benefit to this delayed replication node, is that you can give employee
 
 Droplet backups and live snapshots do not protect databases. A backup on the instance-layer with running database will not be guaranteed to restore an operable database. For this reason, we will want to either hot-copy or dump the database as a dedicated database backup.  We'll also want to take backups and keep historical copies of those database backups.
 
-A simple script calling `mysqldump` will work for MySQL databases up to a few gigabytes. Hot-copy utilities like Percona XtraBackup will help with seamless backups on larger production environments.
+A simple script calling `mysqldump` will work for MySQL databases up to a few gigabytes. This is a useful utility since it is provided with most mysql installations and generates a dump file, usually in sql format, which can be used to restore a database in its entirety should that be necessary. It is also useful for cloning databases, and allows you to easily create copies of your database for development or testing purposes. The downside, however, is that in order to preserve data integrity, this utility locks the tables it is currently dumping. This means that insert statements will not run on those tables until the dump is complete. Since the dump takes longer on larger databases, mysqldump is not as useful for backing up a large, live database.
+
+Hot-copy utilities like Percona XtraBackup will help with seamless backups on larger production environments. This works differently – your application can remain fully available during the backup process, as long as you're using InnoDB. Instead of dumping your data directly from the tables in sql format, it instead backs up your InnoDB data files. With that complete, since your database is still running during the backup, it uses InnoDB's crash recovery features to complete or undo any transactions that were in progress during the backup. If you want to read more about how this actually works, Percona has a [great article](https://www.percona.com/doc/percona-xtrabackup/LATEST/how_xtrabackup_works.html) covering more details.  
+
+On our community site, we have a great tutorial explaining how to [back up your database to Object Storage](https://www.digitalocean.com/community/tutorials/how-to-back-up-mysql-databases-to-object-storage-with-percona-on-ubuntu-16-04) using Percona XtraBackup. 
 
 <!-- TODO: bash script example for mysqldump -->
 
