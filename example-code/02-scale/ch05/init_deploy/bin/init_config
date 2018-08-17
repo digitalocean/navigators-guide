@@ -31,6 +31,15 @@ function listGen() {
   echo;
 }
 
+function inventoryInit() {
+  # Create directory and symlink for terraform-inventory
+  inventory_dir="${b_dir}/inventory";
+	mkdir ${inventory_dir};
+	wget -q https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip -O /tmp/terraform-inventory.zip;
+	unzip /tmp/terraform-inventory.zip -d ${inventory_dir};
+	rm /tmp/terraform-inventory.zip;
+}
+
 function makeSalt() {
   # Create variable length passwords
   LC_CTYPE=C;
@@ -316,6 +325,7 @@ function setDomain() {
 }
 
 # Terraform Functions:
+inventoryInit;
 setProjectName;
 getDomain;
 getDC;
