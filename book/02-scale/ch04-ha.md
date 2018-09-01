@@ -28,6 +28,8 @@ Because this is the first time we're using Terraform and Ansible in this book, w
 
 ### Setting Up the DigitalOcean Load Balancer
 
+![DOLB Diagram](https://raw.githubusercontent.com/digitalocean/navigators-guide/master/book/02-scale/ch04-DOLB-diagram.png)
+
 On the controller Droplet, move to [the directory for this chapter in our repository](https://github.com/digitalocean/navigators-guide/tree/master/example-code/02-scale/ch04/digitalocean_loadbalancer).
 
 ```sh
@@ -139,6 +141,8 @@ terraform destroy
 ```
 
 ## Using HAProxy and a DigitalOcean Floating IP Address
+
+![HAProxy Diagram](https://raw.githubusercontent.com/digitalocean/navigators-guide/master/book/02-scale/ch04-HAPROXY-diagram.png)
 
 Deploying a custom load balancing solution might be the right choice. There are some options that the DigitalOcean Load Balancer does not support at this time. Examples of this would be hosting multiple sites or applications as backends, multiple TLS certificates, proxy protocol support, or specific TCP parameter tuning.
 
