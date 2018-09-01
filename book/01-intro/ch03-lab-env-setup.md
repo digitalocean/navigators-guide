@@ -54,6 +54,8 @@ The DigitalOcean CLI utility, `doctl`, is often helpful in quickly accessing you
 
 ## Setting Up the Controller Droplet
 
+![Lab Diagram](https://raw.githubusercontent.com/digitalocean/navigators-guide/master/book/01-intro/ch03-lab-diagram.png)
+
 Our controller machine is the server we'll use to run our tools. We'll use an Ubuntu 18.04 x64 (Bionic Beaver) Droplet, which we'll configure to install all the tools we need as the Droplet is being created.
 
 > **Note**: If you're more comfortable using another operating system (like macOS on your local computer), you can do that instead as long as it meets [Ansible's system requirements](http://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html#control-machine-requirements).

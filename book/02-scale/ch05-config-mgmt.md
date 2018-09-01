@@ -165,6 +165,8 @@ module "sippin_db" {
 
 ## Setting Up the WordPress Cluster
 
+![WordPress Cluster Diagram](https://raw.githubusercontent.com/digitalocean/navigators-guide/master/book/02-scale/ch05-cluster-diagram.png)
+
 In our project, setting up the WordPress cluster only takes a few commands. We'll be working out of `/root/navigators-guide/example-code/02-scale/ch05/init_deploy` on the control Droplet, which contains the example code for this chapter.
 
 From that directory, run the initialization script we've provided. It will walk you through all the settings and variables you need to set.
@@ -181,7 +183,13 @@ If you were to configure everything manually you would need the variables entere
 
 The initialization script will print instructions on how to continue with Terraform before exiting, but we'll walk through it here as well.
 
-First, running `terraform plan` will create the following items in your DigitalOcean account:
+First, parse the plan files and modules to prepare the Terraform deployment using `init`.
+
+```sh
+terraform init
+```
+
+Next, running `terraform plan` will create the following items in your DigitalOcean account:
 
 1. One Load Balancer, which will provide access to your WordPress site.
 2. Three Droplets to be used as WordPress web nodes.
@@ -191,12 +199,6 @@ First, running `terraform plan` will create the following items in your DigitalO
 
 ```sh
 terraform plan
-```
-
-Next, parse the plan files and modules to prepare the Terraform deployment using `init`.
-
-```sh
-terraform init
 ```
 
 Finally, execute the create requests via the DigitalOcean API using `apply`.

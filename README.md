@@ -15,7 +15,7 @@ This repository contains the book: _The Navigator's Guide to DigitalOcean_ along
 ## Book Info
 * We follow the [gitbook toolchain](https://toolchain.gitbook.com/) currently
 * The table of contents and file list can be found in [book/SUMMARY.md](book/SUMMARY.md)
-* All code examples are in the [example-code](example-code) folder
+* All code examples are in the [example-code](https://github.com/digitalocean/navigators-guide/tree/master/example-code) folder
 * PDF and EPUB versions are available for easier reading posted under [releases](https://github.com/digitalocean/navigators-guide/releases)
 
 ## Contributing
