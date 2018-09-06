@@ -14,7 +14,7 @@ defaults
         timeout server 5000ms
 
 listen galera
-        bind    {{ ansible_eth0_2.ipv4.address }}:3306
+        bind    {{ ansible_eth0_1.ipv4.address }}:3306
         balance leastconn
         mode    tcp
         option  tcpka
