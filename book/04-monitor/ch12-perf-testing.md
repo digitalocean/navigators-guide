@@ -1,15 +1,15 @@
 # Performance Testing
 Performance testing is a term used to describe the tools, methodology, and activity used in answering the question, "Why is _something_ not performant?". In the context of this book for example, you may see or receive reports of your Wordpress site being "slow". Recall that in Chapter 10, the USE method was outlined which allows you to transform a vague question -- "why is my site slow?" -- into a set of well-defined, actionable tests to perform against rudimentary system resources such as CPU, RAM, Disk, and Network. Many times, the USE methodology will uncover which areas of the system are responsible for poor performance.
 
-As your project or team evolves and roles such as Operations and Observability are created and filled, you will likely set up logging, monitoring, and alerting around the USE and RED methods for these primitive system resources. Improvements in your Operations team will result in process maps for your team to follow in case of issues raised through this alerting. Until your project reaches that scale however, ad-hoc investigation will likely be needed when issues occur.
+As your project or team evolves and roles such as Operations and Observability are created and filled, you will likely set up logging, monitoring, and alerting around the USE and RED methods for these primitive system resources. Improvements in your Operations team will result in process maps for your team to follow in case of issues raised through this alerting. Until your project reaches that scale, however, ad-hoc investigation will likely be needed when issues occur.
 
 This chapter will outline USE methods testing for CPU, RAM, Disk, and Network as well as examples of possible remedies. While there is no single silver bullet to reported performance issues (two identical reported problems may have vastly different root causes), this chapter will equip you to perform your own ad-hoc investigations on essential system resources.
 
 ## CPU
-The processing engines of electronics, commonly referred to as a "CPU", are everywhere - in watches, automobiles, and in 'the cloud'. "The cloud is just someone else's computer" is a realistic if not sarcastic adage, and your Droplets do use physical CPUs in a data center. Let's dig into USE testing for CPUs.
+The processing engines of electronics commonly referred to as a "CPU", are everywhere - in watches, automobiles, and in 'the cloud'. "The cloud is just someone else's computer" is a realistic if not sarcastic adage and your Droplets do use physical CPUs in a data center. Let's dig into USE testing for CPUs.
 
 ### Utilization
-To understand CPU Utilization, a few factors are important to understand. CPUs operate on sets of machine instructions, and generally spend their time processing or waiting. In virtualized environments, the physical CPU's time is divided between machines on the same hypervisor such that each machine gets some percentage of the CPU's time. Lastly, within Linux, a CPU's time is further measured with 'system' or 'user' being the "processing" states, and 'idle', 'iowait' or 'steal' being the "waiting" states.
+To understand CPU Utilization, a few factors are important. CPUs operate on sets of machine instructions, and generally spend their time processing or waiting. In virtualized environments, the physical CPU's time is divided between machines on the same hypervisor such that each machine gets some percentage of the CPU's time. Lastly, within Linux, a CPU's time is further measured with 'system' or 'user' being the "processing" states, and 'idle', 'iowait' or 'steal' being the "waiting" states.
 
 _vmstat_ is a tool available by default on most all Linux distributions. While vmstat is versatile, a simple invocation (`vmstat 1`) will allow you to quickly see how saturated a system's CPU resources are, by reporting common metrics every second. If you run this on your own system, press Ctrl + C to terminate vmstat. Let's look at a sample from a quiet system that is performing no active processing:
 
@@ -36,7 +36,7 @@ The columns we are concerned with are the `us`, `sy`, `id`, `wa`, and `st` colum
 In this case, the CPU is primarily spending most of its time in either `us` (user) or `sy` (system) processing. These values will differ depending on your workload, and by continually evaluating your CPU utilization across instances, before/after deployments, and over time, you will obtain a better grasp on what 'good' performance looks like on your system. The naive answer to abnormal CPU utilization would be to add more CPUs, with a better answer being to further drill down sources for the abnormal CPU utilization.
 
 ### Saturation
-CPU Saturation occurs whenever the number of threads waiting for CPU time exceeds available CPU cores. Using `vmstat 1`, this would be the `r` column at the very start of each line. Be cognizant of a 'gotchya' in recent Linux kernels, this counter sums both waiting **and** executing CPU threads; you must subtract the number of CPUs available to your virtual machine from the `r` counter, with any result greater than 0 indicating saturation. Compare our first Utilization example with r=0 to our second example with r=3. This system has 1 CPU, meaning that when r=3, we do have saturation.
+CPU Saturation occurs whenever the number of threads waiting for CPU time exceeds available CPU cores. Using `vmstat 1`, this would be the `r` column at the very start of each line. Be cognizant of a 'gotcha' in recent Linux kernels, this counter sums both waiting **and** executing CPU threads; you must subtract the number of CPUs available to your virtual machine from the `r` counter, with any result greater than 0 indicating saturation. Compare our first Utilization example with r=0 to our second example with r=3. This system has 1 CPU, meaning that when r=3, we do have saturation.
 
 Similar to Utilization, CPU Saturation will depend upon your workload, and larger metrics may not be abnormal depending on your workload. In cases of abnormal CPU saturation, it would be best to look at what processes are running to identify any that may be terminated, or for processes spawning excessive child threads.
 
@@ -65,7 +65,7 @@ The `-m` flag specifies to output data in megabytes. From this output, we can se
     Mem:            992          52          80         506         859         243
     Swap:             0           0           0
 
-You will notice that in this instance, 'free', 'shared', and buffered/cached memory utilization have increased, leaving the system with only 243MB of RAM available to new threads.
+You will notice that in this instance, 'free', 'shared', and buffered/cached memory utilization has increased, leaving the system with only 243MB of RAM available to new threads.
 
 Generally, a Linux system will work hard to prevent serious RAM issues caused by Utilization or Saturation, through a mechanism called _swapping_, which will be discussed in the Saturation section below. If RAM is under heavy utilization, the system may invoke its Out Of Memory (oom) killer, which will terminate processes such as database or web servers. The naive answer to this is to add more RAM and reboot, although determining the cause for elevated utilization is a better long-term approach (for example, there may be application memory leaks that are masked by just adding more RAM and rebooting).
 
@@ -77,7 +77,7 @@ When RAM is saturated, a system will generally try to _swap_, or temporarily sto
     Mem:          32149         785         521           0       30842       31060
     Swap:          1906          251        1655
 
-Similarly to CPU and RAM, swap being a sign of poor performance will depend on your workload. Generally however, swap is a sign that your workload has (or had) saturated your available RAM - rebooting may help to resolve any immediate situations causing the system to swap, and increasing the RAM available to your instance may help prevent future occurrences.
+Similarly to CPU and RAM, swap being a sign of poor performance will depend on your workload. Generally, however, swap is a sign that your workload has (or had) saturated your available RAM - rebooting may help to resolve any immediate situations causing the system to swap, and increasing the RAM available to your instance may help prevent future occurrences.
 
 ### Errors
 Similarly to CPU errors, RAM errors are difficult to detect and confirm within a virtual instance. RAM errors are one of two types: Correctable and Uncorrectable. The type of error that quickly gets attention is Uncorrectable - these types of errors cause software or entire system crashes. For virtual guests, Uncorrectable errors might manifest as kernel panics or mysterious reboots with no other cause. If you have a virtual instance that continually is kernel panicking, it is worthwhile to reach out to your host, who can check if there are RAM errors happening.
@@ -134,7 +134,7 @@ Saturation on a Disk occurs when the disk has to queue I/O. The amount of satura
 In this case, I/O was artificially generated using `dd` to write a large, empty file. This caused a considerable queue (73.09, 74.89, and 65.77). Keep in mind that some saturation is likely to happen in normal operation, though consistently large amounts of saturation indicate a disk bottleneck. Spreading your workload out across instances, or optimizing application I/O may help in these cases.
 
 ### Errors
-Errors with the physical disks backing a cloud instance are handled through the hosting provider. There is the chance of a filesystem being 'dirty' and needing a filesystem check however, which may be determined using tools such as `fsck` or `xfs_repair`.
+Errors with the physical disks backing a cloud instance are handled through the hosting provider. There is the chance of a filesystem being 'dirty' and needing a filesystem check, however, which may be determined using tools such as `fsck` or `xfs_repair`.
 
 ## Network
 In a virtualized environment, instances generally have both a public and private uplink, and USE testing is very helpful in this field; let's see it in action.
@@ -168,7 +168,7 @@ Utilization in terms of networking would be the bits in/out per second. There ar
 Utilization would be found in the `rxkB/s` and `txkB/s` columns. In a cloud environment it is difficult to determine what overly utilized may be; profiling your known-good systems or asking your host may be needed to determine what over-utilization looks like. Adding additional instances will generally help for over-utilization caused by an increase in legitimate traffic, with DDoS mitigation being an option in case over-utilization is happening due to malicious actors attacking your systems.
 
 ### Saturation
-In many computer systems, saturation generally happens when a queue is full. In a network context, there area both send and receive queues. When these queues are full, packets begin to be dropped which will result in a poorer end-user experience. In a hypothetical website, saturation on the receive queue may cause requests to take longer as initial connection attempts are dropped entirely or wait to be processed. You can have an at-glance view of saturation by using the `ifconfig` utility, in particular the `dropped` and `overruns` counters in `RX Packets` and `TX Packets`:
+In many computer systems, saturation generally happens when a queue is full. In a network context, there are both send and receive queues. When these queues are full, packets begin to be dropped which will result in a poorer end-user experience. In a hypothetical website, saturation on the receive queue may cause requests to take longer as initial connection attempts are dropped entirely or wait to be processed. You can have an at-glance view of saturation by using the `ifconfig` utility, in particular, the `dropped` and `overruns` counters in `RX Packets` and `TX Packets`:
 
     root@nav-ctrl:~# ifconfig
     (some output truncated)
@@ -176,7 +176,7 @@ In many computer systems, saturation generally happens when a queue is full. In 
               TX packets:40886 errors:0 dropped:0 overruns:0 carrier:0
               collisions:0 txqueuelen:1000
               RX bytes:8561295 (8.5 MB)  TX bytes:10484627 (10.4 MB)
-Drops or overruns are generally not good to experience at all. If these continually increment, it indicates an issue of your network being saturated. Spreading network traffic across multiple instances (load balancing) is a good response for legitimate traffic, whereas malicious traffic may be better served by using a DDoS mitigation service.
+Drops or overruns are generally not good to experience at all. If these continually increment, it indicates an issue of your network is saturated. Spreading network traffic across multiple instances (load balancing) is a good response for legitimate traffic, whereas malicious traffic may be better served by using a DDoS mitigation service.
 
 ### Errors
 Errors on a network interface occur generally when a cyclic redundancy check (CRC) fails, meaning that data was somehow erroneously changed or corrupted. When these happen, the data is usually attempted to be re-read, or a request for retransmission happens. Errors can be checked using `ifconfig` -- consider the `errors` and `dropped` counters same output from the Saturation section above:
@@ -199,7 +199,7 @@ Networking is a very important topic to understand. Many providers both physical
 Network concepts are two out of three of the guarantees, thus a solid understanding of how your instances perform in terms of networking is vital.
 
 #### MTR
-Incorporating My Traceroute (`mtr`) into network troubleshooting or performance testing is a topic large enough to demand its own section. MTRs combine the path visualization available from a regular traceroute with a continual measure of round-trip time (RTT) and other metrics that a regular ping provides. Many backbone routers may de-prioritize pings (ICMP) traffic, thus `mtr` has optional TCP and UDP modes. Because traffic can take vastly different paths between two hosts (_A_ and _B_) both forward (A -> B) and reverse (B -> A), the best way to test and demonstrate packet loss or latency is obtaining two sets of MTRs; one forward (e.g. from a user to your instance IP), and one reverse (e.g. your instance to your user's public IP). Here's an example using two Droplets:
+Incorporating My Traceroute (`mtr`) into network troubleshooting or performance testing is a topic large enough to demand its own section. MTRs combine the path visualization available from a regular traceroute with a continuous measure of round-trip time (RTT) and other metrics that a regular ping provides. Many backbone routers may de-prioritize pings (ICMP) traffic, thus `mtr` has optional TCP and UDP modes. Because traffic can take vastly different paths between two hosts (_A_ and _B_) both forward (A -> B) and reverse (B -> A), the best way to test and demonstrate packet loss or latency is obtaining two sets of MTRs; one forward (e.g. from a user to your instance IP), and one reverse (e.g. your instance to your user's public IP). Here's an example using two Droplets:
 
     (forward, A->B)
     root@nav-ctrl:~# mtr -nrc 100 198.199.84.58
@@ -220,7 +220,7 @@ Incorporating My Traceroute (`mtr`) into network troubleshooting or performance 
       4.|-- 138.197.248.39             0.0%   100    1.0   1.3   0.9  17.5   1.7
       5.|-- 142.93.190.77              0.0%   100    0.9   0.9   0.8   1.7   0.0
 
-The `Loss%` column provides the quickest at-glance information for how a particular network path looks. If packet loss starts at a certain hop (say, hop 3) and persists through to the destination, it's likely that particular hop is experiencing issues. If this loss is outbound from your system (B->A), it's worth your while to share that with your hosting provider. If the loss begins in your user's network (A->B), it would be best to have your user talk with their IT or ISP. Loss on a single hop generally isn't cause for concern, though loss at the very last hop (e.g. your system) may indicate a real problem that should be investigated further, using the USE methods outlined in this chapter.
+The `Loss%` column provides the quickest at-glance information for how a particular network path looks. If packet loss starts at a certain hop (say, hop 3) and persists through to the destination, it's likely that particular hop is experiencing issues. If this loss is outbound from your system (B->A), it's worth your while to share that with your hosting provider. If the loss begins in your user's network (A->B), it would be best to have your user talk with their IT or ISP. Loss on a single hop generally isn't a cause for concern, though the loss at the very last hop (e.g. your system) may indicate a real problem that should be investigated further, using the USE methods outlined in this chapter.
 
 #### CDNs
 Content Delivery Networks (CDNs) help for many web use cases. Incorporating a CDN into your overall application where appropriate will help avoid many common user problems and reduce potential USE performance pitfalls discussed in this chapter:
@@ -230,4 +230,4 @@ Content Delivery Networks (CDNs) help for many web use cases. Incorporating a CD
 - Time and cost savings (less administration needed and less virtual instances needed)
 
 # What's Next?
-We covered a lot of topics in this section that explain the fundamental aspects of data that can help measure and troubleshoot performance of your infrastructure. There are a lot of components and their attributes and how they interact with each other is important when diagnosing performance related issues. In some ways, there is not another book or resource that we can recommend that could teach you everything to know on these topics. Years and decades of hands-on experience help with seeing the odd and unique ways systems will fail. 
+We covered a lot of topics in this section that explain the fundamental aspects of data that can help measure and troubleshoot the performance of your infrastructure. There are a lot of components and their attributes and how they interact with each other is important when diagnosing performance related issues. In some ways, there is not another book or resource that we can recommend that could teach you everything to know on these topics. Years and decades of hands-on experience help with seeing the odd and unique ways systems will fail. 
