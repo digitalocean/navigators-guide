@@ -1,5 +1,4 @@
 # Performance Testing
-
 Performance testing is a term used to describe the tools, methodology, and activity used in answering the question, "Why is _something_ not performant?". In the context of this book for example, you may see or receive reports of your Wordpress site being "slow". Recall that in Chapter 10, the USE method was outlined which allows you to transform a vague question -- "why is my site slow?" -- into a set of well-defined, actionable tests to perform against rudimentary system resources such as CPU, RAM, Disk, and Network. Many times, the USE methodology will uncover which areas of the system are responsible for poor performance.
 
 As your project or team evolves and roles such as Operations and Observability are created and filled, you will likely set up logging, monitoring, and alerting around the USE and RED methods for these primitive system resources. Improvements in your Operations team will result in process maps for your team to follow in case of issues raised through this alerting. Until your project reaches that scale however, ad-hoc investigation will likely be needed when issues occur.
@@ -7,7 +6,7 @@ As your project or team evolves and roles such as Operations and Observability a
 This chapter will outline USE methods testing for CPU, RAM, Disk, and Network as well as examples of possible remedies. While there is no single silver bullet to reported performance issues (two identical reported problems may have vastly different root causes), this chapter will equip you to perform your own ad-hoc investigations on essential system resources.
 
 ## CPU
-CPUs are everywhere - in watches, automobiles, and in 'the cloud'. "The cloud is just someone else's computer" is a realistic if not sarcastic adage, and your Droplets do use physical CPUs in a datacentre. Let's dig into USE testing for CPUs.
+The processing engines of electronics, commonly referred to as a "CPU", are everywhere - in watches, automobiles, and in 'the cloud'. "The cloud is just someone else's computer" is a realistic if not sarcastic adage, and your Droplets do use physical CPUs in a data center. Let's dig into USE testing for CPUs.
 
 ### Utilization
 To understand CPU Utilization, a few factors are important to understand. CPUs operate on sets of machine instructions, and generally spend their time processing or waiting. In virtualized environments, the physical CPU's time is divided between machines on the same hypervisor such that each machine gets some percentage of the CPU's time. Lastly, within Linux, a CPU's time is further measured with 'system' or 'user' being the "processing" states, and 'idle', 'iowait' or 'steal' being the "waiting" states.
@@ -45,7 +44,7 @@ Similar to Utilization, CPU Saturation will depend upon your workload, and large
 In many cloud environments, CPU errors aren't directly observable or quantifiable by end users, and what may manifest as another performance problem could be due to CPU errors which need to be diagnosed by the hosting provider.
 
 ### Addendum
-**Top** is a very popular tool in the Linux space. Top combines much of the same data that `vmstat`, `ps`, and other Linux utilities can provide. While this is a very useful utility, it is very verbose and outside of the simple tools we will use in this chapter. We do suggest using top alongside other tools or as part of a testing methodology, however!
+**Top** is a very popular tool in the Linux space. Top combines much of the same data that `vmstat`, `ps`, and other Linux utilities can provide. While this is a very useful utility, it is very verbose and outside of the simple tools we will use in this chapter. We do suggest using top alongside other tools or as part of a testing methodology.
 
 
 ## RAM
@@ -91,10 +90,10 @@ With Disks, Utilization testing may be performed using `iostat` (which may be in
 
     root@nav-ctrl:~# iostat -xz 1
     Linux 4.4.0-134-generic (nav-ctrl) 	09/06/2018 	_x86_64_	(1 CPU)
-    
+
     avg-cpu:  %user   %nice %system %iowait  %steal   %idle
                2.01    0.00   12.02    0.10    0.00   85.86
-    
+
     Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
     loop0             0.00     0.00    0.00    0.00     0.00     0.00     3.20     0.00    4.80    4.80    0.00   4.80   0.00
     vda               0.00     0.06    0.43    0.11     6.30    13.55    72.96     0.01   17.30    0.66   83.14   3.67   0.20
@@ -106,29 +105,29 @@ Saturation on a Disk occurs when the disk has to queue I/O. The amount of satura
 
     root@nav-ctrl:~# iostat -xz 1
     Linux 4.4.0-134-generic (nav-ctrl) 	09/06/2018 	_x86_64_	(1 CPU)
-    
+
     avg-cpu:  %user   %nice %system %iowait  %steal   %idle
                1.98    0.00   11.84    0.10    0.00   86.07
-    
+
     Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
     loop0             0.00     0.00    0.00    0.00     0.00     0.00     3.20     0.00    4.80    4.80    0.00   4.80   0.00
     vda               0.00     0.07    0.43    0.14     6.29    36.16   149.58     0.01   20.43    0.68   82.53   3.56   0.20
-    
+
     avg-cpu:  %user   %nice %system %iowait  %steal   %idle
                8.79    0.00   53.85   37.36    0.00    0.00
-    
+
     Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
     vda               0.00     1.10    0.00  210.99     0.00 216052.75  2048.00    73.09  221.31    0.00  221.31   5.02 105.93
-    
+
     avg-cpu:  %user   %nice %system %iowait  %steal   %idle
                5.49    0.00   52.75   41.76    0.00    0.00
-    
+
     Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
     vda               0.00    12.09    5.49  304.40   105.49 301560.44  1946.92    74.89  281.56    0.00  286.64   3.32 102.86
-    
+
     avg-cpu:  %user   %nice %system %iowait  %steal   %idle
                7.69    0.00   53.85   38.46    0.00    0.00
-    
+
     Device:         rrqm/s   wrqm/s     r/s     w/s    rkB/s    wkB/s avgrq-sz avgqu-sz   await r_await w_await  svctm  %util
     vda               0.00    16.48    4.40  307.69    17.58 265582.42  1702.08    65.77  219.20    0.00  222.33   3.25 101.54
 
@@ -145,22 +144,22 @@ Utilization in terms of networking would be the bits in/out per second. There ar
 
     root@nav-ctrl:~# sar -n DEV 1 3
     Linux 4.4.0-134-generic (nav-ctrl) 	09/06/2018 	_x86_64_	(1 CPU)
-    
+
     04:14:30 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
     04:14:31 PM        lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
     04:14:31 PM      eth1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
     04:14:31 PM      eth0      3.00      1.00      0.17      0.24      0.00      0.00      0.00      0.00
-    
+
     04:14:31 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
     04:14:32 PM        lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
     04:14:32 PM      eth1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
     04:14:32 PM      eth0      2.97      5.94      0.19      0.90      0.00      0.00      0.00      0.00
-    
+
     04:14:32 PM     IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
     04:14:33 PM        lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
     04:14:33 PM      eth1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
     04:14:33 PM      eth0      3.03      6.06      0.20      1.05      0.00      0.00      0.00      0.00
-    
+
     Average:        IFACE   rxpck/s   txpck/s    rxkB/s    txkB/s   rxcmp/s   txcmp/s  rxmcst/s   %ifutil
     Average:           lo      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
     Average:         eth1      0.00      0.00      0.00      0.00      0.00      0.00      0.00      0.00
@@ -230,4 +229,5 @@ Content Delivery Networks (CDNs) help for many web use cases. Incorporating a CD
 - Data is served from a server that is usually geographically closer to your end users (less 'the site is slow' scenarios)
 - Time and cost savings (less administration needed and less virtual instances needed)
 
-<!-- TODO: service (HTTP) performance testing? -->
+# What's Next?
+We covered a lot of topics in this section that explain the fundamental aspects of data that can help measure and troubleshoot performance of your infrastructure. There are a lot of components and their attributes and how they interact with each other is important when diagnosing performance related issues. In some ways, there is not another book or resource that we can recommend that could teach you everything to know on these topics. Years and decades of hands-on experience help with seeing the odd and unique ways systems will fail. 
