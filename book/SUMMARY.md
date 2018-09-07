@@ -22,4 +22,4 @@
 * [Part 5 - Securing Your Infrastructure](05-secure/README.md)
   * [Chapter 13 - Security Best Practices](05-secure/ch13-security.md)
 * [Conclusion: What's Next?](conclusion.md)
-
+* [Known Issues](knownissues.md)

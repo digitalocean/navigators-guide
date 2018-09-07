@@ -1,9 +1,13 @@
 # Navigator's Guide
 This repository contains the book: _The Navigator's Guide to DigitalOcean_ along with the code examples used throughout the book.
 
-## Project State 2018-07-09
-* Chapters 1 through 5 are in a final state
-* Existing issues will be prioritized during development
+![Navigator's Guide Splash Image](https://raw.githubusercontent.com/digitalocean/navigators-guide/master/navguide-splash.jpg)
+
+## Project State
+* Chapters 1-5, 7-8, and 13 are in a launch state
+* Chapters 6, 9, 10, 11, and 12 are in a development state
+* The chapters in development cover CI/CD workflows and monitoring infrastructure
+* A PDF of a [BETA v0.5.0](https://github.com/digitalocean/navigators-guide/releases/tag/v0.5.0) is posted
 * PDF and EPUB versions will be available once remaining chapters are finalized
 
 ## Goals
