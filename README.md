@@ -32,5 +32,5 @@ This repository contains the book: _The Navigator's Guide to DigitalOcean_ along
 * [@hazel-nut](https://github.com/hazel-nut)  (Editor)
 
 ## Licenses
-* _The Navigator's Guide to DigitalOcean_ is is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
+* _The Navigator's Guide to DigitalOcean_ is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License
 * The example code found in this repository is licensed under the GPLv3 License
