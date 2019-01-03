@@ -12,6 +12,7 @@ region = "sfo2"
 image_slug = "debian-9-x64"
 
 /* SSH key IDs. Single id -> "nnnnnnn" or multiple keys -> "nnnnnnn,nnnnnn" */
+/* doctl compute ssh-key list */
 /* The doctl utility or the DigitalOcean API can also output SSH Key IDs */
 /* https://github.com/digitalocean/doctl */
 keys = ""

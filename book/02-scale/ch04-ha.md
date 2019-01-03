@@ -156,7 +156,7 @@ On the controller Droplet, move to [the directory for this chapter in our reposi
 cd /root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer
 ```
 
-In this directory, there is [a `terraform.tfvars.sample` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
+In this directory, there is a [`terraform.tfvars.sample`] file (https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
 
 ```
 do_token = ""
@@ -207,7 +207,7 @@ This command places the roles in the `roles` directory.
 ansible-galaxy install -r requirements.yml
 ```
 
-There are a few more variables we need to set for this role.We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer/group_vars/load_balancer/* directory. If you view the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a secondary file called **vault.yml** and initialize the `vault_` variables.
+There are a few more variables we need to set for this role. We're going to head back to the */root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer/group_vars/load_balancer/* directory. If you view the existing **vars.yml** file, you'll see `do_token` and `ha_auth_key` are being assigned the values of `vault_do_token` and `vault_ha_auth_key`, respectively. We're going to create a secondary file called **vault.yml** and initialize the `vault_` variables.
 
 You'll need two things before setting the variables. A DigitalOcean API token which will be used to handle floating IP assignment for failover scenarios, and a SHA-1 hash which will be used to authenticate cluster members. We have a tool to help create this for you.
 
@@ -240,7 +240,7 @@ ansible-vault edit vault.yml
 
 Ansible will require the decryption password each time it runs our playbook, which is less than ideal for automation. We can store the password somewhere else on our system that allows us to secure it by adding permission controls. To create a file to store the password, you can execute `echo 'password' > ~/.vaultpass.txt` or use a text editor to manually create the file. You want to confirm that non-privileged users do not have any access to this file. Uncomment `vault_password_file` line in the  **/root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer/ansible.cfg** configuration file. This will stop Ansible from asking you for your vault password each time you run the playbooks. You can also alter the path to the file and the filename you want to use to store your password, but please make sure to keep it out of your git repository. You do not want to accidentally commit and push any passwords or secret tokens.
 
-Now we're ready to execute the main Ansible playbook. Head back on over to the root of the repository and execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml`. Again, you'll start seeing a stream of text on screen displaying what role is currently running, what task the role is currently on, and whether or not a change or error has been detected. At the very end of the play you'll see a play recap with all of your totals per host that looks like this:
+Now we're ready to execute the main Ansible playbook. Head back on over to */root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer/* and execute `ansible-playbook -i /usr/local/bin/terraform-inventory site.yml`. Again, you'll start seeing a stream of text on screen displaying what role is currently running, what task the role is currently on, and whether or not a change or error has been detected. At the very end of the play you'll see a play recap with all of your totals per host that looks like this:
 
 ```
 PLAY RECAP *********************************************************************
