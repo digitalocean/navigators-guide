@@ -32,4 +32,4 @@ As a business customer, the Customer Success team is your dedicated resource for
 
 Our whole team is here to support you: Customer Success Managers are your point of contact for strategic planning and any account concerns, and Customer Success Engineers provide 24x7x365 support through our support system and aim to respond to technical issues within 20 minutes.
 
-We, the Solutions Engineers, help with strategic technical planning discussions, create code examples, and write proof of concept documentation. And sometimes write books.
+We, the Solutions Engineers, help with strategic technical planning discussions, create code examples, write proof of concept documentation and sometimes write books.
