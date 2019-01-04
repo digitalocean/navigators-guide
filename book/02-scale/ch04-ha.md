@@ -156,7 +156,7 @@ On the controller Droplet, move to [the directory for this chapter in our reposi
 cd /root/navigators-guide/example-code/02-scale/ch04/haproxy_loadbalancer
 ```
 
-In this directory, there is a [`terraform.tfvars.sample`] file (https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
+In this directory, there is a [`terraform.tfvars.sample`] (https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/terraform.tfvars.sample) file. This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
 
 ```
 do_token = ""
@@ -191,7 +191,7 @@ terraform apply
 
 You'll need to confirm the execution by entering `yes`, and you'll be notified when the apply is complete.
 
-If you run `terraform show` now, you can see the resources you've deployed. Each set of resources (i.e. Droplets) is placed in a group name according to the resource name in the Terraform configuration file. In this example, [the `haproxy.tf` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/haproxy.tf)'s resource declaration determines these groups.
+If you run `terraform show` now, you can see the resources you've deployed. Each set of resources (i.e. Droplets) is placed in a group name according to the resource name in the Terraform configuration file. In this example, the [`haproxy.tf`](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/haproxy.tf) file's resource declaration determines these groups.
 
 The three groups are `load_balancer` for HAProxy, `web_node` for Nginx, and `fip` for the Floating IP. You can take a look with `terraform-inventory -inventory` to get an Ansible invintory in INI format, or output JSON with the `-list` option.
 
@@ -199,7 +199,7 @@ At this point, the Droplets you need are created and running, but they still nee
 
 ### Configuring the Droplets with Ansible
 
-We are going to automate the configuration of the Droplets using Ansible. We have a base Ansible playbook that has is preconfigured to download a few Ansible roles. You will find these Ansible roles listed in [the `requirements.yml` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/requirements.yml). You don't need to install them one by one; you can download the required roles with Ansible Galaxy.
+We are going to automate the configuration of the Droplets using Ansible. We have a base Ansible playbook that has is preconfigured to download a few Ansible roles. You will find these Ansible roles listed in the [`requirements.yml`](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/haproxy_loadbalancer/requirements.yml) file. You don't need to install them one by one; you can download the required roles with Ansible Galaxy.
 
 This command places the roles in the `roles` directory.
 
