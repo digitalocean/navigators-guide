@@ -104,7 +104,7 @@ runcmd:
   - [curl, -L, -o, /tmp/terraform-inventory.zip, "https://github.com/adammck/terraform-inventory/releases/download/v0.7-pre/terraform-inventory_v0.7-pre_linux_amd64.zip"]
   - [unzip, -d, /usr/local/bin/, /tmp/terraform-inventory.zip]
   - [pip, install, -U, pip, ansible]
-  - [git, clone, "https://github.com/digitalocean/navigators-guide.git"]
+  - [git, clone, "https://github.com/digitalocean/navigators-guide.git", /root/navigators-guide/]
 ```
 
 From here, click **Create**. The Droplet itself will be up and running quickly, but the commands in its user data will take a little time to finish running. You can [log into the Droplet with SSH](https://www.digitalocean.com/docs/droplets/how-to/connect-with-ssh/) and look at `/var/log/cloud-init-output.log` to check its status.

@@ -36,7 +36,7 @@ On the controller Droplet, move to [the directory for this chapter in our reposi
 cd /root/navigators-guide/example-code/02-scale/ch04/digitalocean_loadbalancer
 ```
 
-In this directory, there is [a `terraform.tfvars.sample` file](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/digitalocean_loadbalancer/terraform.tfvars.sample). This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
+In this directory, there is a [`terraform.tfvars.sample`](https://github.com/digitalocean/navigators-guide/blob/master/example-code/02-scale/ch04/digitalocean_loadbalancer/terraform.tfvars.sample) file. This sample file includes comments and notes to help you find the information you need. Without the comments, the file looks like this:
 
 ```
 do_token = ""
