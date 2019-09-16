@@ -102,7 +102,7 @@ Welcome to DO-LB-backend-02!
 Welcome to DO-LB-backend-03!
 ```
 
-Try powering off one of the backend Droplets. With the Droplet offline, you should still see test returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation autoamtically once it passes the Load Balancer's configured checks.
+Try powering off one of the backend Droplets. With the Droplet offline, you should still see test returning valid responses from your other Load Balancer's backends. You'll notice the Droplet you turned off no longer responding. If you power it back on, you'll see it get added back into rotation automatically once it passes the Load Balancer's configured checks.
 
 _(If you need help stopping the running test, you can exit the loop with a `CTRL-C` keyboard command)_
 
